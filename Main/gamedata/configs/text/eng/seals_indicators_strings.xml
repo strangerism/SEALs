@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="windows-1251"?>
+
+<string_table>
+	<string id ="ui_mcm_dii_gamma_seal_show">
+		<text>GAMMA seal</text>
+	</string>
+	<string id ="ui_mcm_dii_blackmarket_seal_show">
+		<text>BlackMarket seal</text>
+	</string>
+	<string id ="ui_mcm_dii_lootbox_seal_show">
+		<text>LootBox seal</text>
+	</string>
+	<string id ="ui_mcm_dii_3dss_seal_show">
+		<text>3DSS seal</text>
+	</string>
+</string_table>    
