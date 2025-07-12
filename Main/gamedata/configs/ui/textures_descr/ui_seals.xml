@@ -41,4 +41,19 @@
 		<texture id = "ui_seals_icon_weightadd"		x="56"	y="56"	width="10"	height="13" />
 		<texture id = "ui_seals_icon_sleepiness"		x="67"	y="56"	width="13"	height="13" />
 	</file>
+	<file name = "ui\gamma_seal">
+		<texture id = "ui_seals_icon_gamma" 				x="0"	y="0"	width="25"	height="25" />	
+	</file>	
+	<file name = "ui\3dss_sealtxt">
+		<texture id = "ui_seals_icon_3dsstxt" 				x="0"	y="0"	width="25"	height="25" />	
+	</file>		
+	<file name = "ui\3dss_seal">
+		<texture id = "ui_seals_icon_3dss" 				x="0"	y="0"	width="60"	height="23" />	
+	</file>	
+	<file name = "ui\bm_nato_seal">
+		<texture id = "ui_seals_icon_bm_nato" 				x="0"	y="0"	width="25"	height="25" />	
+	</file>	
+	<file name = "ui\bm_wp_seal">
+		<texture id = "ui_seals_icon_bm_wp" 				x="0"	y="0"	width="25"	height="25" />	
+	</file>						
 </w>

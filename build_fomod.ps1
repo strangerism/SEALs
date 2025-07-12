@@ -11,14 +11,14 @@ function CreateBuildFolders {
 function BuildMod {
 
     $target = "build/SEALs"
-    Copy-Item -Recurse -Force -Path ".\Main\gamedata" -Destination $target -Exclude .bak
+    Copy-Item -Recurse -Force -Path ".\Main\gamedata",".\Main\generators" -Destination $target -Exclude .bak
 }
 
 CreateBuildFolders
 BuildMod
 
 $compress = @{
-    Path = "build/SEALs/gamedata" 
+    Path = "build/SEALs/*" 
     CompressionLevel = "Fastest"
     DestinationPath = "release/SEALs.zip"
 }

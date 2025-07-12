@@ -1,0 +1,55 @@
+
+local og = utils_ui.UICellItem.Add_Upgrade
+function utils_ui.UICellItem:Add_Upgrade(xml, obj, sec)
+
+    og(self, xml, obj, sec)
+
+	-- Hide upgrade indicator
+	if self.upgr then
+		-- printf("* hide upgrd indicator %s", sec)
+		self.upgr:Show(false)
+	end
+	
+	-- On full stacking, hide upgrade indicator
+	if self.container.stack_all and (self.childs and is_not_empty(self.childs)) then
+		-- printf("* hide upgrd - staking %s", sec)
+		return
+	end
+	
+	-- Bar is applied only to upgraded items
+	if (not utils_item.has_upgrades(obj, sec)) then
+		-- printf("* hide upgrd - has not upgrade %s", sec)
+		return
+	end
+	
+	-- Init if it doesn't exist
+	if (not self.upgr) then
+		if (not xml) then 
+			xml = self:GetXML()
+		end
+		self.upgr = xml:InitStatic(self.path .. ":cell:upgrade", self.ico)
+	end
+
+	local ico = self.ico
+	local xx = self.upgr:GetWndPos().x
+	local yy = self.upgr:GetWndPos().y
+
+	local rot = ico:GetHeading() > 0
+
+	if rot then
+		
+		local x_offset = -4 * 1024/device().width + (self.cell:GetWidth() - self.upgr:GetWidth()) --[px]
+		local y_offset = 4 * 768/device().height --[px]
+		xx = x_offset - (self.cell:GetWidth() - ico:GetWidth())/2
+		yy = y_offset - (self.cell:GetHeight() - ico:GetHeight())/2
+
+		self.upgr:SetWndPos(vector2():set( xx , yy ))
+	else
+		self.upgr:SetWndPos(vector2():set( xx + self.cell:GetWidth() - 25 * 1024/device().width , yy ))
+	end
+
+	self.upgr:Show(true)
+	
+	self:Print(nil, "Show upgrade indicator")
+	
+end
