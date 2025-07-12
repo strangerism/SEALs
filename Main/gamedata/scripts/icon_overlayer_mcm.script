@@ -324,6 +324,8 @@ function parse_groups()
             layers[group][layer] = {
                 ["texture"]  = layers_ini:r_string_ex(layer, "texture") or "ui_buffdebuff_icon_scope",
                 ["anchor"]   = anchor,
+                ["align"]   = layers_ini:r_string_ex(layer, "align") or 1,
+                ["width"]   = layers_ini:r_float_ex(layer, "width") or 25,
                 ["margin_horz"] = layers_ini:r_float_ex(layer, "margin_horz") or 1,
                 ["margin_vert"] = layers_ini:r_float_ex(layer, "margin_vert") or 1,
                 ["settings_path"] = string_format("%s/%s/%s", mcm_id, op.gr[3].id, tab) .. "/%s_" .. setting
@@ -483,16 +485,17 @@ layer_functors.custom_layers = function(sec, cell, xml)
     
     local custom_layers = {}
     local scale = get_config(main_settings_path, "scale", 1.1)
-    
+    print_dbg("- MAXXXX custom layer %s", sec)
     for i = 1, #layer_info do
+        print_dbg("layer %s", i)
         local group = layers[layer_info[i]]
-
         for layer, data in pairs(group) do
             repeat
                 if not get_config(data.settings_path, "show", true) then
                     do break end -- continue
                 end
-
+                print_dbg("- FOUND")
+                print_dbg("data.texture %s", data.texture)
                 local rect = get_texture_rect(data.texture, cell, xml)
                 local h = (rect.y2 - rect.y1) * scale
                 local w = (rect.x2 - rect.x1) * scale
@@ -504,7 +507,11 @@ layer_functors.custom_layers = function(sec, cell, xml)
                     ["w"] = w,
                     ["texture"] = data.texture
                 }
-
+                if data.align == "relative" then
+                    layer["x"] = layer["x"] + data.width * (i-1) + data.margin_horz * (i-1)
+                end
+                print_dbg(" layer.x %s", layer["x"])
+                print_dbg(" layer.y %s", layer["y"])
                 custom_layers[#custom_layers + 1] = layer
             until true
         end
