@@ -53,3 +53,5 @@ function utils_ui.UICellItem:Add_Upgrade(xml, obj, sec)
 	self:Print(nil, "Show upgrade indicator")
 	
 end
+
+disable_pistols = true

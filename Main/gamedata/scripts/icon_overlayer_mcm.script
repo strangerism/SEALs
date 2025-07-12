@@ -494,6 +494,10 @@ layer_functors.custom_layers = function(sec, cell, xml)
                 if not get_config(data.settings_path, "show", true) then
                     do break end -- continue
                 end
+                local kind = SYS_GetParam(0,sec,"kind")
+                if kind == "w_pistol" and seals.disable_pistols then
+                    return
+                end
                 print_dbg("- FOUND")
                 print_dbg("data.texture %s", data.texture)
                 local rect = get_texture_rect(data.texture, cell, xml)
