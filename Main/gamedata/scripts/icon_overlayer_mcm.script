@@ -546,7 +546,7 @@ layer_functors.prop_layers = function(sec, cell, xml)
     return prop_layers
 end
 
-function add_texture_layer(self, ele, base, tbl)
+function add_texture_layer(self, ele, base, tbl, sec)
     local ratio = utils_xml.screen_ratio()
     local grid_size = self.grid_size
     local x = tbl.x or 0
@@ -564,7 +564,17 @@ function add_texture_layer(self, ele, base, tbl)
     local w_off = (w_s/2)
     local h_off = (h_s/2)
     
-    if rot then
+
+    local kind = SYS_GetParam(0,sec,"kind")
+    local force_rot = false
+    local force_factor = 1
+    if kind == "w_pistol" then
+        force_rot = true
+        force_factor = 2 
+    end
+    
+    if rot or force_rot then
+        scale = scale / force_factor
         -- despite rotation, movement for x and y stays normal! 
         -- Move start pos to match the one for rotated base icon
         local w_b, h_b = base:GetWidth(), base:GetHeight()
@@ -582,7 +592,8 @@ function add_texture_layer(self, ele, base, tbl)
     
     ele:InitTexture( tbl.texture )
     ele:SetStretchTexture(true)
-    ele:SetWndPos(vector2():set( x_s + w_off , y_s + h_off ))
+
+    ele:SetWndPos(vector2():set( (x_s + w_off) / force_factor , (y_s + h_off) / force_factor ))
     ele:SetWndSize(vector2():set( w_s , h_s ))
     ele:Show(true)
 end
@@ -625,7 +636,7 @@ utils_ui.UICellItem.Add_Layers = function(self, xml, obj, sec, clsid)
                 self.property_layer[i] = xml:InitStatic(self.path .. ":" .. self.cx .. ":pic", self.ico)
             end
 
-            add_texture_layer(self, self.property_layer[i], self.ico, prop_layers[i])
+            add_texture_layer(self, self.property_layer[i], self.ico, prop_layers[i], sec)
         end
     end
 
