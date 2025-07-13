@@ -53,7 +53,19 @@
 	<file name = "ui\bm_nato_seal">
 		<texture id = "ui_seals_icon_bm_nato" 				x="0"	y="0"	width="25"	height="25" />	
 	</file>	
-	<file name = "ui\bm_wp_seal">
-		<texture id = "ui_seals_icon_bm_wp" 				x="0"	y="0"	width="25"	height="25" />	
-	</file>						
+	<file name = "ui\bm_wp_seal_tip">
+		<texture id = "ui_seals_icon_bm_wp_tip" 				x="0"	y="0"	width="50"	height="50" />	
+	</file>	
+	<file name = "ui\gamma_seal_tip">
+		<texture id = "ui_seals_icon_gamma_tip" 				x="0"	y="0"	width="50"	height="50" />	
+	</file>	
+	<file name = "ui\3dss_sealtxt_tip">
+		<texture id = "ui_seals_icon_3dsstxt_tip" 				x="0"	y="0"	width="50"	height="50" />	
+	</file>		
+	<file name = "ui\bm_nato_seal_tip">
+		<texture id = "ui_seals_icon_bm_nato_tip" 				x="0"	y="0"	width="50"	height="50" />	
+	</file>	
+	<file name = "ui\bm_wp_seal_tip">
+		<texture id = "ui_seals_icon_bm_wp_tip" 				x="0"	y="0"	width="50"	height="50" />	
+	</file>							
 </w>

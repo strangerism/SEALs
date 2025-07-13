@@ -1,8 +1,10 @@
+disable_pistols = false
 
-local og = utils_ui.UICellItem.Add_Upgrade
+
+local og_Add_Upgrade = utils_ui.UICellItem.Add_Upgrade
 function utils_ui.UICellItem:Add_Upgrade(xml, obj, sec)
 
-    og(self, xml, obj, sec)
+    og_Add_Upgrade(self, xml, obj, sec)
 
 	-- Hide upgrade indicator
 	if self.upgr then
@@ -54,4 +56,52 @@ function utils_ui.UICellItem:Add_Upgrade(xml, obj, sec)
 	
 end
 
-disable_pistols = true
+-- local og_UICellItem_InitControls = utils_ui.UICellItem.InitControls
+-- function utils_ui.UIInfoItem:InitControls()
+-- 	og_UICellItem_InitControls(self)
+
+-- end
+
+local XMLP = CScriptXmlInit()
+XMLP:ParseFile("utils.xml")
+local og_UIInfoItem_Update = utils_ui.UIInfoItem.Update
+function utils_ui.UIInfoItem:Update(obj, sec, flags)
+	og_UIInfoItem_Update(self, obj, sec, flags)
+	printf("! Update now")
+	-- destroy icons first
+	if self.seals then
+		printf("* -- destroy icons first")
+		for i = 1, #self.seals do
+			printf("-- Creating Seal id %s name %s", i, self.seals[i].cap:GetText())
+			self.seals[i].icon:Show(false)
+			self.seals[i].icon = nil
+			self.seals[i].cap:Show(false)
+			self.seals[i].cap = nil
+			self.seals[i].base:Show(false)
+			self.seals[i].base = nil
+		end
+	end
+	---
+
+	self.seals = {}
+
+	local seals = icon_overlayer_mcm.get_seals(sec)
+	printf("* -- create new icons")
+	local margin = 0
+	for i = 1, #seals do
+		printf("-- Creating Seal id %s name %s", i, seals[i].name)
+		self.seals[i]        = {}
+		self.seals[i].base = XMLP:InitStatic("item_info:seal", self.dialog)
+		self.seals[i].icon  = XMLP:InitStatic("item_info:seal:icon", self.seals[i].base)
+		self.seals[i].icon:InitTexture(seals[i].texture .. "_tip")
+		self.seals[i].cap    = XMLP:InitTextWnd("item_info:seal:cap", self.seals[i].base)
+		self.seals[i].cap:SetText(strformat("%s", seals[i].text))
+		self.seals[i].base:SetWndPos(vector2():set( (self.dialog:GetWidth() - self.seals[i].icon:GetWidth() - margin) - 100 * 1024/device().width, self.seals[i].base:GetWndPos().y - 15 * 768/device().height))
+		-- self.seals[i].base:SetWndPos(vector2():set( self.seals[i].base:GetWndPos().x + margin, self.seals[i].base:GetWndPos().y ))
+		self.seals[i].icon:Show(true)
+		self.seals[i].icon:IsAutoDelete(true)
+		margin = margin + self.seals[i].icon:GetWidth() + 35 * 1024/device().width
+	end
+	
+end
+

@@ -323,6 +323,7 @@ function parse_groups()
 
             layers[group][layer] = {
                 ["texture"]  = layers_ini:r_string_ex(layer, "texture") or "ui_buffdebuff_icon_scope",
+                ["text"]   = layers_ini:r_string_ex(layer, "text") or "Seal",
                 ["anchor"]   = anchor,
                 ["align"]   = layers_ini:r_string_ex(layer, "align") or 1,
                 ["width"]   = layers_ini:r_float_ex(layer, "width") or 25,
@@ -682,4 +683,39 @@ end
 
 function is_upgrade_kit(sec)
     return (SYS_GetParam(0, sec, "kind", "na") == "i_upgrade")
+end
+
+function get_seals(sec)
+    local layer_info = groups[sec]
+    if not layer_info then return {} end
+    local seals = {}
+    -- local scale = get_config(main_settings_path, "scale", 1.1)
+    print_dbg("- MAXXXX custom layer %s", sec)
+    for i = 1, #layer_info do
+        print_dbg("layer %s", i)
+        local group = layers[layer_info[i]]
+        for layer, data in pairs(group) do
+            repeat
+                if not get_config(data.settings_path, "show", true) then
+                    do break end -- continue
+                end
+                -- local kind = SYS_GetParam(0,sec,"kind")
+                -- if kind == "w_pistol" and seals.disable_pistols then
+                --     return
+                -- end
+                print_dbg("- FOUND")
+                print_dbg("data.texture %s", data.texture)
+                print_dbg("data.text %s", data.text)
+                local seal = {
+                    ["name"] = layer,
+                    ["text"] = data.text,
+                    ["texture"] = data.texture,
+                }
+
+                seals[#seals + 1] = seal
+            until true
+        end
+    end
+
+    return seals
 end
