@@ -76,5 +76,13 @@
 	<!-- Retrogue -->	
 	<file name = "ui\rwap_seal">
 		<texture id = "ui_seals_icon_rwap" 				x="0"	y="0"	width="200"	height="200" />	
-	</file>					
+	</file>	
+	<!-- Kalashnikov -->	
+	<file name = "ui\kalash_seal">
+		<texture id = "ui_seals_icon_kalash" 				x="0"	y="0"	width="200"	height="231" />	
+	</file>
+	<!-- Sig Sauer -->	
+	<file name = "ui\sig_seal">
+		<texture id = "ui_seals_icon_sig" 				x="0"	y="0"	width="197"	height="201" />	
+	</file>						
 </w>

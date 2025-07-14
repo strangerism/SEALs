@@ -27,5 +27,11 @@
 	</string>
 	<string id ="ui_seals_rwap">
 		<text>Retrogue</text>
+	</string>	
+	<string id ="ui_seals_kalash">
+		<text>Kalashnikov</text>
+	</string>
+	<string id ="ui_seals_sig">
+		<text>Sig Sauer</text>
 	</string>				
 </string_table>  
