@@ -64,5 +64,9 @@
 	<!-- Franchi -->	
 	<file name = "ui\franchi_seal">
 		<texture id = "ui_seals_icon_franchi" 				x="0"	y="0"	width="200"	height="119" />	
-	</file>				
+	</file>		
+	<!-- Gift of the Zone -->	
+	<file name = "ui\zona_seal">
+		<texture id = "ui_seals_icon_zona" 				x="0"	y="0"	width="200"	height="200" />	
+	</file>					
 </w>
