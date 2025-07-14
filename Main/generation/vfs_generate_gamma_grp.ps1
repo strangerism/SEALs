@@ -11,11 +11,11 @@ $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 if ($param -eq "update"){
     $outputFile = ".\gamedata\configs\custom_icon_layers\groups\group_gamma.ltx"
 }else{
-    $outputFile = ".\generators\output\group_gamma.ltx"
+    $outputFile = ".\generation\output\group_gamma.ltx"
 }
 
 # Path to output file
-$noMatchesPath = ".\generators\output\no_matches.ltx"
+$noMatchesPath = ".\generation\output\no_matches.ltx"
 
 # Use a hash set for uniqueness
 $weaponSet = [System.Collections.Generic.HashSet[string]]::new()

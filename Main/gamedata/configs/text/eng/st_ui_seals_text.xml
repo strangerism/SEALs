@@ -14,6 +14,9 @@
 		<text>3D Scopes</text>
 	</string>
 	<string id ="ui_seals_blackg">
-		<text>Blackspencer</text>
-	</string>	
+		<text>Blackgrowl</text>
+	</string>
+	<string id ="ui_seals_franchi">
+		<text>Luigi Franchi</text>
+	</string>			
 </string_table>  

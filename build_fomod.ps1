@@ -11,9 +11,9 @@ function CreateBuildFolders {
 function BuildMod {
 
     $target = "build/SEALs"
-    Copy-Item -Recurse -Force -Path ".\Main\gamedata",".\Main\generators" -Destination $target -Exclude .bak, "vfs_generate*"
-    Copy-Item -Recurse -Force -Path ".\Main\gamedata",".\Main\generators\vfs_generate_3dss_grp.ps1" -Destination $target -Exclude .bak
-    Copy-Item -Recurse -Force -Path ".\Main\gamedata",".\Main\generators\vfs_generate_gamma_grp.ps1" -Destination $target -Exclude .bak
+    Copy-Item -Recurse -Force -Path ".\Main\gamedata",".\Main\generation" -Destination $target -Exclude .bak, "vfs_generate*"
+    Copy-Item -Recurse -Force -Path ".\Main\gamedata",".\Main\generation\vfs_generate_3dss_grp.ps1" -Destination $target -Exclude .bak
+    Copy-Item -Recurse -Force -Path ".\Main\gamedata",".\Main\generation\vfs_generate_gamma_grp.ps1" -Destination $target -Exclude .bak
 }
 
 CreateBuildFolders

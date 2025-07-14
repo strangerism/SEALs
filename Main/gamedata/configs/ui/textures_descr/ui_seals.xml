@@ -60,5 +60,9 @@
 	<!-- Blackgrowl/Strogglet -->	
 	<file name = "ui\blackg_seal_hd">
 		<texture id = "ui_seals_icon_blackg" 				x="0"	y="0"	width="200"	height="200" />	
-	</file>		
+	</file>
+	<!-- Franchi -->	
+	<file name = "ui\franchi_seal">
+		<texture id = "ui_seals_icon_franchi" 				x="0"	y="0"	width="200"	height="119" />	
+	</file>				
 </w>

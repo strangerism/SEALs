@@ -11,7 +11,7 @@ $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 if ($param -eq "update"){
     $outputFile = ".\gamedata\configs\custom_icon_layers\groups\group_3dss.ltx"
 }else{
-    $outputFile = ".\generators\output\group_3dss.ltx"
+    $outputFile = ".\generation\output\group_3dss.ltx"
 }
 
 # Clear previous output if exists
@@ -65,7 +65,7 @@ Set-Content -Path $outputFile -Value $header
 # }
 
 # Path to the scope name file
-$scopeFile = ".\generators\input\scopes.txt"
+$scopeFile = ".\generation\input\scopes.txt"
 $scopeNames = Get-Content $scopeFile
 
 # Store matches in a hashset to avoid duplicates
