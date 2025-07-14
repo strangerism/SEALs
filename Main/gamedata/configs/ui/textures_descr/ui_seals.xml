@@ -68,5 +68,13 @@
 	<!-- Gift of the Zone -->	
 	<file name = "ui\zona_seal">
 		<texture id = "ui_seals_icon_zona" 				x="0"	y="0"	width="200"	height="200" />	
+	</file>	
+	<!-- The Group -->	
+	<file name = "ui\noosphere_seal">
+		<texture id = "ui_seals_icon_ccon" 				x="0"	y="0"	width="400"	height="400" />	
+	</file>			
+	<!-- Retrogue -->	
+	<file name = "ui\rwap_seal">
+		<texture id = "ui_seals_icon_rwap" 				x="0"	y="0"	width="200"	height="200" />	
 	</file>					
 </w>
