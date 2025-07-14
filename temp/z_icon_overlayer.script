@@ -1,0 +1,292 @@
+-- local io = icon_overlayer_mcm
+-- local string_format = string.format
+-- local string_find   = string.find
+
+-- -- icon_overlayer_mcm.layers = {}
+-- -- icon_overlayer_mcm.groups = {}
+
+-- function icon_overlayer_mcm.parse_groups()
+--     local groups_ini = ini_file_ex("custom_icon_layers\\groups\\base_groups.ltx")
+--     local layers_ini = ini_file_ex("custom_icon_layers\\layers\\base_layers.ltx")
+--     local group_secs = groups_ini:get_sections()
+
+--     for i = 1, #group_secs do
+--         repeat
+--             local group = group_secs[i]
+--             if string_find(group, "_base") then
+--                 do break end
+--             end
+
+--             local items = utils_data.collect_section(groups_ini.ini, group)
+--             for i = 1 , #items do
+--                 local item = items[i]
+--                 if not io.groups[item] then
+--                     io.groups[item] = {}
+--                 end
+--                 io.groups[item][#io.groups[item] + 1] = group
+--             end
+--         until true
+--     end
+
+--     local layer_secs = layers_ini:get_sections()
+
+--     if is_empty(layer_secs) then return end
+
+--     io.op.gr[3] = { id = io.mcm_id .. "_custom_layers", gr = {} }
+--     local tabs = {}
+
+--     for i = 1, #layer_secs do
+--         repeat
+--             local layer = layer_secs[i]
+--             if string_find(layer, "_base") then
+--                 do break end -- continue
+--             end
+
+--             local group = layers_ini:r_string_ex(layer, "group")
+--             if not group then
+--                 io.print_dbg("! No group specified for the layer: [%s]", layer)
+--                 do break end -- continue
+--             end
+
+--             local settings_group = layers_ini:r_string_ex(layer, "settings_group") or group
+--             -- create single item groups automatically
+--             if not groups_ini:section_exist(group) then
+--                 local item = group
+--                 if not io.groups[item] then
+--                     io.groups[item] = {}
+--                 end
+--                 group = string_format("%s_%s", group, layer)
+--                 io.print_dbg("- Created group %s", group)
+--                 io.groups[item][#io.groups[item] + 1] = group
+--             end
+
+--             if not io.layers[group] then
+--                 io.layers[group] = {}
+--             end
+
+--             local anchor_str = layers_ini:r_string_ex(layer, "anchor")
+--             anchor_str = anchor_str and str_explode(anchor_str, "_") or {}
+--             local anchor = {
+--                 x = io.anchors.x[anchor_str[1]] and anchor_str[1] or "center",
+--                 y = anchor_str[2] or (io.anchors.y[anchor_str[1]] and anchor_str[1]) or "center",
+--             }
+
+--             local str = str_explode(settings_group, "/")
+--             local tab = str[2] and io.mcm_id .. "_custom_layers_" .. str[1] or io.mcm_id .. "_custom_layers_main"
+
+--             if not tabs[tab] then
+--                 table.insert(io.op.gr[3].gr, { id =  tab, sh = true, gr = {
+--                     { id = "title", type= "slide", link= "ui_dii_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 }
+--                 }})
+--                 tabs[tab] = {idx = #io.op.gr[3].gr, settings = {}}
+--             end
+
+--             local setting = str[2] or str[1]
+
+--             io.layers[group][layer] = {
+--                 ["texture"]  = layers_ini:r_string_ex(layer, "texture") or "ui_buffdebuff_icon_scope",
+--                 ["icon_scale"]   = layers_ini:r_float_ex(layer, "icon_scale") or 1,
+--                 ["tooltip_scale"]   = layers_ini:r_float_ex(layer, "tooltip_scale") or 1,
+--                 ["caption"]   = layers_ini:r_string_ex(layer, "caption") or "Seal",
+--                 ["anchor"]   = anchor,
+--                 ["align"]   = layers_ini:r_string_ex(layer, "align") or 1,
+--                 ["width"]   = layers_ini:r_float_ex(layer, "width") or 25,
+--                 ["margin_horz"] = layers_ini:r_float_ex(layer, "margin_horz") or 1,
+--                 ["margin_vert"] = layers_ini:r_float_ex(layer, "margin_vert") or 1,
+--                 ["settings_path"] = string_format("%s/%s/%s", io.mcm_id, io.op.gr[3].id, tab) .. "/%s_" .. setting
+--             }
+
+--             io.print_table("- Created layer: %s", io.layers[group][layer], layer)
+
+--             if tabs[tab].settings[setting] then
+--                 do break end
+--             end
+
+--             tabs[tab].settings[setting] = true
+
+--             table.insert(io.op.gr[3].gr[tabs[tab].idx].gr, { id = "show_" .. setting, hint = string_format("%s_%s_show", io.mcm_id, setting), val = 1, type = "check", def = true })
+--         until true
+--     end
+-- end
+
+-- icon_overlayer_mcm.parse_groups()
+
+-- icon_overlayer_mcm.layer_functors.custom_layers = function(sec, cell, xml)
+--     local layer_info = io.groups[sec]
+--     if not layer_info then return {} end
+--     local axis = utils_xml.get_item_axis(sec)
+
+--     -- demonized: HD Inventory Icons Framework
+--     local icon_override = aaa_rax_icon_override_mcm and aaa_rax_icon_override_mcm.icon_override
+--     local scale = icon_override and icon_override:section_exist(sec) and (icon_override:r_float_ex(sec, "inv_grid_scale") or 1) or SYS_GetParam(2, sec, "inv_grid_scale", 1)
+--     axis.w = math.ceil(axis.w / scale)
+--     axis.h = math.ceil(axis.h / scale)
+    
+--     local custom_layers = {}
+--     local scale = io.get_config(io.main_settings_path, "scale", 1.1)
+--     io.print_dbg("- MAXXXX custom layer %s", sec)
+--     for i = 1, #layer_info do
+--         io.print_dbg("layer %s", i)
+--         local group = io.layers[layer_info[i]]
+--         for layer, data in pairs(group) do
+--             repeat
+--                 if not io.get_config(data.settings_path, "show", true) then
+--                     do break end -- continue
+--                 end
+--                 local kind = SYS_GetParam(0,sec,"kind")
+--                 if kind == "w_pistol" and seals.disable_pistols then
+--                     return
+--                 end
+--                 io.print_dbg("- FOUND")
+--                 io.print_dbg("data.texture %s", data.texture)
+--                 local rect = io.get_texture_rect(data.texture, cell, xml)
+--                 local h = (rect.y2 - rect.y1) / data.icon_scale
+--                 local w = (rect.x2 - rect.x1) / data.icon_scale
+
+--                 local layer = {
+--                     ["x"] = io.anchors.x[data.anchor.x](axis, data.margin_horz, w),
+--                     ["y"] = io.anchors.y[data.anchor.y](axis, data.margin_vert, h),
+--                     ["h"] = h,
+--                     ["w"] = w,
+--                     ["texture"] = data.texture
+--                 }
+--                 if data.align == "relative" then
+--                     layer["x"] = layer["x"] + data.width * (i-1) + data.margin_horz * (i-1)
+--                 end
+--                 io.print_dbg(" layer.x %s", layer["x"])
+--                 io.print_dbg(" layer.y %s", layer["y"])
+--                 custom_layers[#custom_layers + 1] = layer
+--             until true
+--         end
+--     end
+
+--     return custom_layers
+-- end
+
+-- function icon_overlayer_mcm.add_texture_layer(self, ele, base, tbl, sec, ele_no)
+--     -- if not sec or not ele_no then return end
+--     local ratio = utils_xml.screen_ratio()
+--     local grid_size = self.grid_size
+--     local x = tbl.x or 0
+--     local y = tbl.y or 0
+--     local w = tbl.w
+--     local h = tbl.h
+--     local scale = (grid_size / 50)
+--     local scale_pos = scale
+
+--     local rot =  ele:GetHeading() > 0
+--     local x_s = x * ratio * scale_pos
+--     local y_s = y * scale_pos
+--     local w_s = w * ratio * scale
+--     local h_s = h * scale
+--     local w_off = (w_s/2)
+--     local h_off = (h_s/2)
+    
+--     local kind = (sec and SYS_GetParam(0,sec,"kind")) or ""
+--     local inv_grid_height = (sec and SYS_GetParam(2,sec,"inv_grid_height",1)) or 1
+--     -- local inv_name = (sec and SYS_GetParam(0,sec,"inv_name")) or "N/A"
+
+--     local force_rot = false
+--     local force_factor = 1
+--     if inv_grid_height == 1 and kind == "w_pistol" then
+--         -- printf("-- inv_name %s", inv_name )
+--         -- printf("-- kind %s", kind )
+--         -- printf("-- inv_grid_height %s", inv_grid_height )
+--         -- printf("-- ele_no %s", ele_no )        
+--         if ele_no and ele_no > 3 then return end
+--         force_rot = true
+--         force_factor = 2 
+--     end  
+--     if inv_grid_height == 1 and kind == "w_shotgun" then
+--         force_factor = 1 
+--     end    
+    
+--     if rot or force_rot then
+--         scale = scale / force_factor
+--         -- despite rotation, movement for x and y stays normal! 
+--         -- Move start pos to match the one for rotated base icon
+--         local w_b, h_b = base:GetWidth(), base:GetHeight()
+--         local x_st = (w_b/2) - (h_b/2)
+--         local y_st = h_b + x_st
+        
+--         -- On 90 rotation, x and y are inverted, y axis goes negative simulate normal x movement
+--         x_s = x_st + (y * ratio * scale_pos)
+--         y_s = y_st - (x * scale_pos) 
+--         w_s = w * scale
+--         h_s = h * scale
+--         w_off = (h_s - h_s * ratio/2)
+--         h_off = -w_s/2
+--     end
+    
+--     ele:InitTexture( tbl.texture )
+--     ele:SetStretchTexture(true)
+
+--     ele:SetWndPos(vector2():set( (x_s + w_off) / force_factor , (y_s + h_off) / force_factor ))
+--     ele:SetWndSize(vector2():set( w_s , h_s ))
+--     ele:Show(true)
+-- end
+
+-- _Add_Layers = icon_overlayer_mcm._Add_Layers
+
+-- utils_ui.UICellItem.Add_Layers = function(self, xml, obj, sec, clsid)
+--     if self.property_layer then
+--         for i = 1, #self.property_layer do
+--             self.property_layer[i]:Show(false)
+--         end
+--     end
+
+--     xml = xml or self:GetXML()
+--     local prop_layers = io.get_all_layers(sec, self, xml)
+
+--     if not io.is_empty(prop_layers) then
+--         if not self.property_layer then
+--             self.property_layer = {}
+--         end
+
+--         for i = 1, #prop_layers do
+--             if (not self.property_layer[i]) then
+
+--                 self.property_layer[i] = xml:InitStatic(self.path .. ":" .. self.cx .. ":pic", self.ico)
+--             end
+--             icon_overlayer_mcm.add_texture_layer(self, self.property_layer[i], self.ico, prop_layers[i], sec, i)
+--         end
+--     end
+
+--     _Add_Layers(self, xml, obj, sec, clsid)
+-- end
+
+-- function get_seals(sec)
+--     local layer_info = io.groups[sec]
+--     if not layer_info then return {} end
+--     local seals = {}
+--     -- local scale = get_config(main_settings_path, "scale", 1.1)
+--     io.print_dbg("- MAXXXX custom layer %s", sec)
+--     for i = 1, #layer_info do
+--         io.print_dbg("layer %s", i)
+--         local group = io.layers[layer_info[i]]
+--         for layer, data in pairs(group) do
+--             repeat
+--                 if not io.get_config(data.settings_path, "show", true) then
+--                     do break end -- continue
+--                 end
+--                 -- local kind = SYS_GetParam(0,sec,"kind")
+--                 -- if kind == "w_pistol" and seals.disable_pistols then
+--                 --     return
+--                 -- end
+--                 io.print_dbg("- FOUND")
+--                 io.print_dbg("data.texture %s", data.texture)
+--                 io.print_dbg("data.caption %s", data.caption)
+--                 local seal = {
+--                     ["name"] = layer,
+--                     ["caption"] = data.caption,
+--                     ["texture"] = data.texture,
+--                     ["scale"] = data.tooltip_scale,
+--                 }
+
+--                 seals[#seals + 1] = seal
+--             until true
+--         end
+--     end
+
+--     return seals
+-- end
