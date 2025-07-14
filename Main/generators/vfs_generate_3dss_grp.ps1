@@ -1,10 +1,18 @@
 param (
-    [string]$workingDir
+    [string]$param
 )
 
-# Output file to write section names
-$outputFile = (Get-Item ".\generators\output\group_3dss.ltx").FullName
+Write-Host " Warning!! you are generating 3DSS groups files with $param intent"
+Write-Host " Close window or continue"
 
+Write-Host
+$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+
+if ($param -eq "update"){
+    $outputFile = ".\gamedata\configs\custom_icon_layers\groups\group_3dss.ltx"
+}else{
+    $outputFile = ".\generators\output\group_3dss.ltx"
+}
 
 # Clear previous output if exists
 if (Test-Path $outputFile) {
