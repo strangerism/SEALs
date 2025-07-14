@@ -323,7 +323,9 @@ function parse_groups()
 
             layers[group][layer] = {
                 ["texture"]  = layers_ini:r_string_ex(layer, "texture") or "ui_buffdebuff_icon_scope",
-                ["text"]   = layers_ini:r_string_ex(layer, "text") or "Seal",
+                ["icon_scale"]   = layers_ini:r_float_ex(layer, "icon_scale") or 1,
+                ["tooltip_scale"]   = layers_ini:r_float_ex(layer, "tooltip_scale") or 1,
+                ["caption"]   = layers_ini:r_string_ex(layer, "caption") or "Seal",
                 ["anchor"]   = anchor,
                 ["align"]   = layers_ini:r_string_ex(layer, "align") or 1,
                 ["width"]   = layers_ini:r_float_ex(layer, "width") or 25,
@@ -502,8 +504,8 @@ layer_functors.custom_layers = function(sec, cell, xml)
                 print_dbg("- FOUND")
                 print_dbg("data.texture %s", data.texture)
                 local rect = get_texture_rect(data.texture, cell, xml)
-                local h = (rect.y2 - rect.y1) * scale
-                local w = (rect.x2 - rect.x1) * scale
+                local h = (rect.y2 - rect.y1) / data.icon_scale
+                local w = (rect.x2 - rect.x1) / data.icon_scale
 
                 local layer = {
                     ["x"] = anchors.x[data.anchor.x](axis, data.margin_horz, w),
@@ -565,14 +567,19 @@ function add_texture_layer(self, ele, base, tbl, sec)
     local w_off = (w_s/2)
     local h_off = (h_s/2)
     
-
     local kind = SYS_GetParam(0,sec,"kind")
+    local inv_grid_height = SYS_GetParam(2,sec,"inv_grid_height",1)
+    -- printf("-- inv_name %s", SYS_GetParam(0,sec,"inv_name") or "N/A" )
+    -- printf("-- inv_grid_height %s", inv_grid_height )
     local force_rot = false
     local force_factor = 1
-    if kind == "w_pistol" then
+    if inv_grid_height == 1 and kind == "w_pistol" then
         force_rot = true
         force_factor = 2 
     end
+    if inv_grid_height == 1 and kind == "w_shotgun" then
+        force_factor = 1 
+    end    
     
     if rot or force_rot then
         scale = scale / force_factor
@@ -705,11 +712,12 @@ function get_seals(sec)
                 -- end
                 print_dbg("- FOUND")
                 print_dbg("data.texture %s", data.texture)
-                print_dbg("data.text %s", data.text)
+                print_dbg("data.caption %s", data.caption)
                 local seal = {
                     ["name"] = layer,
-                    ["text"] = data.text,
+                    ["caption"] = data.caption,
                     ["texture"] = data.texture,
+                    ["scale"] = data.tooltip_scale,
                 }
 
                 seals[#seals + 1] = seal

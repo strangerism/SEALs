@@ -11,9 +11,12 @@
 		<weight x="15" y="40" width="453" height="20" stretch="1">
 			<text align="l" font="letterica18" color="ui_gray_3"/>
 		</weight>
-        <seal x="15" y="60" width="25" height="25">
+        <seal x="0" y="60" width="25" height="25">
 			<icon x="0" y="0" width="25" height="25" stretch="1"/>
-        </seal>		
+			<cap x="2" y="30" width="30" height="8" stretch="1">
+				<text complex_mode="1" font="letterica16" align="l" color="ui_gray_1"/>
+			</cap>			
+        </seal>			
 		<cost x="247" y="40" width="205" height="16" stretch="1">
 			<text complex_mode="1" font="letterica18" align="r" r="210" g="210" b="210"/>
 		</cost>

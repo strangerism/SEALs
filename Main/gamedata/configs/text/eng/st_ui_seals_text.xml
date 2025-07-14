@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="windows-1251"?>
+
+<string_table>
+	<string id ="ui_seals_bm_wp">
+		<text>BlackMarket</text>
+	</string>
+	<string id ="ui_seals_gamma">
+		<text>GAMMA</text>
+	</string>
+	<string id ="ui_seals_bm_nato">
+		<text>BlackMarket</text>
+	</string>
+	<string id ="ui_seals_3dss">
+		<text>3D Scopes</text>
+	</string>
+	<string id ="ui_seals_blackg">
+		<text>Blackspencer</text>
+	</string>	
+</string_table>  
