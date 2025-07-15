@@ -1,5 +1,7 @@
 # **SEALs**
 
+![mod](doc/images/seals.png)
+
 This mod is a simple configurator to add badges (seals) on the weapons icons in the inventory and tooltip.
 
 ![saiga12 ico](doc/images/saiga12ico.png)
@@ -187,5 +189,11 @@ You can also include just the **SEALs**'s configs and add **SEALs** install inst
 
 You are free to install **SEALs** in your modlist and separately maintain the **SEALs**'s configs in mods or repositories
 
+## Example Config Modules
 
+Both 3DSS and GAMMA config modules contains extra content related to generation of group ltx.
+
+The group ltx contains the items sections that we want the seal to appear on. These files can normally edited manually but you also do it dynamically with scripts.
+
+The 3DSS module include a powershell script 
 
