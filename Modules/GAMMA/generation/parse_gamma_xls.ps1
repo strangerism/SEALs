@@ -1,5 +1,5 @@
 # Path to your CSV file
-$csvPath = ".\input\Weapons Database - 250205_weapons.csv"
+$csvPath = ".\input\Weapons Database - SAMPLE COPY.csv"
 
 # Path to output file
 $outputPath = ".\output\group_gamma.ltx"

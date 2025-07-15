@@ -2,16 +2,23 @@ param (
     [string]$param
 )
 
-Write-Host " Warning!! you are generating with $param intent"
-Write-Host " Close window or continue"
+if ($param) {
+    Write-Host " Warning!! you are generating with $param intent"
+    Write-Host " Close window or continue"
 
-Write-Host
-$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+    Write-Host
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');    
+}
 
 if ($param -eq "update"){
     $outputFile = ".\gamedata\configs\custom_icon_layers\groups\group_gamma.ltx"
 }else{
     $outputFile = ".\generation\output\group_gamma.ltx"
+}
+
+# Clear previous output if exists
+if (Test-Path $outputFile) {
+    Remove-Item $outputFile
 }
 
 # Path to miss file
@@ -31,22 +38,29 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
     $_.Name -like "mod_npc_loadouts*" 
 } | ForEach-Object {
     $content = Get-Content $_.FullName
+    
+    $fileWeaponSet = [System.Collections.Generic.HashSet[string]]::new()
+    $count = 0        
+    
     foreach ($line in $content) {
-        $count = 0
+        
         # Find all matching wpn_ strings with the format weapon:N:N:N
-        if ($line -match "(wpn_[a-zA-Z0-9_]+):[a-zA-Z0-9_]+:[a-zA-Z0-9_]+(:[a-zA-Z0-9_]+)?"
-) {
+        if ($line -match "(wpn_[a-zA-Z0-9_]+):[a-zA-Z0-9_]+:[a-zA-Z0-9_]+(:[a-zA-Z0-9_]+)?") {
             $count = $count + 1
             # Write-Host found $matches[1]
             $weaponName = $matches[1]
-            $weaponSet.Add($weaponName) | Out-Null
+            $fileWeaponSet.Add($weaponName) | Out-Null
+            $count = $count + 1
         }
     }
     if ($count -eq 0){
         Write-Host no matches in $_.FullName
         $noMatchesList += $_.FullName
     }else{
-        $weaponSet | Set-Content -Path "$hitPath\$_"
+        $fileWeaponSet | Set-Content -Path "$hitPath\$_"
+        foreach($section in $fileWeaponSet){
+            $weaponSet.Add($section) | Out-Null
+        }
     }
 }
 
@@ -58,6 +72,8 @@ $finalOutput = @($header) + ($weaponSet | Sort-Object)
 $finalOutput | Set-Content -Path $outputFile
 $noMatchesList | Set-Content -Path $noMatchesPath
 
-Write-Host "All weapons saved to $outputFile"
+Write-Host " Done! Unique section names saved to $outputFile"
+Write-Host " Done! Logged all the hit to $hitPath in MO2 overwrite folder"
+Write-Host " Done! Logged all the miss to $noMatchesPath in MO2 overwrite folder"
 
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');

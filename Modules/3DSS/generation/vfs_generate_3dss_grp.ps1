@@ -37,21 +37,16 @@ if (Test-Path $hitPath) {
 }
 
 # Define files to ignore
-$ignoreFiles = @(
-                    "mod_system_3dss_colors.ltx", 
-                    "group_3dss.ltx",
-                    "mod_parts_3dss.ltx",
-                    "mod_system_3dss_gamma_scopes.ltx"
-                    )
+$ignoreFiles = Get-Content ".\generation\input\ignoreFiles.txt"
 
+# The list of 3DSS scopes
+$scopeNames = Get-Content ".\generation\input\scopes.txt"
+
+# group header
 $header = "[3dss_seal]"
 
 # Write the header to the output file first
 Set-Content -Path $outputFile -Value $header
-
-# Path to the scope name file
-$scopeFile = ".\generation\input\scopes.txt"
-$scopeNames = Get-Content $scopeFile
 
 # Store matches in a hashset to avoid duplicates
 $sectionNames = [System.Collections.Generic.HashSet[string]]::new()
@@ -100,7 +95,7 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File -Filter "*3dss*.ltx" | Whe
 
     if ($count -eq 0){
         Write-Host no matches in $_.FullName
-        $noMatchesList += $_.FullName
+        $noMatchesList += "$($_.FullName)`r`n"
     }else{
         $fileSectionNames | Set-Content -Path "$hitPath\$_"
         $sectionNames.Add($fileSectionNames) | Out-Null

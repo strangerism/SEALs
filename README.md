@@ -189,11 +189,71 @@ You can also include just the **SEALs**'s configs and add **SEALs** install inst
 
 You are free to install **SEALs** in your modlist and separately maintain the **SEALs**'s configs in mods or repositories
 
-## Example Config Modules
+## SEALs Config generation
 
 Both 3DSS and GAMMA config modules contains extra content related to generation of group ltx.
 
 The group ltx contains the items sections that we want the seal to appear on. These files can normally edited manually but you also do it dynamically with scripts.
 
-The 3DSS module include a powershell script 
+### 3DSS config generation
+
+The 3DSS module includes a powershell script `vfs_generate_3dss_grp` that should be run from Mod Organizer 2 directly, the reason being that it targets the same VFS that mod organizer creates when launching from its shortcuts
+
+Add the script to the MO2 shortcut like this:
+
+![mo2exe](mo2exe.png)
+
+There are two ways to launch the script:
+
+1) generating into the generation folders (`".\generation\output\group_3dss.ltx"`) to sample the results - default option
+
+2) updating the prefab group file (`".\gamedata\configs\custom_icon_layers\groups\group_3dss.ltx"`) that is referenced by the game - pass `update` string parameter
+
+To create these prepared shortcuts in MO2 by editing the `ModOrganizer.ini`, check the `readme.md` included with the scripts
+
+**Inputs**
+
+The script takes the following lists as input for the generation
+
+- *scopes.txt* should contain a list of scopes that is used to infer 3DSS support in the game weapon ltx files
+- *ignoreFiles.txt* should contain a list of ltx files that should be excluded when searching for 3DSS configs
+
+**Outputs**
+
+The script generates outputs depending on how is run
+
+- by default it will generate the group file in the same mod folder `".\generation\output\group_3dss.ltx"`
+
+- if run with `update` param it will update the group file in the same mod folder `".\gamedata\configs\custom_icon_layers\groups\group_3dss.ltx"`
+    
+    > the mod is packaged with such an empty file in order for the script to update always the file in the mod folder instead of an ephemeral copy under MO2 overwrite folder
+
+- logs files are always created under the `hit` and `miss` folders 
+
+### GAMMA config generation
+
+GAMMA generation contains a similar script `vfs_generate_gamma_grp.ps1` that works exactly like the one for 3DSS so the same rules apply for the configuration in MO2.
+
+The only difference is that it takes no inputs
+
+Additioanlly GAMMA generation, includes the script `parse_gamma_xls`, which can generate the gamma group ltx from an xls spreadsheet. A sample of this speadsheet is included for testing.
+
+## Maintaining SEALs
+
+### **Modpack Curators**
+
+As a modpack curator, for yourself or for open distribuition, you are constantly adding new guns or altering the gameplay balance (e.g. updating the loadouts) therefore you will be maintaining the **SEALs** lists as consequence.
+
+The best approach is to keep the **SEALs** mod separated from the **SEALs** configs you create. If you have generation script like those provided as example by this mod, you want to run those to update the configs before committing the changes and distribuiting the modpack.
+
+### **Modpack Users**
+
+If assumingly there will be modpacks that makes use of SEALs, as a user that adds new guns you want to make sure your custom seals are separated from those that comes with the modpack.
+
+## Showcase
+
+Some images to show how the result of using SEALs
+
+![showcase1](/doc/images/showcase1.png)
+
 
