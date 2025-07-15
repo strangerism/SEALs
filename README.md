@@ -8,13 +8,13 @@ This mod is a simple configurator to add badges (seals) on the weapons icons in 
 
 ![saiga12 tip](doc/images/saiga12tip.png)
 
-Seals are meant to represet certifications of provenience, like modders tag, modpack exclusives, manufacturers, or technical support (3DSS etc.), mod support (Black Market, Loot boxes, etc) or specifics (unique weapon)   
+Seals are meant to represet certifications of provenience, like modders tag, modpack exclusives, manufacturers, or features support (3DSS etc.), mod support (Black Market, Loot boxes, etc) or qualities (unique weapon)   
 
 At the end of the day is what you make out of it.
 
 This mod is considered a community tool and is meant to be used by weapon's mod makers or modpack curators/maintainers or to support user's custom modlists.
 
-# Techical aspects
+# Technical aspects
 
 The mod consist of main mod and configuration files modules
 
@@ -82,6 +82,10 @@ for example you want to create a seal to represent the **Beretta** manufacturer 
 1) rename the `group_template.ltx` to `group_beretta.ltx`
 
 2) open the `group_beretta.ltx` and change the seal name from `[template_seal]` to `[beretta_seal]`
+
+> [!CAUTION]
+> Make sure this name is unique to your mod and it does not conflicts in the mods space.
+> If there were to be a conflicts with layer and group names, it might cause crashes to the user when installing your mod
 
 ## Edit the group
 
@@ -230,6 +234,9 @@ The script generates outputs depending on how is run
 
 - logs files are always created under the `hit` and `miss` folders 
 
+> [!CAUTION]
+> You must run the generation **update** script at least once after installing this config
+
 ### GAMMA config generation
 
 GAMMA generation contains a similar script `vfs_generate_gamma_grp.ps1` that works exactly like the one for 3DSS so the same rules apply for the configuration in MO2.
@@ -237,6 +244,12 @@ GAMMA generation contains a similar script `vfs_generate_gamma_grp.ps1` that wor
 The only difference is that it takes no inputs
 
 Additioanlly GAMMA generation, includes the script `parse_gamma_xls`, which can generate the gamma group ltx from an xls spreadsheet. A sample of this speadsheet is included for testing.
+
+> [!CAUTION]
+> You must run the generation **update** script at least once after installing this config
+
+> [!TIP]
+> The GAMMA config module comes also with the 3DSS module (including the generation tools), you don't need to install the other one
 
 ## Maintaining SEALs
 
@@ -256,4 +269,13 @@ Some images to show how the result of using SEALs
 
 ![showcase1](/doc/images/showcase1.png)
 
+![showcase2](/doc/images/showcase2.png)
+
+![showcase3](/doc/images/showcase3.png)
+
+![showcase4](/doc/images/showcase4.png)
+
+![showcase5](/doc/images/showcase5.png)
+
+![showcase6](/doc/images/showcase6.png)
 
