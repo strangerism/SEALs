@@ -8,7 +8,7 @@ This mod is a simple configurator to add badges (seals) on the weapons icons in 
 
 ![saiga12 tip](doc/images/saiga12tip.png)
 
-Seals are meant to represet certifications of provenience, like modders tag, modpack exclusives, manufacturers, or features support (3DSS etc.), mod support (Black Market, Loot boxes, etc) or qualities (unique weapon)   
+Seals are meant to represet certifications of provenience, like modders tag, modpack exclusives, manufacturers, or features support (3DSS etc.), mod support (Black Market, Loot boxes, etc) or qualities (unique weapons, quest rewards, etc)   
 
 At the end of the day is what you make out of it.
 
@@ -40,12 +40,12 @@ is used to
 > These modules are provided as examples. 
 > The mod is meant to be supported only by the community's contribuitions
 
-- 3DSS: Applies 3DSS seals to all weapons that support this kind of scopes
-- GAMMA: Applies seals to all available GAMMA weapons, such weapons are present in loadouts and can drop in game. This module also includes the 3DSS seals
-- manufactorers: applies manufactorers seals to guns (this is an example mod)
-- demo: Combine all the config modules in one, for demo purposes
-- mods: applies mods related seals (this is an example mod)
-- template: template config module meant to be used for creating new/custom seals configurations
+- **3DSS**: Applies 3DSS seals to all weapons that support this kind of scopes
+- **GAMMA**: Applies seals to all available GAMMA weapons, such weapons are present in loadouts and can drop in game. This module also includes the 3DSS seals
+- **manufactorers**: applies manufactorers seals to guns (this is an example configuration)
+- **demo**: Combine all the config modules in one, for demo purposes
+- **mods**: applies mods related seals (this is an example configuration)
+- **template**: template config module meant to be used for creating new/custom seals configurations
 
 # How to build
 
@@ -67,7 +67,7 @@ The **SEALs** mod requirements are:
 
 The **SEALs** mod must be installed below these 3 mods
 
-![install](doc\images\loadorder.png)
+![install](doc/images/loadorder.png)
 
 # How to create customized seals
 
@@ -165,7 +165,7 @@ tooltip_scale = 4
 for greater textures you should increase the scale factors or it will be too big in the UI
 
 > [!TIP]
-> In this tutorial we are only adding one seal, but you can add as many seals as you like starting from one single template module 
+> In this tutorial we are only adding one seal, but you can add as many seals as you like starting from one single template module.
 > For instance, check the following example modules: demo, mods, manufacturers 
 
 ## Packaging and deployment
@@ -176,10 +176,12 @@ Install in MO2, where the main mod and its requirements have already been instal
 
 ## Distribuiting in mods
 
-If you are gunmod maker and you want to add custom seals to the be shown on the gun, lets say your personal badge or the manufacturer
+If you are gunmod maker and you want to add custom seals to the be shown on the gun, lets say your personal badge or the manufacturer.
 
-- include the **SEALs** main mod in your mod
-- include the **SEALs**'s config with your custom seals
+You must include in in your mod:
+
+- The **SEALs** main mod 
+- The **SEALs**'s config with your custom seals
 
 > The user must have all the **SEALs** requirements installed
 
@@ -195,32 +197,32 @@ You are free to install **SEALs** in your modlist and separately maintain the **
 
 ## SEALs Config generation
 
-Both 3DSS and GAMMA config modules contains extra content related to generation of group ltx.
+Both **3DSS** and **GAMMA** config modules contains extra content related to generation of group ltx.
 
 The group ltx contains the items sections that we want the seal to appear on. These files can normally edited manually but you also do it dynamically with scripts.
 
 ### 3DSS config generation
 
-The 3DSS module includes a powershell script `vfs_generate_3dss_grp` that should be run from Mod Organizer 2 directly, the reason being that it targets the same VFS that mod organizer creates when launching from its shortcuts
+The **3DSS** module includes a powershell script `vfs_generate_3dss_grp` that should be run from **Mod Organizer 2** (MO2) directly, the reason being that it targets the same **VFS** that mod organizer creates when launching from its shortcuts. It's fundamental to target the **VFS**, because it contains only the files that are read by the game, and the generation must be done from that for congruity with the game files.
 
-Add the script to the MO2 shortcut like this:
+Add the script to the **MO2** shortcut like this:
 
-![mo2exe](mo2exe.png)
+![mo2exe](doc/images/mo2exe.png)
 
 There are two ways to launch the script:
 
-1) generating into the generation folders (`".\generation\output\group_3dss.ltx"`) to sample the results - default option
+1) generating into the generation folders to sample the results - default option
 
-2) updating the prefab group file (`".\gamedata\configs\custom_icon_layers\groups\group_3dss.ltx"`) that is referenced by the game - pass `update` string parameter
+2) updating the prefab group lts file that is referenced by the game - pass `update` string parameter
 
-To create these prepared shortcuts in MO2 by editing the `ModOrganizer.ini`, check the `readme.md` included with the scripts
+To create these prepared shortcuts in **MO2** by editing the `ModOrganizer.ini`, check the `readme.md` included with the scripts
 
 **Inputs**
 
 The script takes the following lists as input for the generation
 
-- *scopes.txt* should contain a list of scopes that is used to infer 3DSS support in the game weapon ltx files
-- *ignoreFiles.txt* should contain a list of ltx files that should be excluded when searching for 3DSS configs
+- *scopes.txt* should contain a list of scopes that is used to infer **3DSS** support in the game weapon ltx files
+- *ignoreFiles.txt* should contain a list of ltx files that should be excluded when searching for **3DSS** configs
 
 **Outputs**
 
@@ -230,7 +232,7 @@ The script generates outputs depending on how is run
 
 - if run with `update` param it will update the group file in the same mod folder `".\gamedata\configs\custom_icon_layers\groups\group_3dss.ltx"`
     
-    > the mod is packaged with such an empty file in order for the script to update always the file in the mod folder instead of an ephemeral copy under MO2 overwrite folder
+    > the mod is packaged with such an empty file in order for the script to update always the file in the mod folder instead of an ephemeral copy under MO2's **overwrite** folder
 
 - logs files are always created under the `hit` and `miss` folders 
 
@@ -239,17 +241,17 @@ The script generates outputs depending on how is run
 
 ### GAMMA config generation
 
-GAMMA generation contains a similar script `vfs_generate_gamma_grp.ps1` that works exactly like the one for 3DSS so the same rules apply for the configuration in MO2.
+**GAMMA** generation contains a similar script `vfs_generate_gamma_grp.ps1` that works exactly like the one for **3DSS** so the same rules apply for the configuration in **MO2**.
 
 The only difference is that it takes no inputs
 
-Additioanlly GAMMA generation, includes the script `parse_gamma_xls`, which can generate the gamma group ltx from an xls spreadsheet. A sample of this speadsheet is included for testing.
+Additioanlly **GAMMA** generation, includes the script `parse_gamma_xls`, which can generate the gamma group ltx from an xls spreadsheet. A sample of this speadsheet is included for testing.
 
 > [!CAUTION]
 > You must run the generation **update** script at least once after installing this config
 
 > [!TIP]
-> The GAMMA config module comes also with the 3DSS module (including the generation tools), you don't need to install the other one
+> The **GAMMA** config module comes also with the **3DSS** module (including the generation tools), you don't need to install the other one
 
 ## Maintaining SEALs
 
