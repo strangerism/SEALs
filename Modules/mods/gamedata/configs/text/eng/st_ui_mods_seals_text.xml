@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="windows-1251"?>
+
+<string_table>
+
+	<string id ="ui_mcm_dii_blackmarket_seal_show">
+		<text>BlackMarket seals</text>
+	</string>
+	<string id ="ui_mcm_dii_lootbox_seal_show">
+		<text>LootBox seals</text>
+	</string>
+	<string id ="ui_mcm_dii_blackg_seal_show">
+		<text>Blackgrowl seals</text>
+	</string>
+	<string id ="ui_mcm_dii_zona_seal_show">
+		<text>Gift from the Zone seals</text>
+	</string>
+	<string id ="ui_mcm_dii_ccon_seal_show">
+		<text>The Group seals</text>
+	</string>
+	<string id ="ui_mcm_dii_rwap_seal_show">
+		<text>Retrogue seals</text>
+	</string>	
+
+	<string id ="ui_seals_bm_wp">
+		<text>BlackMarket</text>
+	</string>
+	<string id ="ui_seals_bm_nato">
+		<text>BlackMarket</text>
+	</string>
+	<string id ="ui_seals_blackg">
+		<text>Blackgrowl</text>
+	</string>	
+	<string id ="ui_seals_zona">
+		<text>Gift from the Zone</text>
+	</string>
+	<string id ="ui_seals_ccon">
+		<text>The Group</text>
+	</string>
+	<string id ="ui_seals_rwap">
+		<text>Retrogue</text>
+	</string>				
+</string_table>  

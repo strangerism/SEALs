@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="windows-1251"?>
+
+<string_table>
+
+	<string id ="ui_mcm_dii_gamma_seal_show">
+		<text>GAMMA seals</text>
+	</string>
+	<string id ="ui_mcm_dii_3dss_seal_show">
+		<text>3D Scopes seals</text>
+	</string>	
+	<string id ="ui_seals_gamma">
+		<text>GAMMA</text>
+	</string>
+	<string id ="ui_seals_3dss">
+		<text>3D Scopes</text>
+	</string>				
+</string_table>  

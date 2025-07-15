@@ -1,0 +1,50 @@
+<w>
+	<!-- GAMMA -->
+	<file name = "ui\gamma_seal">
+		<texture id = "ui_seals_icon_gamma" 				x="0"	y="0"	width="200"	height="200" />	
+	</file>		
+	<!-- 3DSS -->
+	<file name = "ui\3dss_seal">
+		<texture id = "ui_seals_icon_3dss" 				x="0"	y="0"	width="200"	height="200" />	
+	</file>
+	<!-- Loot Boxes -->
+	<file name = "ui\3dss_seal">
+		<texture id = "ui_seals_icon_lootbox" 				x="0"	y="0"	width="200"	height="200" />	
+	</file>	
+	<!-- NATO -->
+	<file name = "ui\bm_nato_seal">
+		<texture id = "ui_seals_icon_bm_nato" 				x="0"	y="0"	width="200"	height="200" />	
+	</file>
+	<!-- Warsaw Pact -->
+	<file name = "ui\bm_wp_seal">
+		<texture id = "ui_seals_icon_bm_wp" 				x="0"	y="0"	width="200"	height="200" />	
+	</file>
+	<!-- Blackgrowl/Strogglet -->	
+	<file name = "ui\blackg_seal">
+		<texture id = "ui_seals_icon_blackg" 				x="0"	y="0"	width="200"	height="200" />	
+	</file>
+	<!-- Franchi -->	
+	<file name = "ui\franchi_seal">
+		<texture id = "ui_seals_icon_franchi" 				x="0"	y="0"	width="200"	height="119" />	
+	</file>		
+	<!-- Gift of the Zone -->	
+	<file name = "ui\zona_seal">
+		<texture id = "ui_seals_icon_zona" 				x="0"	y="0"	width="200"	height="200" />	
+	</file>	
+	<!-- The Group -->	
+	<file name = "ui\noosphere_seal">
+		<texture id = "ui_seals_icon_ccon" 				x="0"	y="0"	width="400"	height="400" />	
+	</file>			
+	<!-- Retrogue -->	
+	<file name = "ui\rwap_seal">
+		<texture id = "ui_seals_icon_rwap" 				x="0"	y="0"	width="200"	height="200" />	
+	</file>	
+	<!-- Kalashnikov -->	
+	<file name = "ui\kalash_seal">
+		<texture id = "ui_seals_icon_kalash" 				x="0"	y="0"	width="200"	height="231" />	
+	</file>
+	<!-- Sig Sauer -->	
+	<file name = "ui\sig_seal">
+		<texture id = "ui_seals_icon_sig" 				x="0"	y="0"	width="197"	height="201" />	
+	</file>						
+</w>
