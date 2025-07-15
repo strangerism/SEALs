@@ -14,8 +14,10 @@ if ($param -eq "update"){
     $outputFile = ".\generation\output\group_gamma.ltx"
 }
 
-# Path to output file
-$noMatchesPath = ".\generation\output\no_matches.ltx"
+# Path to miss file
+$noMatchesPath = ".\generation\output\miss\no_matches.ltx"
+$hitPath = ".\generation\output\hit\"
+
 
 # Use a hash set for uniqueness
 $weaponSet = [System.Collections.Generic.HashSet[string]]::new()
@@ -43,6 +45,8 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
     if ($count -eq 0){
         Write-Host no matches in $_.FullName
         $noMatchesList += $_.FullName
+    }else{
+        $weaponSet | Set-Content -Path "$hitPath\$_"
     }
 }
 

@@ -2,123 +2,68 @@ param (
     [string]$param
 )
 
-Write-Host " Warning!! you are generating 3DSS groups files with $param intent"
-Write-Host " Close window or continue"
+if ($param) {
+    Write-Host " Warning!! you are generating with $param intent"
+    Write-Host " Close window or continue"
 
-Write-Host
-$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+    Write-Host
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');    
+}
+
 
 if ($param -eq "update"){
-    $outputFile = ".\gamedata\configs\custom_icon_layers\groups\group_3dss.ltx"
+    $outputFile = ".\gamedata\configs\custom_icon_layers\groups\group_gamma.ltx"
 }else{
-    $outputFile = ".\generation\output\group_3dss.ltx"
+    $outputFile = ".\generation\output\group_gamma.ltx"
 }
 
-# Clear previous output if exists
-if (Test-Path $outputFile) {
-    Remove-Item $outputFile
-}
+# Path to miss file
+$noMatchesPath = ".\generation\output\miss\no_matches.ltx"
+$hitPath = ".\generation\output\hit\"
 
-# Set-Content -Path $outputFile -Value ""
 
-# Define files to ignore
-$ignoreFiles = @(
-                    "mod_system_3dss_colors.ltx", 
-                    "group_3dss.ltx",
-                    "mod_parts_3dss.ltx",
-                    "mod_system_3dss_gamma_scopes.ltx"
-                    )
+# Use a hash set for uniqueness
+$weaponSet = [System.Collections.Generic.HashSet[string]]::new()
+$noMatchesList = @()
 
-$header = "[3dss_seal]"
-
-# Write the header to the output file first
-Set-Content -Path $outputFile -Value $header
-
-# # Path to the scope list file
-# $scopeFile = ".\generators\input\scopes.txt"
-
-# # Read scope names from file
-# $scopeNames = Get-Content $scopeFile
-
-# # Recursively find matching files
-# Get-ChildItem -Path "gamedata\configs" -Recurse -File -Filter "*3dss*.ltx" | Where-Object {
-#     $ignoreFiles -notcontains $_.Name
-# } | ForEach-Object {
-#    Write-Host $_.FullName
-#     # Read the file contents
-#     $lines = Get-Content $_.FullName
-
-#     # Find the first non-comment line
-#     $firstValidLine = $lines | Where-Object { $_.Trim() -notmatch "^;" } | Select-Object -First 1
-
-#     if ($firstValidLine) {
-#         # Match [section_name] and ![section_name]
-#         $matches = [regex]::Matches($firstValidLine, "(!)?\[(.*?)\]")
-
-#         foreach ($match in $matches) {
-#             $sectionName = $match.Groups[2].Value
-#             Write-Host adding $sectionName 
-#             Add-Content -Path $outputFile -Value $sectionName
-#         }
-#     }
-
-# }
-
-# Path to the scope name file
-$scopeFile = ".\generation\input\scopes.txt"
-$scopeNames = Get-Content $scopeFile
-
-# Store matches in a hashset to avoid duplicates
-$sectionNames = [System.Collections.Generic.HashSet[string]]::new()
-
-# Scan each .ltx file with 3dss in its name
-Get-ChildItem -Path "gamedata\configs" -Recurse -File -Filter "*3dss*.ltx" | Where-Object {
-    $ignoreFiles -notcontains $_.Name
+# Search for files recursively with names starting with npc_loadouts
+Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object { 
+    $_.Name -like "new_game_loadouts*" -or  
+    $_.Name -like "mod_new_game_loadouts*" -or  
+    $_.Name -like "npc_loadouts*" -or 
+    $_.Name -like "mod_npc_loadouts*" 
 } | ForEach-Object {
-    $lines = Get-Content $_.FullName
-
-    foreach ($line in $lines) {
-        # Ignore comment lines
-        if ($line.Trim() -like ";*") { continue }
-
-        # Match all section formats: [name], ![name], [name_scope], ![name_scope]
-        $matches = [regex]::Matches($line, "(?<marker>!?)*\[(?<raw>[^\[\]]+)\]")
-
-        foreach ($match in $matches) {
-            $raw = $match.Groups["raw"].Value
-
-            foreach ($scope in $scopeNames) {
-                # If match is section_scope, extract only section
-                if ($raw -like "*_$scope") {
-                    $sectionName = $raw.Substring(0, $raw.Length - $scope.Length - 1)
-                    if ($sectionNames.Add($sectionName)){
-                        Write-Host adding $sectionName 
-                    }
-                    break
-                }
-            }
-
-            # If it's a standalone section like [sectionName] or ![sectionName]
-            if ($scopeNames -notcontains $raw -and ($raw -notlike "*_*")) {
-                if ($sectionNames.Add($raw)){
-                    Write-Host adding $sectionName
-                }
-            }
+    $content = Get-Content $_.FullName
+    foreach ($line in $content) {
+        $count = 0
+        # Find all matching wpn_ strings with the format weapon:N:N:N
+        if ($line -match "(wpn_[a-zA-Z0-9_]+):[a-zA-Z0-9_]+:[a-zA-Z0-9_]+(:[a-zA-Z0-9_]+)?"
+) {
+            $count = $count + 1
+            # Write-Host found $matches[1]
+            $weaponName = $matches[1]
+            $weaponSet.Add($weaponName) | Out-Null
         }
+    }
+    if ($count -eq 0){
+        Write-Host no matches in $_.FullName
+        $noMatchesList += $_.FullName
+    }else{
+        $weaponSet | Set-Content -Path "$hitPath\$_"
     }
 }
 
-# Save unique section names to the output file (append after header)
-$sectionNames | Add-Content -Path $outputFile
+# Add header and sort
+$header = "[gamma_seal]"
+$finalOutput = @($header) + ($weaponSet | Sort-Object)
 
-# Sort the content of the output file (excluding the header)
-$lines = Get-Content $outputFile
-$headerLine = $lines[0]
-$sortedLines = $lines[1..($lines.Count - 1)] | Sort-Object
-$headerLine | Set-Content $outputFile
-$sortedLines | Add-Content $outputFile
+# Write to file
+$finalOutput | Set-Content -Path $outputFile
+$noMatchesList | Set-Content -Path $noMatchesPath
 
 Write-Host " Done! Unique section names saved to $outputFile"
+Write-Host " Done! Logged all the hit to $hitPath in MO2 overwrite folder"
+Write-Host " Done! Logged all the miss to $noMatchesPath in MO2 overwrite folder"
 
 Write-Host
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
