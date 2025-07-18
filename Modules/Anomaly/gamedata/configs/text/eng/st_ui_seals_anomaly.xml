@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="windows-1251"?>
+
+<string_table>
+
+	<string id ="ui_mcm_seals_anomaly_seal_show">
+		<text>Anomaly seal</text>
+	</string>
+	<string id ="ui_seals_anomaly">
+		<text>Anomaly</text>
+	</string>			
+</string_table>  

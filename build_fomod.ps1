@@ -1,26 +1,8 @@
-
-
-function CreateBuildFolders {
+function BuildMod {
     
     New-Item -Path "build" -ItemType Directory | Out-Null
 
     New-Item -Path "build/SEALs" -ItemType Directory | Out-Null
-
-    New-Item -Path "build/SEALs Config - 3DSS" -ItemType Directory | Out-Null
-
-    New-Item -Path "build/SEALs Config - GAMMA" -ItemType Directory | Out-Null
-
-    New-Item -Path "build/SEALs Config - demo" -ItemType Directory | Out-Null
-
-    New-Item -Path "build/SEALs Config - manufacturers" -ItemType Directory | Out-Null
-
-    New-Item -Path "build/SEALs Config - mods" -ItemType Directory | Out-Null
-
-    New-Item -Path "build/SEALs Config - template" -ItemType Directory | Out-Null
-    
-}
-
-function BuildMod {
 
     $target = "build/SEALs"
     Copy-Item -Recurse -Force -Path ".\Main\gamedata" -Destination $target -Exclude .bak
@@ -37,7 +19,11 @@ function BuildConfigs {
     param (
         [string]$target
     )
+
     $targetPath = "build/SEALs Config - " + $target
+
+    New-Item -Path $targetPath -ItemType Directory | Out-Null
+
     Copy-Item -Recurse -Force -Path ".\Modules\$target\gamedata" -Destination $targetPath -Exclude .bak
 
     $compress = @{
@@ -50,11 +36,12 @@ function BuildConfigs {
 
 function BuildGAMMAConfigs {
 
-
     $target = "build/SEALs Config - GAMMA"
+
+    New-Item -Path $target -ItemType Directory | Out-Null
+
     Copy-Item -Recurse -Force -Path ".\Modules\GAMMA\gamedata" -Destination $target -Exclude .bak
     Copy-Item -Recurse -Force -Path ".\Modules\GAMMA\generation" -Destination $target -Exclude .bak, "vfs_generate*"
-    Copy-Item -Recurse -Force -Path ".\Modules\GAMMA\generation\vfs_generate_3dss_grp.ps1" -Destination $target -Exclude .bak
     Copy-Item -Recurse -Force -Path ".\Modules\GAMMA\generation\vfs_generate_gamma_grp.ps1" -Destination $target -Exclude .bak
 
     $compress = @{
@@ -65,9 +52,30 @@ function BuildGAMMAConfigs {
     Compress-Archive @compress -Force     
 }
 
+function BuildModlistConfigs {
+
+    $target = "build/SEALs Config - Modlist"
+
+    New-Item -Path $target -ItemType Directory | Out-Null
+
+    Copy-Item -Recurse -Force -Path ".\Modules\Modlist\gamedata" -Destination $target -Exclude .bak
+    Copy-Item -Recurse -Force -Path ".\Modules\Modlist\generation" -Destination $target -Exclude .bak, "vfs_generate*"
+    Copy-Item -Recurse -Force -Path ".\Modules\Modlist\generation\vfs_generate_modlist_grp.ps1" -Destination $target -Exclude .bak
+
+    $compress = @{
+        Path = "$target/*" 
+        CompressionLevel = "Fastest"
+        DestinationPath = "release/SEALs Config - Modlist.zip"
+    }
+    Compress-Archive @compress -Force     
+}
+
 function Build3DSSConfigs {
 
     $target = "build/SEALs Config - 3DSS"
+
+    New-Item -Path $target -ItemType Directory | Out-Null
+
     Copy-Item -Recurse -Force -Path ".\Modules\3DSS\gamedata" -Destination $target -Exclude .bak
     Copy-Item -Recurse -Force -Path ".\Modules\3DSS\generation" -Destination $target -Exclude .bak, "vfs_generate*"
     Copy-Item -Recurse -Force -Path ".\Modules\3DSS\generation\vfs_generate_3dss_grp.ps1" -Destination $target -Exclude .bak
@@ -80,14 +88,16 @@ function Build3DSSConfigs {
     Compress-Archive @compress -Force         
 }
 
-CreateBuildFolders
 BuildMod
 BuildGAMMAConfigs
 Build3DSSConfigs
+BuildModlistConfigs
+
 BuildConfigs "demo"
 BuildConfigs "manufacturers"
 BuildConfigs "mods"
 BuildConfigs "template"
+BuildConfigs "Anomaly"
 
 
 Remove-Item -Force -Recurse -Path "./build"
