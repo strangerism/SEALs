@@ -105,7 +105,7 @@ open the `st_ui_beretta_seals` file and edit the mcm menu name and seal caption 
 <string_table>
 
 	<!-- MCM menu item for Dynamic Icons Indicators mod -->
-	<string id ="ui_mcm_dii_beretta_seal_show">
+	<string id ="ui_mcm_seals_beretta_seal_show">
 		<text>Beretta seal</text>
 	</string>
 
@@ -230,7 +230,7 @@ The script generates outputs depending on how is run
 
 - by default it will generate the group file in the same mod folder `".\generation\output\group_3dss.ltx"`
 
-- if run with `update` param it will update the group file in the same mod folder `".\gamedata\configs\custom_icon_layers\groups\group_3dss.ltx"`
+- if run with `update` param it will update the group file in the same mod folder `".\gamedata\configs\custom_seal_layers\groups\group_3dss.ltx"`
     
     > the mod is packaged with such an empty file in order for the script to update always the file in the mod folder instead of an ephemeral copy under MO2's **overwrite** folder
 

@@ -2,10 +2,10 @@
 
 <string_table>
 
-	<string id ="ui_mcm_dii_gamma_seal_show">
+	<string id ="ui_mcm_seals_gamma_seal_show">
 		<text>GAMMA seals</text>
 	</string>
-	<string id ="ui_mcm_dii_3dss_seal_show">
+	<string id ="ui_mcm_seals_3dss_seal_show">
 		<text>3D Scopes seals</text>
 	</string>	
 	<string id ="ui_seals_gamma">

@@ -4,13 +4,22 @@ local options = {
     debug = true
 }
 
+local mcm_id = "seals"
 
-local ___io = icon_overlayer_mcm
 local string_format = string.format
 local string_find   = string.find
 
 layers = {}
 groups = {}
+
+
+local op = { id = mcm_id, gr = {} }
+main_settings_path = string_format("%s/%s_main_settings", mcm_id, mcm_id) .. "/%s"
+
+op.gr[1] = { id = mcm_id .. "_main_settings", sh = true, gr = {
+    { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 },
+    { id = "scale", hint = string_format("%s_scale", mcm_id), type = "track", val = 2, step = 0.1, def = 1.1, max = 2, min = 0.5}
+}}
 
 function print_table(text, node, ...)
     if (options.debug) then
@@ -71,8 +80,10 @@ function get_texture_rect(texture, cell, xml)
 end
 
 function parse_groups()
-    local groups_ini = ini_file_ex("custom_icon_layers\\groups\\base_seals_groups.ltx")
-    local layers_ini = ini_file_ex("custom_icon_layers\\layers\\base_seals_layers.ltx")
+    print_dbg("!! parse_groups")
+
+    local groups_ini = ini_file_ex("custom_seal_layers\\groups\\base_seals_groups.ltx")
+    local layers_ini = ini_file_ex("custom_seal_layers\\layers\\base_seals_layers.ltx")
     local group_secs = groups_ini:get_sections()
 
     for i = 1, #group_secs do
@@ -97,7 +108,7 @@ function parse_groups()
 
     if is_empty(layer_secs) then return end
 
-    ___io.op.gr[3] = { id = ___io.mcm_id .. "_custom_layers", gr = {} }
+    op.gr[2] = { id = mcm_id .. "_custom_layers", gr = {} }
     local tabs = {}
 
     for i = 1, #layer_secs do
@@ -137,13 +148,13 @@ function parse_groups()
             }
 
             local str = str_explode(settings_group, "/")
-            local tab = str[2] and ___io.mcm_id .. "_custom_layers_" .. str[1] or ___io.mcm_id .. "_custom_layers_main"
+            local tab = str[2] and mcm_id .. "_custom_layers_" .. str[1] or mcm_id .. "_custom_layers_main"
 
             if not tabs[tab] then
-                table.insert(___io.op.gr[3].gr, { id =  tab, sh = true, gr = {
-                    { id = "title", type= "slide", link= "ui_dii_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 }
+                table.insert(op.gr[2].gr, { id =  tab, sh = true, gr = {
+                    { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 }
                 }})
-                tabs[tab] = {idx = #___io.op.gr[3].gr, settings = {}}
+                tabs[tab] = {idx = #op.gr[2].gr, settings = {}}
             end
 
             local setting = str[2] or str[1]
@@ -158,7 +169,7 @@ function parse_groups()
                 ["width"]   = layers_ini:r_float_ex(layer, "width") or 25,
                 ["margin_horz"] = layers_ini:r_float_ex(layer, "margin_horz") or 1,
                 ["margin_vert"] = layers_ini:r_float_ex(layer, "margin_vert") or 1,
-                ["settings_path"] = string_format("%s/%s/%s", ___io.mcm_id, ___io.op.gr[3].id, tab) .. "/%s_" .. setting
+                ["settings_path"] = string_format("%s/%s/%s", mcm_id, op.gr[2].id, tab) .. "/%s_" .. setting
             }
 
             print_table("- Created layer: %s", layers[group][layer], layer)
@@ -169,12 +180,19 @@ function parse_groups()
 
             tabs[tab].settings[setting] = true
 
-            table.insert(___io.op.gr[3].gr[tabs[tab].idx].gr, { id = "show_" .. setting, hint = string_format("%s_%s_show", ___io.mcm_id, setting), val = 1, type = "check", def = true })
+            table.insert(op.gr[2].gr[tabs[tab].idx].gr, { id = "show_" .. setting, hint = string_format("%s_%s_show", mcm_id, setting), val = 1, type = "check", def = true })
         until true
     end
+
+    print_dbg("!! total # of layers %s", #layers)
+    print_dbg("!! total # of groups %s", #groups)
 end
 
 parse_groups()
+
+function on_mcm_load()
+    return op
+end
 
 layer_functors = {}
 
@@ -190,7 +208,7 @@ layer_functors.custom_layers = function(sec, cell, xml)
     axis.h = math.ceil(axis.h / scale)
     
     local custom_layers = {}
-    local scale = get_config(___io.main_settings_path, "scale", 1.1)
+    local scale = get_config(main_settings_path, "scale", 1.1)
     print_dbg("- MAXXXX custom layer %s", sec)
     for i = 1, #layer_info do
         print_dbg("layer %s", i)
@@ -198,6 +216,7 @@ layer_functors.custom_layers = function(sec, cell, xml)
         for layer, data in pairs(group) do
             repeat
                 if not get_config(data.settings_path, "show", true) then
+                    print_dbg("!! layer skipped %s", data.caption)
                     do break end -- continue
                 end
                 local kind = SYS_GetParam(0,sec,"kind")
@@ -294,7 +313,20 @@ function add_texture_layer(self, ele, base, tbl, sec, ele_no)
     ele:Show(true)
 end
 
+function is_valid_kind(sec)
+    local kind = (sec and SYS_GetParam(0,sec,"kind")) or ""
+
+    if kind == "w_pistol" or kind == "w_shotgun" or kind == "w_sniper" or kind == "w_rifle" or kind "w_smg" then
+        return true
+    else
+        return false
+    end
+
+end
+
 function get_all_layers(sec, cell, xml)
+    if not is_valid_kind(sec) then return end
+    print_dbg("!! get_all_layers for %s", sec)
     local seals_layers = {}
 
     for name, functor in pairs(layer_functors) do
@@ -305,7 +337,7 @@ function get_all_layers(sec, cell, xml)
             end
         end
     end
-
+    print_dbg("- Number of layers %s", seals_layers and #seals_layers or 0)
     return seals_layers
 end
 
@@ -343,7 +375,7 @@ function get_seals(sec)
     if not layer_info then return {} end
     local seals = {}
     -- local scale = get_config(main_settings_path, "scale", 1.1)
-    print_dbg("- MAXXXX custom layer %s", sec)
+    print_dbg("- MAXXXX get_seals %s", sec)
     for i = 1, #layer_info do
         print_dbg("layer %s", i)
         local group = layers[layer_info[i]]
@@ -372,120 +404,4 @@ function get_seals(sec)
     end
 
     return seals
-end
-
-
----- other overrides
----
----
----
-
-
--- moves the upgrade indicator to the top rigth
-local og_Add_Upgrade = utils_ui.UICellItem.Add_Upgrade
-function utils_ui.UICellItem:Add_Upgrade(xml, obj, sec)
-
-    og_Add_Upgrade(self, xml, obj, sec)
-
-	-- Hide upgrade indicator
-	if self.upgr then
-		-- printf("* hide upgrd indicator %s", sec)
-		self.upgr:Show(false)
-	end
-	
-	-- On full stacking, hide upgrade indicator
-	if self.container.stack_all and (self.childs and is_not_empty(self.childs)) then
-		-- printf("* hide upgrd - staking %s", sec)
-		return
-	end
-	
-	-- Bar is applied only to upgraded items
-	if (not utils_item.has_upgrades(obj, sec)) then
-		-- printf("* hide upgrd - has not upgrade %s", sec)
-		return
-	end
-	
-	-- Init if it doesn't exist
-	if (not self.upgr) then
-		if (not xml) then 
-			xml = self:GetXML()
-		end
-		self.upgr = xml:InitStatic(self.path .. ":cell:upgrade", self.ico)
-	end
-
-	local ico = self.ico
-	local xx = self.upgr:GetWndPos().x
-	local yy = self.upgr:GetWndPos().y
-
-	local rot = ico:GetHeading() > 0
-
-	if rot then
-		
-		local x_offset = -4 * 1024/device().width + (self.cell:GetWidth() - self.upgr:GetWidth()) --[px]
-		local y_offset = 4 * 768/device().height --[px]
-		xx = x_offset - (self.cell:GetWidth() - ico:GetWidth())/2
-		yy = y_offset - (self.cell:GetHeight() - ico:GetHeight())/2
-
-		self.upgr:SetWndPos(vector2():set( xx , yy ))
-	else
-		self.upgr:SetWndPos(vector2():set( xx + self.cell:GetWidth() - 25 * 1024/device().width , yy ))
-	end
-
-	self.upgr:Show(true)
-	
-	self:Print(nil, "Show upgrade indicator")
-	
-end
-
--- draws the seal badges on the tooltip dialog
-local XMLP = CScriptXmlInit()
-XMLP:ParseFile("utils.xml")
-local og_UIInfoItem_Update = utils_ui.UIInfoItem.Update
-function utils_ui.UIInfoItem:Update(obj, sec, flags)
-	og_UIInfoItem_Update(self, obj, sec, flags)
-	-- printf("! Update now")
-	-- destroy icons first
-	if self.seals then
-		-- printf("* -- destroy icons first")
-		for i = 1, #self.seals do
-			-- printf("-- Creating Seal id %s name %s", i, self.seals[i].cap:GetText())
-			self.seals[i].icon:Show(false)
-			self.seals[i].icon = nil
-			self.seals[i].cap:Show(false)
-			self.seals[i].cap = nil
-			self.seals[i].base:Show(false)
-			self.seals[i].base = nil
-		end
-	end
-	---
-
-	self.seals = {}
-
-	local seals = get_seals(sec)
-	-- printf("* -- create new icons")
-	local margin = 0
-	local y_offset = 0
-	for i = 1, #seals do
-		if i > 6 then break end
-		-- printf("-- Creating Seal id %s name %s", i, seals[i].name)
-		self.seals[i]        = {}
-		self.seals[i].base = XMLP:InitStatic("item_info:seal", self.dialog)
-		self.seals[i].icon  = XMLP:InitStatic("item_info:seal:icon", self.seals[i].base)
-		self.seals[i].icon:InitTexture(seals[i].texture)
-		self.seals[i].cap    = XMLP:InitTextWnd("item_info:seal:cap", self.seals[i].base)
-		self.seals[i].cap:SetText(strformat("%s", game.translate_string(seals[i].caption)))
-		if (i == 4) then
-			-- reset x margin
-			margin = 0
-			-- add y_offset 
-			y_offset = (self.seals[i].icon:GetHeight() + self.seals[i].cap:GetHeight()) + 25 * 768/device().height 
-		end
-		local xx = (self.dialog:GetWidth() - self.seals[i].icon:GetWidth() - margin) - 100 * 1024/device().width
-		local yy = self.seals[i].base:GetWndPos().y - 20 * 768/device().height + y_offset
-		self.seals[i].base:SetWndPos(vector2():set(xx , yy))
-		self.seals[i].icon:Show(true)
-		self.seals[i].icon:IsAutoDelete(true)
-		margin = margin + self.seals[i].icon:GetWidth() + 35 * 1024/device().width
-	end
-	
 end

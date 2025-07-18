@@ -2,37 +2,37 @@
 
 <string_table>
 
-	<string id ="ui_mcm_dii_gamma_seal_show">
+	<string id ="ui_mcm_seals_gamma_seal_show">
 		<text>GAMMA seals</text>
 	</string>
-	<string id ="ui_mcm_dii_blackmarket_seal_show">
+	<string id ="ui_mcm_seals_blackmarket_seal_show">
 		<text>BlackMarket seals</text>
 	</string>
-	<string id ="ui_mcm_dii_lootbox_seal_show">
+	<string id ="ui_mcm_seals_lootbox_seal_show">
 		<text>LootBox seals</text>
 	</string>
-	<string id ="ui_mcm_dii_3dss_seal_show">
+	<string id ="ui_mcm_seals_3dss_seal_show">
 		<text>3D Scopes seals</text>
 	</string>
-	<string id ="ui_mcm_dii_blackg_seal_show">
+	<string id ="ui_mcm_seals_blackg_seal_show">
 		<text>Blackgrowl seals</text>
 	</string>
-	<string id ="ui_mcm_dii_franchi_seal_show">
+	<string id ="ui_mcm_seals_franchi_seal_show">
 		<text>Luigi Franchi seals</text>
 	</string>	
-	<string id ="ui_mcm_dii_zona_seal_show">
+	<string id ="ui_mcm_seals_zona_seal_show">
 		<text>Gift from the Zone seals</text>
 	</string>
-	<string id ="ui_mcm_dii_ccon_seal_show">
+	<string id ="ui_mcm_seals_ccon_seal_show">
 		<text>The Group seals</text>
 	</string>
-	<string id ="ui_mcm_dii_rwap_seal_show">
+	<string id ="ui_mcm_seals_rwap_seal_show">
 		<text>Retrogue seals</text>
 	</string>	
-	<string id ="ui_mcm_dii_kalash_seal_show">
+	<string id ="ui_mcm_seals_kalash_seal_show">
 		<text>Kalashnikov seals</text>
 	</string>
-	<string id ="ui_mcm_dii_sig_seal_show">
+	<string id ="ui_mcm_seals_sig_seal_show">
 		<text>Sig Sauer seals</text>
 	</string>	
 	

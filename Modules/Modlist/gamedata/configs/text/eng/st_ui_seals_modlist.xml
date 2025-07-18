@@ -2,7 +2,7 @@
 
 <string_table>
 
-	<string id ="ui_mcm_dii_modlist_seal_show">
+	<string id ="ui_mcm_seals_modlist_seal_show">
 		<text>Modlist seals</text>
 	</string>
 	<string id ="ui_seals_modlist">

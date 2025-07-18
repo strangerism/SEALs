@@ -1,0 +1,5 @@
+<w>
+	<file name = "ui\seals_banner.dds">
+        <texture id = "ui_seals_mcm_banner"		x="0"	y="0"	width="703"	height="60" />
+    </file>
+</w>

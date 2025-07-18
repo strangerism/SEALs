@@ -2,13 +2,13 @@
 
 <string_table>
 
-	<string id ="ui_mcm_dii_franchi_seal_show">
+	<string id ="ui_mcm_seals_franchi_seal_show">
 		<text>Luigi Franchi seals</text>
 	</string>	
-	<string id ="ui_mcm_dii_kalash_seal_show">
+	<string id ="ui_mcm_seals_kalash_seal_show">
 		<text>Kalashnikov seals</text>
 	</string>
-	<string id ="ui_mcm_dii_sig_seal_show">
+	<string id ="ui_mcm_seals_sig_seal_show">
 		<text>Sig Sauer seals</text>
 	</string>	
 	<string id ="ui_seals_franchi">

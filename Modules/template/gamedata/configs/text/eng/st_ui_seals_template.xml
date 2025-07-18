@@ -3,7 +3,7 @@
 <string_table>
 
 	<!-- MCM menu item for Dynamic Icons Indicators mod -->
-	<string id ="ui_mcm_dii_template_seal_show">
+	<string id ="ui_mcm_seals_template_seal_show">
 		<text>Template seal</text>
 	</string>
 
