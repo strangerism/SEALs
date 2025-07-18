@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="windows-1251"?>
+
+<string_table>
+
+	<string id ="ui_mcm_dii_modlist_seal_show">
+		<text>Modlist seals</text>
+	</string>
+	<string id ="ui_seals_modlist">
+		<text>Modlist</text>
+	</string>			
+</string_table>  

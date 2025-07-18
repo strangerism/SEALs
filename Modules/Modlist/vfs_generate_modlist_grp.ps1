@@ -11,9 +11,9 @@ if ($param) {
 }
 
 if ($param -eq "update"){
-    $outputFile = ".\gamedata\configs\custom_icon_layers\groups\seals_group_gamma.ltx"
+    $outputFile = ".\gamedata\configs\custom_icon_layers\groups\seals_group_modlist.ltx"
 }else{
-    $outputFile = ".\generation\output\seals_group_gamma.ltx"
+    $outputFile = ".\generation\output\seals_group_modlist.ltx"
 }
 
 # Clear previous output if exists
@@ -21,21 +21,10 @@ if (Test-Path $outputFile) {
     Remove-Item $outputFile
 }
 
-# Path to miss report and files
+# Path to miss file
 $noMatchesPath = ".\generation\output\miss\no_matches.ltx"
-$noMatchesFilesPath = ".\generation\output\miss\files"
-if (Test-Path $noMatchesFilesPath) {
-    Remove-Item $noMatchesFilesPath -Recurse
-}
-New-Item -Path $noMatchesFilesPath -ItemType Directory
-
-# Path to hit report and files
 $hitPath = ".\generation\output\hit\"
-$hitPathFilesPath = ".\generation\output\hit\files"
-if (Test-Path $hitPathFilesPath) {
-    Remove-Item $hitPathFilesPath -Recurse
-}
-New-Item -Path $hitPathFilesPath -ItemType Directory
+New-Item -Path ".\generation\output\miss\files" -ItemType Directory
 
 # Use a hash set for uniqueness
 $weaponSet = [System.Collections.Generic.HashSet[string]]::new()
@@ -66,18 +55,13 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
     }
     if ($count -eq 0){
         Write-Host no matches in $_.FullName
-        # add the file to the no matches files list
         $noMatchesList += $_.FullName
-        # save the input scanned file
-        Copy-Item -Path $_.FullName -Destination "$noMatchesFilesPath\$($_.Name)"
+        Copy-Item -Path $_.FullName -Destination ".\generation\output\miss\files\$($_.Name)"
     }else{
+        $fileWeaponSet | Set-Content -Path "$hitPath\$_"
         foreach($section in $fileWeaponSet){
             $weaponSet.Add($section) | Out-Null
         }
-        # save the hit reports to dedicated file
-        $fileWeaponSet | Set-Content -Path "$hitPath\$_"
-        # save the input scanned file
-        Copy-Item -Path $_.FullName -Destination "$hitPathFilesPath\$($_.Name)"
     }
 }
 

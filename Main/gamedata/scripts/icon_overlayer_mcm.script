@@ -1,5 +1,5 @@
 local options = {
-    debug = false
+    debug = true
 }
 
 local mcm_id = "dii"

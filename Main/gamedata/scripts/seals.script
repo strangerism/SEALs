@@ -10,12 +10,12 @@ local io = icon_overlayer_mcm
 local string_format = string.format
 local string_find   = string.find
 
-icon_overlayer_mcm.layers = {}
-icon_overlayer_mcm.groups = {}
+-- icon_overlayer_mcm.layers = {}
+-- icon_overlayer_mcm.groups = {}
 
-function icon_overlayer_mcm.parse_groups()
-    local groups_ini = ini_file_ex("custom_icon_layers\\groups\\base_groups.ltx")
-    local layers_ini = ini_file_ex("custom_icon_layers\\layers\\base_layers.ltx")
+function parse_groups()
+    local groups_ini = ini_file_ex("custom_icon_layers\\groups\\base_seals_groups.ltx")
+    local layers_ini = ini_file_ex("custom_icon_layers\\layers\\base_seals_layers.ltx")
     local group_secs = groups_ini:get_sections()
 
     for i = 1, #group_secs do
@@ -117,7 +117,7 @@ function icon_overlayer_mcm.parse_groups()
     end
 end
 
-icon_overlayer_mcm.parse_groups()
+parse_groups()
 
 icon_overlayer_mcm.layer_functors.custom_layers = function(sec, cell, xml)
     local layer_info = io.groups[sec]
@@ -148,8 +148,8 @@ icon_overlayer_mcm.layer_functors.custom_layers = function(sec, cell, xml)
                 io.print_dbg("- FOUND")
                 io.print_dbg("data.texture %s", data.texture)
                 local rect = io.get_texture_rect(data.texture, cell, xml)
-                local h = (rect.y2 - rect.y1) / data.icon_scale
-                local w = (rect.x2 - rect.x1) / data.icon_scale
+                local h = (rect.y2 - rect.y1) / (data.icon_scale or 1)
+                local w = (rect.x2 - rect.x1) / (data.icon_scale or 1)
 
                 local layer = {
                     ["x"] = io.anchors.x[data.anchor.x](axis, data.margin_horz, w),

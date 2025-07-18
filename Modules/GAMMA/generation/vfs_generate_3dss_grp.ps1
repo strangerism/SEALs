@@ -12,9 +12,9 @@ if ($param) {
 
 
 if ($param -eq "update"){
-    $outputFile = ".\gamedata\configs\custom_icon_layers\groups\group_3dss.ltx"
+    $outputFile = ".\gamedata\configs\custom_icon_layers\groups\seals_group_3dss.ltx"
 }else{
-    $outputFile = ".\generation\output\group_3dss.ltx"
+    $outputFile = ".\generation\output\seals_group_3dss.ltx"
 }
 
 # Clear previous output if exists

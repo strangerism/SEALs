@@ -1,0 +1,6 @@
+<w>
+	<!-- GAMMA -->
+	<file name = "ui\modlist_seal">
+		<texture id = "ui_seals_icon_modlist" 				x="0"	y="0"	width="400"	height="400" />	
+	</file>						
+</w>
