@@ -1,17 +1,74 @@
 disable_pistols = false
 
---- icon_overlayer_mcm.script overrides
---- 
---- 
---- 
+local options = {
+    debug = true
+}
 
 
-local io = icon_overlayer_mcm
+local ___io = icon_overlayer_mcm
 local string_format = string.format
 local string_find   = string.find
 
--- icon_overlayer_mcm.layers = {}
--- icon_overlayer_mcm.groups = {}
+layers = {}
+groups = {}
+
+function print_table(text, node, ...)
+    if (options.debug) then
+        text = string_format(text, ...)
+        printf("Seal Overlayer: | %s | \n" .. utils_data.print_table(node, text, true), time_global(), ...)
+    end
+end
+
+function print_dbg(text , ...)
+	if (options.debug) then
+		printf("Seal Overlayer: | %s | " .. text, time_global(), ...)
+	end
+end
+
+anchors = {
+    x = {
+        right = function(axis, margin, w)
+            return (axis.w - w) - margin
+        end,
+        left = function(axis, margin, w)
+            return margin
+        end,
+        center = function(axis, margin, w)
+            return ((axis.w * 0.5) - (w  * 0.5)) + margin
+        end,
+    },
+    y = {
+        top = function(axis, margin, h)
+            return margin
+        end,
+        bottom = function(axis, margin, h)
+            return (axis.h - h) - margin
+        end,
+        center = function(axis, margin, h)
+            return ((axis.h * 0.5) - (h  * 0.5)) - margin
+        end,
+    }
+}
+
+function get_config(path, config, def)
+    if not ui_mcm then
+        return def
+    end
+
+    return ui_mcm.get(string_format(path, config))
+end
+
+local rect_cache = {}
+
+function get_texture_rect(texture, cell, xml)
+    if rect_cache[texture] then
+        return rect_cache[texture]
+    end
+    local rect_layer = xml:InitStatic(cell.path .. ":" .. cell.cx .. ":pic", cell.ico)
+    rect_layer:InitTexture(texture)
+    rect_cache[texture] = rect_layer:GetTextureRect()
+    return rect_cache[texture]
+end
 
 function parse_groups()
     local groups_ini = ini_file_ex("custom_icon_layers\\groups\\base_seals_groups.ltx")
@@ -28,10 +85,10 @@ function parse_groups()
             local items = utils_data.collect_section(groups_ini.ini, group)
             for i = 1 , #items do
                 local item = items[i]
-                if not io.groups[item] then
-                    io.groups[item] = {}
+                if not groups[item] then
+                    groups[item] = {}
                 end
-                io.groups[item][#io.groups[item] + 1] = group
+                groups[item][#groups[item] + 1] = group
             end
         until true
     end
@@ -40,7 +97,7 @@ function parse_groups()
 
     if is_empty(layer_secs) then return end
 
-    io.op.gr[3] = { id = io.mcm_id .. "_custom_layers", gr = {} }
+    ___io.op.gr[3] = { id = ___io.mcm_id .. "_custom_layers", gr = {} }
     local tabs = {}
 
     for i = 1, #layer_secs do
@@ -52,7 +109,7 @@ function parse_groups()
 
             local group = layers_ini:r_string_ex(layer, "group")
             if not group then
-                io.print_dbg("! No group specified for the layer: [%s]", layer)
+                print_dbg("! No group specified for the layer: [%s]", layer)
                 do break end -- continue
             end
 
@@ -60,38 +117,38 @@ function parse_groups()
             -- create single item groups automatically
             if not groups_ini:section_exist(group) then
                 local item = group
-                if not io.groups[item] then
-                    io.groups[item] = {}
+                if not groups[item] then
+                    groups[item] = {}
                 end
                 group = string_format("%s_%s", group, layer)
-                io.print_dbg("- Created group %s", group)
-                io.groups[item][#io.groups[item] + 1] = group
+                print_dbg("- Created group %s", group)
+                groups[item][#groups[item] + 1] = group
             end
 
-            if not io.layers[group] then
-                io.layers[group] = {}
+            if not layers[group] then
+                layers[group] = {}
             end
 
             local anchor_str = layers_ini:r_string_ex(layer, "anchor")
             anchor_str = anchor_str and str_explode(anchor_str, "_") or {}
             local anchor = {
-                x = io.anchors.x[anchor_str[1]] and anchor_str[1] or "center",
-                y = anchor_str[2] or (io.anchors.y[anchor_str[1]] and anchor_str[1]) or "center",
+                x = anchors.x[anchor_str[1]] and anchor_str[1] or "center",
+                y = anchor_str[2] or (anchors.y[anchor_str[1]] and anchor_str[1]) or "center",
             }
 
             local str = str_explode(settings_group, "/")
-            local tab = str[2] and io.mcm_id .. "_custom_layers_" .. str[1] or io.mcm_id .. "_custom_layers_main"
+            local tab = str[2] and ___io.mcm_id .. "_custom_layers_" .. str[1] or ___io.mcm_id .. "_custom_layers_main"
 
             if not tabs[tab] then
-                table.insert(io.op.gr[3].gr, { id =  tab, sh = true, gr = {
+                table.insert(___io.op.gr[3].gr, { id =  tab, sh = true, gr = {
                     { id = "title", type= "slide", link= "ui_dii_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 }
                 }})
-                tabs[tab] = {idx = #io.op.gr[3].gr, settings = {}}
+                tabs[tab] = {idx = #___io.op.gr[3].gr, settings = {}}
             end
 
             local setting = str[2] or str[1]
 
-            io.layers[group][layer] = {
+            layers[group][layer] = {
                 ["texture"]  = layers_ini:r_string_ex(layer, "texture") or "ui_buffdebuff_icon_scope",
                 ["icon_scale"]   = layers_ini:r_float_ex(layer, "icon_scale") or 1,
                 ["tooltip_scale"]   = layers_ini:r_float_ex(layer, "tooltip_scale") or 1,
@@ -101,10 +158,10 @@ function parse_groups()
                 ["width"]   = layers_ini:r_float_ex(layer, "width") or 25,
                 ["margin_horz"] = layers_ini:r_float_ex(layer, "margin_horz") or 1,
                 ["margin_vert"] = layers_ini:r_float_ex(layer, "margin_vert") or 1,
-                ["settings_path"] = string_format("%s/%s/%s", io.mcm_id, io.op.gr[3].id, tab) .. "/%s_" .. setting
+                ["settings_path"] = string_format("%s/%s/%s", ___io.mcm_id, ___io.op.gr[3].id, tab) .. "/%s_" .. setting
             }
 
-            io.print_table("- Created layer: %s", io.layers[group][layer], layer)
+            print_table("- Created layer: %s", layers[group][layer], layer)
 
             if tabs[tab].settings[setting] then
                 do break end
@@ -112,15 +169,17 @@ function parse_groups()
 
             tabs[tab].settings[setting] = true
 
-            table.insert(io.op.gr[3].gr[tabs[tab].idx].gr, { id = "show_" .. setting, hint = string_format("%s_%s_show", io.mcm_id, setting), val = 1, type = "check", def = true })
+            table.insert(___io.op.gr[3].gr[tabs[tab].idx].gr, { id = "show_" .. setting, hint = string_format("%s_%s_show", ___io.mcm_id, setting), val = 1, type = "check", def = true })
         until true
     end
 end
 
 parse_groups()
 
-icon_overlayer_mcm.layer_functors.custom_layers = function(sec, cell, xml)
-    local layer_info = io.groups[sec]
+layer_functors = {}
+
+layer_functors.custom_layers = function(sec, cell, xml)
+    local layer_info = groups[sec]
     if not layer_info then return {} end
     local axis = utils_xml.get_item_axis(sec)
 
@@ -131,29 +190,29 @@ icon_overlayer_mcm.layer_functors.custom_layers = function(sec, cell, xml)
     axis.h = math.ceil(axis.h / scale)
     
     local custom_layers = {}
-    local scale = io.get_config(io.main_settings_path, "scale", 1.1)
-    io.print_dbg("- MAXXXX custom layer %s", sec)
+    local scale = get_config(___io.main_settings_path, "scale", 1.1)
+    print_dbg("- MAXXXX custom layer %s", sec)
     for i = 1, #layer_info do
-        io.print_dbg("layer %s", i)
-        local group = io.layers[layer_info[i]]
+        print_dbg("layer %s", i)
+        local group = layers[layer_info[i]]
         for layer, data in pairs(group) do
             repeat
-                if not io.get_config(data.settings_path, "show", true) then
+                if not get_config(data.settings_path, "show", true) then
                     do break end -- continue
                 end
                 local kind = SYS_GetParam(0,sec,"kind")
                 if kind == "w_pistol" and disable_pistols then
                     return
                 end
-                io.print_dbg("- FOUND")
-                io.print_dbg("data.texture %s", data.texture)
-                local rect = io.get_texture_rect(data.texture, cell, xml)
+                print_dbg("- FOUND")
+                print_dbg("data.texture %s", data.texture)
+                local rect = get_texture_rect(data.texture, cell, xml)
                 local h = (rect.y2 - rect.y1) / (data.icon_scale or 1)
                 local w = (rect.x2 - rect.x1) / (data.icon_scale or 1)
 
                 local layer = {
-                    ["x"] = io.anchors.x[data.anchor.x](axis, data.margin_horz, w),
-                    ["y"] = io.anchors.y[data.anchor.y](axis, data.margin_vert, h),
+                    ["x"] = anchors.x[data.anchor.x](axis, data.margin_horz, w),
+                    ["y"] = anchors.y[data.anchor.y](axis, data.margin_vert, h),
                     ["h"] = h,
                     ["w"] = w,
                     ["texture"] = data.texture
@@ -161,8 +220,8 @@ icon_overlayer_mcm.layer_functors.custom_layers = function(sec, cell, xml)
                 if data.align == "relative" then
                     layer["x"] = layer["x"] + data.width * (i-1) + data.margin_horz * (i-1)
                 end
-                io.print_dbg(" layer.x %s", layer["x"])
-                io.print_dbg(" layer.y %s", layer["y"])
+                print_dbg(" layer.x %s", layer["x"])
+                print_dbg(" layer.y %s", layer["y"])
                 custom_layers[#custom_layers + 1] = layer
             until true
         end
@@ -171,7 +230,8 @@ icon_overlayer_mcm.layer_functors.custom_layers = function(sec, cell, xml)
     return custom_layers
 end
 
-function icon_overlayer_mcm.add_texture_layer(self, ele, base, tbl, sec, ele_no)
+function add_texture_layer(self, ele, base, tbl, sec, ele_no)
+    print_dbg(" add_texture_layer %s", sec)
     -- if not sec or not ele_no then return end
     local ratio = utils_xml.screen_ratio()
     local grid_size = self.grid_size
@@ -234,29 +294,44 @@ function icon_overlayer_mcm.add_texture_layer(self, ele, base, tbl, sec, ele_no)
     ele:Show(true)
 end
 
+function get_all_layers(sec, cell, xml)
+    local seals_layers = {}
+
+    for name, functor in pairs(layer_functors) do
+        local layers = functor(sec, cell, xml)
+        if not is_empty(layers) then
+            for i = 1, #layers do
+                seals_layers[#seals_layers + 1] = layers[i]
+            end
+        end
+    end
+
+    return seals_layers
+end
+
 _Add_Layers = utils_ui.UICellItem.Add_Layers
 
 utils_ui.UICellItem.Add_Layers = function(self, xml, obj, sec, clsid)
-    if self.property_layer then
-        for i = 1, #self.property_layer do
-            self.property_layer[i]:Show(false)
+    if self.seals_layer then
+        for i = 1, #self.seals_layer do
+            self.seals_layer[i]:Show(false)
         end
     end
 
     xml = xml or self:GetXML()
-    local prop_layers = io.get_all_layers(sec, self, xml)
+    local seals_layers = get_all_layers(sec, self, xml)
 
-    if not io.is_empty(prop_layers) then
-        if not self.property_layer then
-            self.property_layer = {}
+    if not is_empty(seals_layers) then
+        if not self.seals_layer then
+            self.seals_layer = {}
         end
 
-        for i = 1, #prop_layers do
-            if (not self.property_layer[i]) then
+        for i = 1, #seals_layers do
+            if (not self.seals_layer[i]) then
 
-                self.property_layer[i] = xml:InitStatic(self.path .. ":" .. self.cx .. ":pic", self.ico)
+                self.seals_layer[i] = xml:InitStatic(self.path .. ":" .. self.cx .. ":pic", self.ico)
             end
-            icon_overlayer_mcm.add_texture_layer(self, self.property_layer[i], self.ico, prop_layers[i], sec, i)
+            add_texture_layer(self, self.seals_layer[i], self.ico, seals_layers[i], sec, i)
         end
     end
 
@@ -264,26 +339,26 @@ utils_ui.UICellItem.Add_Layers = function(self, xml, obj, sec, clsid)
 end
 
 function get_seals(sec)
-    local layer_info = io.groups[sec]
+    local layer_info = groups[sec]
     if not layer_info then return {} end
     local seals = {}
     -- local scale = get_config(main_settings_path, "scale", 1.1)
-    io.print_dbg("- MAXXXX custom layer %s", sec)
+    print_dbg("- MAXXXX custom layer %s", sec)
     for i = 1, #layer_info do
-        io.print_dbg("layer %s", i)
-        local group = io.layers[layer_info[i]]
+        print_dbg("layer %s", i)
+        local group = layers[layer_info[i]]
         for layer, data in pairs(group) do
             repeat
-                if not io.get_config(data.settings_path, "show", true) then
+                if not get_config(data.settings_path, "show", true) then
                     do break end -- continue
                 end
                 -- local kind = SYS_GetParam(0,sec,"kind")
                 -- if kind == "w_pistol" and disable_pistols then
                 --     return
                 -- end
-                io.print_dbg("- FOUND")
-                io.print_dbg("data.texture %s", data.texture)
-                io.print_dbg("data.caption %s", data.caption)
+                print_dbg("- FOUND")
+                print_dbg("data.texture %s", data.texture)
+                print_dbg("data.caption %s", data.caption)
                 local seal = {
                     ["name"] = layer,
                     ["caption"] = data.caption,

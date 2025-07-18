@@ -1,5 +1,5 @@
 local options = {
-    debug = true
+    debug = false
 }
 
 local mcm_id = "dii"
@@ -591,35 +591,35 @@ function get_all_layers(sec, cell, xml)
     return prop_layers
 end
 
--- _Add_Layers = utils_ui.UICellItem.Add_Layers
+_Add_Layers = utils_ui.UICellItem.Add_Layers
 
--- utils_ui.UICellItem.Add_Layers = function(self, xml, obj, sec, clsid)
---     if self.property_layer then
---         for i = 1, #self.property_layer do
---             self.property_layer[i]:Show(false)
---         end
---     end
+utils_ui.UICellItem.Add_Layers = function(self, xml, obj, sec, clsid)
+    if self.property_layer then
+        for i = 1, #self.property_layer do
+            self.property_layer[i]:Show(false)
+        end
+    end
 
---     xml = xml or self:GetXML()
---     local prop_layers = get_all_layers(sec, self, xml)
+    xml = xml or self:GetXML()
+    local prop_layers = get_all_layers(sec, self, xml)
 
---     if not is_empty(prop_layers) then
---         if not self.property_layer then
---             self.property_layer = {}
---         end
+    if not is_empty(prop_layers) then
+        if not self.property_layer then
+            self.property_layer = {}
+        end
 
---         for i = 1, #prop_layers do
---             if (not self.property_layer[i]) then
+        for i = 1, #prop_layers do
+            if (not self.property_layer[i]) then
 
---                 self.property_layer[i] = xml:InitStatic(self.path .. ":" .. self.cx .. ":pic", self.ico)
---             end
+                self.property_layer[i] = xml:InitStatic(self.path .. ":" .. self.cx .. ":pic", self.ico)
+            end
 
---             add_texture_layer(self, self.property_layer[i], self.ico, prop_layers[i])
---         end
---     end
+            add_texture_layer(self, self.property_layer[i], self.ico, prop_layers[i])
+        end
+    end
 
---     _Add_Layers(self, xml, obj, sec, clsid)
--- end
+    _Add_Layers(self, xml, obj, sec, clsid)
+end
 
 _Colorize = utils_ui.UICellItem.Colorize
 
