@@ -2,9 +2,12 @@
 
 <string_table>
 
-	<string id ="ui_mcm_seals_blackmarket_seal_show">
-		<text>BlackMarket seals</text>
+	<string id ="ui_mcm_seals_bm_wp_seal_show">
+		<text>BlackMarket Warsaw Pact seals</text>
 	</string>
+	<string id ="ui_mcm_seals_bm_nato_seal_show">
+		<text>BlackMarket Nato seals</text>
+	</string>	
 	<string id ="ui_mcm_seals_lootbox_seal_show">
 		<text>LootBox seals</text>
 	</string>
@@ -22,10 +25,10 @@
 	</string>	
 
 	<string id ="ui_seals_bm_wp">
-		<text>BlackMarket</text>
+		<text>BlackMarket Warsaw</text>
 	</string>
 	<string id ="ui_seals_bm_nato">
-		<text>BlackMarket</text>
+		<text>BlackMarket Nato</text>
 	</string>
 	<string id ="ui_seals_blackg">
 		<text>Blackgrowl</text>

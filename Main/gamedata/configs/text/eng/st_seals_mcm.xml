@@ -10,9 +10,21 @@
 	<string id ="ui_mcm_seals_show">
 		<text>Show</text>
 	</string>
-	<string id ="ui_mcm_seals_seals_desc">
+	<string id ="ui_mcm_seals_show_desc">
 		<text>Toggle the display of indicator on or off.</text>
 	</string>
+	<string id ="ui_mcm_seals_scale">
+		<text>Scale</text>
+	</string>
+	<string id ="ui_mcm_seals_scale_desc">
+		<text>Scale up/down the icons of this kind</text>
+	</string>	
+	<string id ="ui_mcm_seals_rotate">
+		<text>Rotate</text>
+	</string>
+	<string id ="ui_mcm_seals_rotate_desc">
+		<text>Rotates the seals' icons 90 degrees (Only for pistols and shotguns with small icon)</text>
+	</string>		
 	<string id ="ui_mcm_seals_anchor_x">
 		<text>Horizontal orientation</text>
 	</string>
@@ -73,24 +85,30 @@
 	<string id ="ui_mcm_lst_seals_bottom">
 		<text>Bottom</text>
 	</string>
-	<string id ="ui_mcm_desc_seals_prop_pistols">
+	<string id ="ui_mcm_desc_seals_prop_w_pistol">
 		<text>Pistols</text>
 	</string>
-	<string id ="ui_mcm_desc_seals_prop_shotgun">
+	<string id ="ui_mcm_desc_seals_prop_w_shotgun">
 		<text>Shotguns</text>
 	</string>
-	<string id ="ui_mcm_desc_seals_prop_rifles">
+	<string id ="ui_mcm_desc_seals_prop_w_rifle">
 		<text>Rifles</text>
 	</string>
-	<string id ="ui_mcm_desc_seals_prop_sniper">
+	<string id ="ui_mcm_desc_seals_prop_w_sniper">
 		<text>Sniper Rifles</text>
 	</string>
+	<string id ="ui_mcm_desc_seals_prop_w_smg">
+		<text>Submachine Guns</text>
+	</string>	
 	<string id ="ui_mcm_menu_seals">
 		<text>SEALs</text>
 	</string>
 	<string id ="ui_mcm_menu_seals_main_settings">
 		<text>Main Settings</text>
 	</string>
+	<string id ="ui_mcm_menu_seals_properties">
+		<text>Kind Properties</text>
+	</string>	
 	<string id ="ui_mcm_menu_seals_custom_layers">
 		<text>Seals config</text>
 	</string>
