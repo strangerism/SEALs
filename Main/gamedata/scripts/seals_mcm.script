@@ -160,6 +160,8 @@ function parse_groups()
             local setting = str[2] or str[1]
 
             layers[group][layer] = {
+                ["primary"]   = layers_ini:r_bool_ex(layer,"primary",false),
+                ["overrides"]   = layers_ini:r_string_ex(layer, "overrides") or "",
                 ["texture"]  = layers_ini:r_string_ex(layer, "texture") or "ui_buffdebuff_icon_scope",
                 ["icon_scale"]   = layers_ini:r_float_ex(layer, "icon_scale") or 1,
                 ["tooltip_scale"]   = layers_ini:r_float_ex(layer, "tooltip_scale") or 1,
@@ -210,6 +212,11 @@ layer_functors.custom_layers = function(sec, cell, xml)
     local custom_layers = {}
     local scale = get_config(main_settings_path, "scale", 1.1)
     print_dbg("- MAXXXX custom layer %s", sec)
+
+    -- Track layer names and overrides for this group
+    local layer_name_to_index = {}
+    local layer_overrides = {}
+
     for i = 1, #layer_info do
         print_dbg("layer %s", i)
         local group = layers[layer_info[i]]
@@ -229,25 +236,75 @@ layer_functors.custom_layers = function(sec, cell, xml)
                 local h = (rect.y2 - rect.y1) / (data.icon_scale or 1)
                 local w = (rect.x2 - rect.x1) / (data.icon_scale or 1)
 
-                local layer = {
+                local layer_tbl = {
                     ["x"] = anchors.x[data.anchor.x](axis, data.margin_horz, w),
                     ["y"] = anchors.y[data.anchor.y](axis, data.margin_vert, h),
                     ["h"] = h,
                     ["w"] = w,
-                    ["texture"] = data.texture
+                    ["texture"] = data.texture,
+                    ["primary"] = data.primary or "",
                 }
                 if data.align == "relative" then
-                    layer["x"] = layer["x"] + data.width * (i-1) + data.margin_horz * (i-1)
+                    layer_tbl["x"] = layer_tbl["x"] + data.width * (i-1) + data.margin_horz * (i-1)
                 end
-                print_dbg(" layer.x %s", layer["x"])
-                print_dbg(" layer.y %s", layer["y"])
-                custom_layers[#custom_layers + 1] = layer
+                print_dbg(" layer.x %s", layer_tbl["x"])
+                print_dbg(" layer.y %s", layer_tbl["y"])
+                -- Track index and override info
+                layer_name_to_index[layer] = #custom_layers + 1
+                layer_overrides[layer] = data.overrides
+                custom_layers[#custom_layers + 1] = layer_tbl
             until true
+            print_table("custom_layers data", data)
         end
     end
 
+-- ...existing code...
+    -- Remove overridden layers
+    local overridden_layers = {}
+    for layer_name, overridden_name in pairs(layer_overrides) do
+        if overridden_name and overridden_name ~= "" then
+            overridden_layers[overridden_name] = true
+        end
+    end
+    local indices_to_remove = {}
+    for overridden_name, _ in pairs(overridden_layers) do
+        local idx = layer_name_to_index[overridden_name]
+        if idx then
+            table.insert(indices_to_remove, idx)
+        end
+    end
+    table.sort(indices_to_remove, function(a, b) return a > b end)
+    for _, idx in ipairs(indices_to_remove) do
+        table.remove(custom_layers, idx)
+    end
+
+    -- Recalculate x for relative layers after removal
+    local rel_idx = 0
+    for i, layer_tbl in ipairs(custom_layers) do
+        -- Find the original data for this layer
+        local found_data = nil
+        for j = 1, #layer_info do
+            local group = layers[layer_info[j]]
+            for _, data in pairs(group) do
+                if data.texture == layer_tbl.texture then
+                    found_data = data
+                    break
+                end
+            end
+            if found_data then break end
+        end
+        if found_data and found_data.align == "relative" then
+            rel_idx = rel_idx + 1
+            layer_tbl.x = anchors.x[found_data.anchor.x](axis, found_data.margin_horz, layer_tbl.w)
+                + found_data.width * (rel_idx-1)
+                + found_data.margin_horz * (rel_idx-1)
+        end
+    end
+
+    print_table("custom_layers", custom_layers)
     return custom_layers
 end
+-- ...existing code...
 
 function add_texture_layer(self, ele, base, tbl, sec, ele_no)
     print_dbg(" add_texture_layer %s", sec)
@@ -316,7 +373,7 @@ end
 function is_valid_kind(sec)
     local kind = (sec and SYS_GetParam(0,sec,"kind")) or ""
 
-    if kind == "w_pistol" or kind == "w_shotgun" or kind == "w_sniper" or kind == "w_rifle" or kind "w_smg" then
+    if kind == "w_pistol" or kind == "w_shotgun" or kind == "w_sniper" or kind == "w_rifle" or kind == "w_smg" then
         return true
     else
         return false
