@@ -1,7 +1,7 @@
 disable_pistols = false
 
 local options = {
-    debug = true
+    debug = false
 }
 
 local mcm_id = "seals"
@@ -278,6 +278,28 @@ layer_functors.custom_layers = function(sec, cell, xml)
         table.remove(custom_layers, idx)
     end
 
+    -- Sort custom_layers so that primary=true layers come first, if any exist
+    table.sort(custom_layers, function(a, b)
+        -- Find the original data for a and b
+        local function get_data_by_texture(texture)
+            for j = 1, #layer_info do
+                local group = layers[layer_info[j]]
+                for _, data in pairs(group) do
+                    if data.texture == texture then
+                        return data
+                    end
+                end
+            end
+            return nil
+        end
+        local data_a = get_data_by_texture(a.texture)
+        local data_b = get_data_by_texture(b.texture)
+        local a_primary = data_a and data_a.primary
+        local b_primary = data_b and data_b.primary
+        if a_primary == b_primary then return false end
+        return a_primary and not b_primary
+    end)
+
     -- Recalculate x for relative layers after removal
     local rel_idx = 0
     for i, layer_tbl in ipairs(custom_layers) do
@@ -307,7 +329,9 @@ end
 -- ...existing code...
 
 function add_texture_layer(self, ele, base, tbl, sec, ele_no)
-    print_dbg(" add_texture_layer %s", sec)
+    printf(" add_texture_layer %s", sec)
+    printf(" --> %s", tbl.texture)
+    
     -- if not sec or not ele_no then return end
     local ratio = utils_xml.screen_ratio()
     local grid_size = self.grid_size
@@ -420,6 +444,7 @@ utils_ui.UICellItem.Add_Layers = function(self, xml, obj, sec, clsid)
 
                 self.seals_layer[i] = xml:InitStatic(self.path .. ":" .. self.cx .. ":pic", self.ico)
             end
+            printf(" Add_Layers[%s] = %s", i, seals_layers[i].texture)
             add_texture_layer(self, self.seals_layer[i], self.ico, seals_layers[i], sec, i)
         end
     end
