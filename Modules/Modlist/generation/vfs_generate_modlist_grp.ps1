@@ -24,20 +24,18 @@ if (Test-Path $outputFile) {
 # Path to miss report and files
 $noMatchesPath = ".\generation\output\miss\no_matches.ltx"
 $noMatchesFilesPath = ".\generation\output\miss\files"
-if (Test-Path ".\generation\output\miss") {
-    Remove-Item ".\generation\output\miss" -Recurse
+if (Test-Path $noMatchesFilesPath) {
+    Remove-Item $noMatchesFilesPath -Recurse
 }
 New-Item -Path $noMatchesFilesPath -ItemType Directory
 
 # Path to hit report and files
 $hitPath = ".\generation\output\hit\"
 $hitPathFilesPath = ".\generation\output\hit\files"
-if (Test-Path ".\generation\output\hit") {
-    Remove-Item ".\generation\output\hit" -Recurse
+if (Test-Path $hitPathFilesPath) {
+    Remove-Item $hitPathFilesPath -Recurse
 }
 New-Item -Path $hitPathFilesPath -ItemType Directory
-
-
 
 # Use a hash set for uniqueness
 $weaponSet = [System.Collections.Generic.HashSet[string]]::new()
@@ -68,13 +66,17 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
     }
     if ($count -eq 0){
         Write-Host no matches in $_.FullName
+        # add the file to the no matches files list
         $noMatchesList += $_.FullName
+        # save the input scanned file
         Copy-Item -Path $_.FullName -Destination "$noMatchesFilesPath\$($_.Name)"
     }else{
-        $fileWeaponSet | Set-Content -Path "$hitPath\$_"
         foreach($section in $fileWeaponSet){
             $weaponSet.Add($section) | Out-Null
         }
+        # save the hit reports to dedicated file
+        $fileWeaponSet | Set-Content -Path "$hitPath\$_"
+        # save the input scanned file
         Copy-Item -Path $_.FullName -Destination "$hitPathFilesPath\$($_.Name)"
     }
 }

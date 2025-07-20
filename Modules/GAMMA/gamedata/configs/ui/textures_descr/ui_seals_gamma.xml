@@ -2,9 +2,5 @@
 	<!-- GAMMA -->
 	<file name = "ui\gamma_seal">
 		<texture id = "ui_seals_icon_gamma" 				x="0"	y="0"	width="200"	height="200" />	
-	</file>		
-	<!-- 3DSS -->
-	<file name = "ui\3dss_seal">
-		<texture id = "ui_seals_icon_3dss" 				x="0"	y="0"	width="200"	height="200" />	
-	</file>					
+	</file>						
 </w>

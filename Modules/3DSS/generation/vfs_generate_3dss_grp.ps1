@@ -22,25 +22,66 @@ if (Test-Path $outputFile) {
     Remove-Item $outputFile
 }
 
-# Paths to logging files
-$noMatchesPath = ".\generation\output\miss\no_matches.ltx"
-# Clear previous output if exists
-if (Test-Path $noMatchesPath) {
-    Remove-Item $noMatchesPath
+# logfile
+$logpath = ".\generation\output\vfs_generate_3dss_grp.txt"
+$logs = @()
+
+function Log {
+    param (
+        [string]$entry,
+        [ref]$logs
+    )
+
+    Write-Host $entry
+    $logs.Value += $entry
 }
 
-$hitPath = ".\generation\output\hit"
-# Clear previous output if exists
-if (Test-Path $hitPath) {
-    Remove-Item -Path $hitPath -Recurse
-    New-Item -Path $hitPath -ItemType Directory
+function LogAdd {
+    param (
+        [string]$entry,
+        [ref]$logs
+    )
+
+    Write-Host $entry -ForegroundColor Cyan
+    $logs.Value += $entry
 }
+function LogDup {
+    param (
+        [string]$entry,
+        [ref]$logs
+    )
+
+    Write-Host $entry -ForegroundColor Red
+    $logs.Value += $entry
+}
+# Path to miss report and files
+$noMatchesPath = ".\generation\output\miss\no_matches.ltx"
+$noMatchesFilesPath = ".\generation\output\miss\files"
+if (Test-Path $noMatchesFilesPath) {
+    Remove-Item $noMatchesFilesPath -Recurse
+}
+New-Item -Path $noMatchesFilesPath -ItemType Directory
+
+# Path to hit report and files
+$hitPath = ".\generation\output\hit\"
+$hitPathFilesPath = ".\generation\output\hit\files"
+if (Test-Path $hitPathFilesPath) {
+    Remove-Item $hitPathFilesPath -Recurse
+}
+New-Item -Path $hitPathFilesPath -ItemType Directory
 
 # Define files to ignore
 $ignoreFiles = Get-Content ".\generation\input\ignoreFiles.txt"
 
 # The list of 3DSS scopes
 $scopeNames = Get-Content ".\generation\input\scopes.txt"
+
+$anomalyWeaponNames = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_anomaly.ltx"
+
+$modlistWeaponNames = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_modlist.ltx"
+
+# Merge and deduplicate
+$weaponNames = ($anomalyWeaponNames + $modlistWeaponNames) | Sort-Object -Unique
 
 # group header
 $header = "[3dss_seal]"
@@ -70,35 +111,45 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File -Filter "*3dss*.ltx" | Whe
 
         foreach ($match in $matches) {
             $raw = $match.Groups["raw"].Value
-
+            # Log "match: $raw" ([ref]$logs)
+            $found = $false
             foreach ($scope in $scopeNames) {
                 # If match is section_scope, extract only section
                 if ($raw -like "*_$scope") {
                     $sectionName = $raw.Substring(0, $raw.Length - $scope.Length - 1)
                     if ($fileSectionNames.Add($sectionName)){
-                        Write-Host adding $sectionName 
+                        LogAdd "adding [section_scope] $sectionName" ([ref]$logs)
                         $count = $count + 1
+                        $found = $true
+                    }else{
+                        # LogDup "duplicate $sectionName" ([ref]$logs)
                     }
                     break
                 }
             }
-
-            # If it's a standalone section like [sectionName] or ![sectionName]
-            if ($scopeNames -notcontains $raw -and ($raw -notlike "*_*")) {
-                if ($fileSectionNames.Add($raw)){
-                    Write-Host adding $sectionName
-                    $count = $count + 1
-                }
-            }  
+            if (!$found){
+                # If it's a standalone section like [sectionName] or ![sectionName]
+                if ($weaponNames -contains $raw) {
+                    # Log "standalone found: $raw" ([ref]$logs)
+                    if ($fileSectionNames.Add($raw)){
+                        LogAdd ">> adding [standalone] $raw" ([ref]$logs)
+                        $count = $count + 1
+                    }else{
+                        # LogDup "duplicate $raw" ([ref]$logs)
+                    }
+                } 
+            }
         }       
     }
 
     if ($count -eq 0){
-        Write-Host no matches in $_.FullName
+        Log "no matches in $($_.FullName)" ([ref]$logs)
         $noMatchesList += "$($_.FullName)`r`n"
+        Copy-Item -Path $_.FullName -Destination "$noMatchesFilesPath\$($_.Name)"
     }else{
         $fileSectionNames | Set-Content -Path "$hitPath\$_"
-        $sectionNames.Add($fileSectionNames) | Out-Null
+        $fileSectionNames.GetEnumerator() | ForEach-Object { $sectionNames.Add($_) | Out-Null}
+        Copy-Item -Path $_.FullName -Destination "$hitPathFilesPath\$($_.Name)"
     }     
 }
 
@@ -114,7 +165,12 @@ $sortedLines | Add-Content $outputFile
 
 $noMatchesList | Set-Content -Path $noMatchesPath
 
+# write to log file
+Set-Content -Path $logpath -Value $logs
+
 Write-Host " Done! Unique section names saved to $outputFile"
+
+Write-Host " Done! Logged console output to $logpath in MO2 overwrite folder"
 Write-Host " Done! Logged all the hit to $hitPath in MO2 overwrite folder"
 Write-Host " Done! Logged all the miss to $noMatchesPath in MO2 overwrite folder"
 
