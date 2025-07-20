@@ -21,10 +21,23 @@ if (Test-Path $outputFile) {
     Remove-Item $outputFile
 }
 
-# Path to miss file
+# Path to miss report and files
 $noMatchesPath = ".\generation\output\miss\no_matches.ltx"
+$noMatchesFilesPath = ".\generation\output\miss\files"
+if (Test-Path ".\generation\output\miss") {
+    Remove-Item ".\generation\output\miss" -Recurse
+}
+New-Item -Path $noMatchesFilesPath -ItemType Directory
+
+# Path to hit report and files
 $hitPath = ".\generation\output\hit\"
-New-Item -Path ".\generation\output\miss\files" -ItemType Directory
+$hitPathFilesPath = ".\generation\output\hit\files"
+if (Test-Path ".\generation\output\hit") {
+    Remove-Item ".\generation\output\hit" -Recurse
+}
+New-Item -Path $hitPathFilesPath -ItemType Directory
+
+
 
 # Use a hash set for uniqueness
 $weaponSet = [System.Collections.Generic.HashSet[string]]::new()
@@ -45,7 +58,7 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
     foreach ($line in $content) {
         
         # Find all matching wpn_ strings with the format weapon:N:N:N
-        if ($line -match "(wpn_[a-zA-Z0-9_]+):[a-zA-Z0-9_]+:[a-zA-Z0-9_]+(:[a-zA-Z0-9_]+)?|(wpn_[a-zA-Z0-9_]+)\s*=\s*(true|false)\s*(?:,\s*[^\s,]+)*") {
+        if ($line -match "^\s*[!\[]?(wpn_[a-zA-Z0-9_]+)[\]]?\s*(?::.*|=\s*.*)?$") {
             $count = $count + 1
             # Write-Host found $matches[1]
             $weaponName = $matches[1]
@@ -56,17 +69,18 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
     if ($count -eq 0){
         Write-Host no matches in $_.FullName
         $noMatchesList += $_.FullName
-        Copy-Item -Path $_.FullName -Destination ".\generation\output\miss\files\$($_.Name)"
+        Copy-Item -Path $_.FullName -Destination "$noMatchesFilesPath\$($_.Name)"
     }else{
         $fileWeaponSet | Set-Content -Path "$hitPath\$_"
         foreach($section in $fileWeaponSet){
             $weaponSet.Add($section) | Out-Null
         }
+        Copy-Item -Path $_.FullName -Destination "$hitPathFilesPath\$($_.Name)"
     }
 }
 
 # Add header and sort
-$header = "[gamma_seal]"
+$header = "[modlist_seal]"
 $finalOutput = @($header) + ($weaponSet | Sort-Object)
 
 # Write to file

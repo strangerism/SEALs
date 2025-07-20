@@ -56,7 +56,7 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
     foreach ($line in $content) {
         
         # Find all matching wpn_ strings with the format weapon:N:N:N
-        if ($line -match "(wpn_[a-zA-Z0-9_]+):[a-zA-Z0-9_]+:[a-zA-Z0-9_]+(:[a-zA-Z0-9_]+)?|(wpn_[a-zA-Z0-9_]+)\s*=\s*(true|false)\s*(?:,\s*[^\s,]+)*") {
+        if ($line -match "^\s*[!\[]?(wpn_[a-zA-Z0-9_]+)[\]]?\s*(?::.*|=\s*.*)?$") {
             $count = $count + 1
             # Write-Host found $matches[1]
             $weaponName = $matches[1]
