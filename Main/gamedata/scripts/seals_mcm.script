@@ -5,7 +5,8 @@ local options = {
 }
 
 local mcm_id = "seals"
-
+local SEALS_SHOW = false
+local SEALS_TOGGLE_KEY = true
 local string_format = string.format
 local string_find   = string.find
 properties = {}
@@ -340,7 +341,7 @@ layer_functors.custom_layers = function(sec, cell, xml)
         local group = layers[layer_info[i]]
         for layer, data in pairs(group) do
             repeat
-                if not get_config(data.settings_path, "show", true) then
+                if not get_config(data.settings_path, "show", true) or not SEALS_SHOW then
                     print_dbg("!! layer skipped %s", data.caption)
                     do break end -- continue
                 end
@@ -630,4 +631,65 @@ end
 
 function w_smg(sec)
     return sec and SYS_GetParam(0,sec,"kind", "na") == "w_smg"
+end
+
+-- Event Input handling
+
+local function on_key_release(dik)
+    printf("-- on_key_release(%s)", dik )
+    if not actor_menu.inventory_opened() then
+        return
+    end
+
+    if dik == DIK_keys.DIK_LSHIFT and SEALS_TOGGLE_KEY then
+        SEALS_SHOW = false
+        local current_tab = get_current_tab()
+        ui_inventory.GUI:On_Sort(current_tab)
+        printf("-- SEALS_SHOW to %s", SEALS_SHOW )
+    end
+end
+
+local function on_key_press(dik)
+    printf("-- on_key_press(%s)", dik )
+    if not actor_menu.inventory_opened() then
+        return
+    end
+
+    if dik == DIK_keys.DIK_LSHIFT and SEALS_TOGGLE_KEY and not SEALS_SHOW then
+        SEALS_SHOW = true
+        local current_tab = get_current_tab()
+        ui_inventory.GUI:On_Sort(current_tab)
+        printf("-- SEALS_SHOW to %s", SEALS_SHOW )
+    end    
+end
+
+function get_current_tab()
+    for i=1,#ui_inventory.GUI.sort_btn do
+			if ui_inventory.GUI.sort_btn[i]:GetCheck() then
+                return i
+            end
+	end
+    return 1
+end
+
+function on_option_change()
+    printf("-- SEALs on_option_change")
+    if SEALS_TOGGLE_KEY then
+        printf("-- on_option_change RegisterScriptCallback")
+        RegisterScriptCallback("on_key_release",on_key_release)
+        RegisterScriptCallback("on_key_press",on_key_press)
+    else
+        printf("-- on_option_change UnregisterScriptCallback")
+        UnregisterScriptCallback("on_key_release",on_key_release)
+        UnregisterScriptCallback("on_key_press",on_key_press)
+    end
+end
+
+function on_game_start()
+    printf("-- SEALs on_game_start")
+    if SEALS_TOGGLE_KEY then
+        printf("-- on_option_change RegisterScriptCallback")
+        RegisterScriptCallback("on_key_release",on_key_release)
+        RegisterScriptCallback("on_key_press",on_key_press)
+    end
 end
