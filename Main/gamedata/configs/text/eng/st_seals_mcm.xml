@@ -18,7 +18,13 @@
 	</string>
 	<string id ="ui_mcm_seals_scale_desc">
 		<text>Scale up/down the icons of this kind</text>
-	</string>	
+	</string>
+	<string id ="ui_mcm_seals_scale_sm">
+		<text>Scale (rotated)</text>
+	</string>
+	<string id ="ui_mcm_seals_scale_sm_desc">
+		<text>Scale up/down the icons of this kind (only works when rotated).</text>
+	</string>		
 	<string id ="ui_mcm_seals_rotate">
 		<text>Rotate</text>
 	</string>
@@ -41,14 +47,26 @@
 		<text>Horizontal offset</text>
 	</string>
 	<string id ="ui_mcm_seals_offset_x_desc">
-		<text>Offset from the edge of icon in pixels. Useful if some other addon is adding info on the icon.</text>
+		<text>Offset from the edge of icon in pixels.</text>
 	</string>
+	<string id ="ui_mcm_seals_offset_sm_x">
+		<text>Horizontal offset (rotated).</text>
+	</string>
+	<string id ="ui_mcm_seals_offset_sm_x_desc">
+		<text>Offset from the edge of icon in pixels. Only works when rotated</text>
+	</string>	
 	<string id ="ui_mcm_seals_offset_y">
 		<text>Vertical offset</text>
 	</string>
 	<string id ="ui_mcm_seals_offset_y_desc">
-		<text>Offset from the edge of icon in pixels. Good for items that have condition\uses bars.</text>
+		<text>Offset from the edge of icon in pixels.</text>
 	</string>
+	<string id ="ui_mcm_seals_offset_sm_y">
+		<text>Vertical offset (rotated).</text>
+	</string>
+	<string id ="ui_mcm_seals_offset_sm_y_desc">
+		<text>Offset from the edge of icon in pixels. Only works when rotated</text>
+	</string>	
 	<string id ="ui_mcm_seals_spacing_x">
 		<text>Horizontal spacing</text>
 	</string>
@@ -85,6 +103,9 @@
 	<string id ="ui_mcm_lst_seals_bottom">
 		<text>Bottom</text>
 	</string>
+	<string id ="ui_mcm_small_icons_desc">
+		<text>Small icons</text>
+	</string>	
 	<string id ="ui_mcm_desc_seals_prop_w_pistol">
 		<text>Pistols</text>
 	</string>

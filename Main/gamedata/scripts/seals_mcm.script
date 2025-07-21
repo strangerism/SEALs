@@ -18,7 +18,6 @@ main_settings_path = string_format("%s/%s_main_settings", mcm_id, mcm_id) .. "/%
 
 op.gr[1] = { id = mcm_id .. "_main_settings", sh = true, gr = {
     { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 },
-    { id = "scale", hint = string_format("%s_scale", mcm_id), type = "track", val = 2, step = 0.1, def = 1.1, max = 2, min = 0.5}
 }}
 
 function print_table(text, node, ...)
@@ -90,10 +89,13 @@ function parse_properties()
                     ["show"] = property_kinds_ini:r_bool_ex(kind, "show") or false,
                     ["rotate"] = property_kinds_ini:r_bool_ex(kind, "rotate") or false,
                     ["scale"] = property_kinds_ini:r_float_ex(kind, "scale") or 1,
+                    ["scale_sm"] = property_kinds_ini:r_float_ex(kind, "scale_sm") or 1,
                     ["anchor_x"] = property_kinds_ini:r_string_ex(kind, "anchor_x") or "right",
                     ["anchor_y"] = property_kinds_ini:r_string_ex(kind, "anchor_y") or "bottom",
                     ["offset_x"] = property_kinds_ini:r_float_ex(kind, "offset_x") or 0,
+                    ["offset_sm_x"] = property_kinds_ini:r_float_ex(kind, "offset_sm_x") or 0,
                     ["offset_y"] = property_kinds_ini:r_float_ex(kind, "offset_y") or 0,
+                    ["offset_sm_y"] = property_kinds_ini:r_float_ex(kind, "offset_sm_y") or 0,
                     ["spacing_x"] = property_kinds_ini:r_float_ex(kind, "spacing_x") or 0,
                     ["spacing_y"] = property_kinds_ini:r_float_ex(kind, "spacing_y") or 0,
                     ["limit"] = property_kinds_ini:r_bool_ex(kind, "limit") or false,
@@ -115,13 +117,14 @@ function parse_properties()
     for i = 1, #kinds do
         local kind = kinds[i]
         local defaults = properties[kind].default_settings
-        -- print_dbg("bulding options for %s", kind)
-        -- print_table("default_settings",  properties[kind].default_settings)
+        print_dbg("bulding options for %s", kind)
+        print_table("default_settings",  properties[kind].default_settings)
         table.insert(op.gr[2].gr, { id = "desc" .. kind, type = "desc", text = string_format("ui_mcm_desc_%s_prop_%s", mcm_id, kind)})
         table.insert(op.gr[2].gr, { id = "show_" .. kind, hint = string_format("%s_show", mcm_id), val = 1, type = "check", def = true })
-        if kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg" then
-            table.insert(op.gr[2].gr, { id = "rotate_" .. kind, hint = string_format("%s_rotate", mcm_id), val = 1, type = "check", def = true })
-        end
+        -- if kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg" then
+        --     table.insert(op.gr[2].gr, { id = "rotate_" .. kind, hint = string_format("%s_rotate", mcm_id), val = 1, type = "check", def = true })
+        --     table.insert(op.gr[2].gr, { id = "scale_sm_" .. kind, hint = string_format("%s_scale_sm", mcm_id), type = "track", val = 2, step = 0.1,def = defaults.scale_sm, max = 5, min = 0.1})
+        -- end
         table.insert(op.gr[2].gr, { id = "scale_" .. kind, hint = string_format("%s_scale", mcm_id), type = "track", val = 2, step = 0.1,def = defaults.scale, max = 5, min = 0.1})
         table.insert(op.gr[2].gr, { id = "anchor_x_" .. kind, hint = string_format("%s_anchor_x", mcm_id),  type = "list", val = 0, def = defaults.anchor_x,
             content = { 
@@ -141,6 +144,13 @@ function parse_properties()
         table.insert(op.gr[2].gr, { id = "spacing_y_" .. kind, hint = string_format("%s_spacing_y", mcm_id), type = "track", val = 2, step = 1,def = defaults.spacing_y, max = 10, min = 0})
         table.insert(op.gr[2].gr, { id = "limit_" .. kind, hint = string_format("%s_limit", mcm_id), val = 1, type = "check", def = defaults.limit })
         table.insert(op.gr[2].gr, { id = "amount_" .. kind, hint = string_format("%s_amount", mcm_id), type = "track", val = 2, step = 1, def = defaults.amount, max = 10, min = 0 })
+        if kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg" then
+            table.insert(op.gr[2].gr, { id = "small_icons" .. kind, type = "desc", clr = {200, 200, 255, 200}, text = "ui_mcm_small_icons_desc"})
+            table.insert(op.gr[2].gr, { id = "rotate_" .. kind, hint = string_format("%s_rotate", mcm_id), val = 1, type = "check", def = true })
+            table.insert(op.gr[2].gr, { id = "scale_sm_" .. kind, hint = string_format("%s_scale_sm", mcm_id), type = "track", val = 2, step = 0.1,def = defaults.scale_sm, max = 5, min = 0.1})
+            table.insert(op.gr[2].gr, { id = "offset_sm_x_" .. kind, hint = string_format("%s_offset_sm_x", mcm_id), type = "track", val = 2, step = 1,def = defaults.offset_sm_x, max = 50, min = -50})
+            table.insert(op.gr[2].gr, { id = "offset_sm_y_" .. kind, hint = string_format("%s_offset_sm_y", mcm_id), type = "track", val = 2, step = 1, def = defaults.offset_sm_y, max = 50, min = -50})
+        end        
         table.insert(op.gr[2].gr, { id = "divider", type = "line" })
     end
     op.gr[2].gr[#op.gr[2].gr] = nil
@@ -315,9 +325,7 @@ layer_functors.custom_layers = function(sec, cell, xml)
     
     local kind = SYS_GetParam(0,sec,"kind", "na")
     local settings = get_settings_for_prop(kind)
-
     local custom_layers = {}
-    local scale = get_config(main_settings_path, "scale", 1.1)
     print_dbg("- MAXXXX custom layer %s", sec)
 
     -- Track layer names and overrides for this group
@@ -336,12 +344,12 @@ layer_functors.custom_layers = function(sec, cell, xml)
                     do break end -- continue
                 end
                 
-                -- if kind == "w_pistol" and disable_pistols then
-                --     return
-                -- end
                 print_dbg("- FOUND")
                 print_dbg("data.texture %s", data.texture)
                 local scale = settings.scale
+                if is_small_icon(sec) and settings.rotate then
+                    scale = settings.scale_sm
+                end
                 local rect = get_texture_rect(data.texture, cell, xml)
                 icon_index = icon_index + 1
                 local h = ((rect.y2 - rect.y1) / (data.icon_scale or 1)) * scale
@@ -356,9 +364,15 @@ layer_functors.custom_layers = function(sec, cell, xml)
                 local y_offset = row_index * (settings.spacing_y)
                 local x = anchors.x[settings.anchor_x](axis, (row_width - w), w)
                 local y = anchors.y[settings.anchor_y](axis, y_offset + (h * row_index), h)
+                local offset_x = settings.offset_x
+                local offset_y = settings.offset_y
+                if is_small_icon(sec) and settings.rotate then
+                    offset_x = settings.offset_sm_x
+                    offset_y = settings.offset_sm_y
+                end                
                 local layer_tbl = {
-                    ["x"] = x - settings.offset_x,
-                    ["y"] = y - settings.offset_y,
+                    ["x"] = x - offset_x,
+                    ["y"] = y - offset_y,
                     ["h"] = h,
                     ["w"] = w,
                     ["texture"] = data.texture,
@@ -464,6 +478,16 @@ function add_texture_layer(self, ele, base, tbl, sec, ele_no)
     local scale = (grid_size / 50)
     local scale_pos = scale
 
+    -- local inv_grid_height = (sec and SYS_GetParam(2,sec,"inv_grid_height",1)) or 1
+
+    -- local force_rot = false
+    -- local force_factor = 1
+    -- if inv_grid_height == 1 and (kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg") and settings.rotate then
+    --     force_rot = true
+    --     force_factor = tbl.sm_scale
+    --     x = tbl.sm_x
+    --     y = tbl.sm_x
+    -- end
     local rot =  ele:GetHeading() > 0
     local x_s = x * ratio * scale_pos
     local y_s = y * scale_pos
@@ -471,23 +495,11 @@ function add_texture_layer(self, ele, base, tbl, sec, ele_no)
     local h_s = h * scale
     local w_off = (w_s/2)
     local h_off = (h_s/2)
-    
-    local inv_grid_height = (sec and SYS_GetParam(2,sec,"inv_grid_height",1)) or 1
 
     local force_rot = false
     local force_factor = 1
-    if inv_grid_height == 1 and kind == "w_pistol" and settings.rotate then
+    if is_small_icon(sec) and settings.rotate then
         force_rot = true
-        force_factor = 2
-    end  
-    if inv_grid_height == 1 and kind == "w_shotgun" and settings.rotate then
-        force_rot = true
-        force_factor = 2
-    end
-
-    if inv_grid_height == 1 and kind == "w_smg" and settings.rotate then
-        force_rot = true
-        force_factor = 2
     end
     
     if rot or force_rot then
@@ -607,6 +619,12 @@ function get_seals(sec)
     end
 
     return seals
+end
+
+function is_small_icon(sec)
+    local kind = SYS_GetParam(0,sec,"kind", "na")
+    local inv_grid_height = (sec and SYS_GetParam(2,sec,"inv_grid_height",1)) or 1
+    return inv_grid_height == 1 and (kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg")
 end
 
 function is_pistol(sec)
