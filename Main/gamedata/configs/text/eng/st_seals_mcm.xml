@@ -160,10 +160,10 @@
 		<text>Main Settings</text>
 	</string>
 	<string id ="ui_mcm_menu_seals_properties">
-		<text>Kind Properties</text>
+		<text>Icon config</text>
 	</string>	
 	<string id ="ui_mcm_menu_seals_custom_layers">
-		<text>Seals config</text>
+		<text>Seal activation</text>
 	</string>
 	<string id ="ui_mcm_menu_seals_custom_layers_main">
 		<text>Main</text>

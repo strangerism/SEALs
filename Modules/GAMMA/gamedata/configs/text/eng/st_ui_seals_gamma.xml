@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="windows-1251"?>
 
 <string_table>
-
-	<string id ="ui_mcm_seals_gamma_seal_show">
-		<text>GAMMA seals</text>
+	<!-- mcm tab/group -->
+	<string id ="ui_mcm_menu_seals_custom_layers_modlist">
+		<text>Modlist</text>
+	</string>	
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_gamma_show">
+		<text>GAMMA</text>
 	</string>
+	<!-- seal caption -->
 	<string id ="ui_seals_gamma">
 		<text>GAMMA</text>
 	</string>				

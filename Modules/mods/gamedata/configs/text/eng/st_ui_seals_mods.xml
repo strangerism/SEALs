@@ -1,44 +1,60 @@
 <?xml version="1.0" encoding="windows-1251"?>
 
 <string_table>
-
-	<string id ="ui_mcm_seals_bm_wp_seal_show">
-		<text>BlackMarket Warsaw Pact seals</text>
+	<!-- mcm tab/group -->
+	<string id ="ui_mcm_menu_seals_custom_layers_mod">
+		<text>Mod</text>
 	</string>
-	<string id ="ui_mcm_seals_bm_nato_seal_show">
-		<text>BlackMarket Nato seals</text>
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_bmwp_show">
+		<text>BlackMarket Warsaw Pact</text>
+	</string>
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_bmnato_show">
+		<text>BlackMarket Nato</text>
 	</string>	
-	<string id ="ui_mcm_seals_lootbox_seal_show">
-		<text>LootBox seals</text>
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_lb_show">
+		<text>LootBox</text>
 	</string>
-	<string id ="ui_mcm_seals_blackg_seal_show">
-		<text>Blackgrowl seals</text>
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_blackg_show">
+		<text>Blackgrowl</text>
 	</string>
-	<string id ="ui_mcm_seals_zona_seal_show">
-		<text>Gift from the Zone seals</text>
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_zona_show">
+		<text>Gift from the Zone</text>
 	</string>
-	<string id ="ui_mcm_seals_ccon_seal_show">
-		<text>The Group seals</text>
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_ccon_show">
+		<text>The Group</text>
 	</string>
-	<string id ="ui_mcm_seals_rwap_seal_show">
-		<text>Retrogue seals</text>
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_rwap_show">
+		<text>Retrogue</text>
 	</string>	
 
+	<!-- seal caption -->
 	<string id ="ui_seals_bm_wp">
 		<text>BlackMarket Warsaw</text>
 	</string>
+	<!-- seal caption -->
 	<string id ="ui_seals_bm_nato">
 		<text>BlackMarket Nato</text>
 	</string>
+	<!-- seal caption -->
 	<string id ="ui_seals_blackg">
 		<text>Blackgrowl</text>
 	</string>	
+	<!-- seal caption -->
 	<string id ="ui_seals_zona">
 		<text>Gift from the Zone</text>
 	</string>
+	<!-- seal caption -->
 	<string id ="ui_seals_ccon">
 		<text>The Group</text>
 	</string>
+	<!-- seal caption -->
 	<string id ="ui_seals_rwap">
 		<text>Retrogue</text>
 	</string>				

@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="windows-1251"?>
 
 <string_table>
-
-	<string id ="ui_mcm_seals_franchi_seal_show">
-		<text>Luigi Franchi seals</text>
+	<!-- mcm tab/group -->
+	<string id ="ui_mcm_menu_seals_custom_layers_manufacturer">
+		<text>Scopes</text>
+	</string>				
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_franchi_show">
+		<text>Luigi Franchi</text>
 	</string>	
-	<string id ="ui_mcm_seals_kalash_seal_show">
-		<text>Kalashnikov seals</text>
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_kalash_show">
+		<text>Kalashnikov</text>
 	</string>
-	<string id ="ui_mcm_seals_sig_seal_show">
-		<text>Sig Sauer seals</text>
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_sig_show">
+		<text>Sig Sauer</text>
 	</string>	
+	<!-- seal caption -->
 	<string id ="ui_seals_franchi">
 		<text>Luigi Franchi</text>
 	</string>	
+	<!-- seal caption -->
 	<string id ="ui_seals_kalash">
 		<text>Kalashnikov</text>
 	</string>
+	<!-- seal caption -->
 	<string id ="ui_seals_sig">
 		<text>Sig Sauer</text>
 	</string>				

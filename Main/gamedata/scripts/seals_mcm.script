@@ -256,6 +256,8 @@ function parse_groups()
             end
 
             local settings_group = layers_ini:r_string_ex(layer, "settings_group") or group
+
+            print_dbg("- settings_group %s", settings_group)
             -- create single item groups automatically
             if not groups_ini:section_exist(group) then
                 local item = group
@@ -279,8 +281,12 @@ function parse_groups()
             }
 
             local str = str_explode(settings_group, "/")
-            local tab = str[2] and mcm_id .. "_custom_layers_" .. str[1] or mcm_id .. "_custom_layers_main"
+            print_dbg("- tab str 1 %s - 2 %s", str[1], str[2])
 
+            local tab = str[2] and mcm_id .. "_custom_layers_" .. str[1] or mcm_id .. "_custom_layers_main"
+            
+            print_dbg("- tab %s", tab)
+            
             if not tabs[tab] then
                 table.insert(op.gr[3].gr, { id =  tab, sh = true, gr = {
                     { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 }
@@ -289,7 +295,7 @@ function parse_groups()
             end
 
             local setting = str[2] or str[1]
-
+            print_dbg("- Created group %s", group)
             layers[group][layer] = {
                 ["primary"]   = layers_ini:r_bool_ex(layer,"primary",false),
                 ["overrides"]   = layers_ini:r_string_ex(layer, "overrides") or "",

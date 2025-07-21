@@ -1,5 +1,6 @@
 param (
-    [string]$param
+    [string]$param,
+    [string]$mode
 )
 
 if ($param) {
@@ -37,6 +38,20 @@ if (Test-Path $hitPathFilesPath) {
 }
 New-Item -Path $hitPathFilesPath -ItemType Directory
 
+
+$weaponNames = @()
+if ($mode -eq "exclusive"){
+    $anomalyWeaponNames = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_anomaly.ltx"
+
+    $gammaWeaponNames = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_gamma.ltx"
+
+    # Merge and deduplicate
+    $weaponNames = ($anomalyWeaponNames + $gammaWeaponNames) | Sort-Object -Unique
+}
+
+
+
+
 # Use a hash set for uniqueness
 $weaponSet = [System.Collections.Generic.HashSet[string]]::new()
 $noMatchesList = @()
@@ -72,7 +87,9 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
         Copy-Item -Path $_.FullName -Destination "$noMatchesFilesPath\$($_.Name)"
     }else{
         foreach($section in $fileWeaponSet){
-            $weaponSet.Add($section) | Out-Null
+            if ($weaponNames -notcontains $section){
+                $weaponSet.Add($section) | Out-Null
+            }
         }
         # save the hit reports to dedicated file
         $fileWeaponSet | Set-Content -Path "$hitPath\$_"
@@ -82,7 +99,7 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
 }
 
 # Add header and sort
-$header = "[modlist_seal]"
+$header = "[custmod_seal]"
 $finalOutput = @($header) + ($weaponSet | Sort-Object)
 
 # Write to file

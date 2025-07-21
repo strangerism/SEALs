@@ -2,10 +2,16 @@
 
 <string_table>
 
-	<string id ="ui_mcm_seals_modlist_seal_show">
-		<text>Modlist seals</text>
-	</string>
-	<string id ="ui_seals_modlist">
+	<!-- mcm tab/group -->
+	<string id ="ui_mcm_menu_seals_custom_layers_modlist">
 		<text>Modlist</text>
+	</string>	
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_custmod_show">
+		<text>Custom Modlist</text>
+	</string>
+	<!-- seal caption -->
+	<string id ="ui_seals_custmod">
+		<text>Cust Modlist</text>
 	</string>			
 </string_table>  
