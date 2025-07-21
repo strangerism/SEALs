@@ -5,10 +5,14 @@ local options = {
 }
 
 local mcm_id = "seals"
-local SEALS_SHOW = false
-local SEALS_TOGGLE_KEY = true
+
+local SEALS_SHOW = true
+local notification = true
+local KEY = DIK_keys.DIK_LSHIFT
+
 local string_format = string.format
 local string_find   = string.find
+
 properties = {}
 layers = {}
 groups = {}
@@ -19,6 +23,8 @@ main_settings_path = string_format("%s/%s_main_settings", mcm_id, mcm_id) .. "/%
 
 op.gr[1] = { id = mcm_id .. "_main_settings", sh = true, gr = {
     { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 },
+    -- { id = "keybind", type = "key_bind", val = 2, def= KEY},
+	        
 }}
 
 function print_table(text, node, ...)
@@ -635,32 +641,94 @@ end
 
 -- Event Input handling
 
-local function on_key_release(dik)
-    printf("-- on_key_release(%s)", dik )
-    if not actor_menu.inventory_opened() then
+local print_tip = function(text,delay, ...)
+
+    if not notification then
         return
     end
 
-    if dik == DIK_keys.DIK_LSHIFT and SEALS_TOGGLE_KEY then
-        SEALS_SHOW = false
+    local text = tostring(text)
+
+    if not db.actor then
+        return
+    end
+    
+    local ico = "ui_inGame2_Dengi_otdani"
+    local text_color = utils_xml.get_color("pda_white")
+    local arg_color = utils_xml.get_color("d_green")
+    local function colorize(s)
+        return arg_color .. s .. text_color
+    end
+    local i = 0
+    local t = {...}
+    if #t > 0 then
+        local function sr(a)
+            i = i + 1
+            if (type(t[i]) == 'userdata') then
+                if (t[i].x and t[i].y) then
+                    return colorize(vec_to_str(t[i]))
+                end
+                return colorize('userdata')
+            end
+            return colorize(tostring(t[i]))
+        end
+        text = string.gsub(game.translate_string(text), "%%s", sr)
+    else
+        text = game.translate_string(text)
+    end
+    text = text_color .. text
+    if delay == nil then
+        delay = 6000
+    end
+    news_manager.send_tip(db.actor, text, nil, ico, delay)
+end
+
+local toggled_seals = false
+local MSG_SEALs_SHOW = "SEALs showing"
+local MSG_SEALs_NO_SHOW = "SEALs not showing"
+local MSG = MSG_SEALs_NO_SHOW
+
+function toggle_seals()
+	CreateTimeEvent("toggle_seals", "toggle_seals",1, function()
+        SEALS_SHOW = not SEALS_SHOW
         local current_tab = get_current_tab()
         ui_inventory.GUI:On_Sort(current_tab)
-        printf("-- SEALS_SHOW to %s", SEALS_SHOW )
+        if SEALS_SHOW then
+            MSG = MSG_SEALs_SHOW
+        else
+            MSG = MSG_SEALs_NO_SHOW
+        end
+        print_tip(MSG, 1000)
+        toggled_seals = true
+		return true
+	end)    
+end
+
+
+
+local function on_key_release(dik)
+    -- printf("-- on_key_release(%s) KEY %s", dik, KEY )
+    if not actor_menu.inventory_opened() then
+        return
+    end
+    if dik == KEY then
+        if toggled_seals then
+            toggled_seals = not toggled_seals
+        else
+            RemoveTimeEvent("toggle_seals", "toggle_seals")
+        end
     end
 end
 
 local function on_key_press(dik)
-    printf("-- on_key_press(%s)", dik )
+    -- printf("-- on_key_press(%s) KEY %s", dik, KEY )
     if not actor_menu.inventory_opened() then
         return
     end
+    if dik == KEY then
+		toggle_seals()
+    end
 
-    if dik == DIK_keys.DIK_LSHIFT and SEALS_TOGGLE_KEY and not SEALS_SHOW then
-        SEALS_SHOW = true
-        local current_tab = get_current_tab()
-        ui_inventory.GUI:On_Sort(current_tab)
-        printf("-- SEALS_SHOW to %s", SEALS_SHOW )
-    end    
 end
 
 function get_current_tab()
@@ -673,23 +741,12 @@ function get_current_tab()
 end
 
 function on_option_change()
-    printf("-- SEALs on_option_change")
-    if SEALS_TOGGLE_KEY then
-        printf("-- on_option_change RegisterScriptCallback")
-        RegisterScriptCallback("on_key_release",on_key_release)
-        RegisterScriptCallback("on_key_press",on_key_press)
-    else
-        printf("-- on_option_change UnregisterScriptCallback")
-        UnregisterScriptCallback("on_key_release",on_key_release)
-        UnregisterScriptCallback("on_key_press",on_key_press)
-    end
+	-- KEY = get_config(main_settings_path, "keybind", DIK_keys.DIK_LSHIFT)
+    -- printf("-- on_option_change KEY %s", KEY )
 end
 
 function on_game_start()
-    printf("-- SEALs on_game_start")
-    if SEALS_TOGGLE_KEY then
-        printf("-- on_option_change RegisterScriptCallback")
-        RegisterScriptCallback("on_key_release",on_key_release)
-        RegisterScriptCallback("on_key_press",on_key_press)
-    end
+    RegisterScriptCallback("on_key_release",on_key_release)
+    RegisterScriptCallback("on_key_press",on_key_press)
+    RegisterScriptCallback("on_option_change",on_option_change)
 end
