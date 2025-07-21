@@ -20,16 +20,16 @@
 		<text>Scale up/down the icons of this kind</text>
 	</string>
 	<string id ="ui_mcm_seals_scale_sm">
-		<text>Scale (rotated)</text>
+		<text>Scale (small icons)</text>
 	</string>
 	<string id ="ui_mcm_seals_scale_sm_desc">
-		<text>Scale up/down the icons of this kind (only works when rotated).</text>
+		<text>Scale up/down the icons of this kind. Only works with small icons (grid height size 1).</text>
 	</string>		
 	<string id ="ui_mcm_seals_rotate">
 		<text>Rotate</text>
 	</string>
 	<string id ="ui_mcm_seals_rotate_desc">
-		<text>Rotates the seals' icons 90 degrees (Only for pistols and shotguns with small icon)</text>
+		<text>Rotates the seals' icons 90 degrees. Only for pistols, smg, and shotguns with small icon (grid height size 1).</text>
 	</string>		
 	<string id ="ui_mcm_seals_anchor_x">
 		<text>Horizontal orientation</text>
@@ -50,10 +50,10 @@
 		<text>Offset from the edge of icon in pixels.</text>
 	</string>
 	<string id ="ui_mcm_seals_offset_sm_x">
-		<text>Horizontal offset (rotated).</text>
+		<text>Horizontal offset (Vertical if rotated).</text>
 	</string>
 	<string id ="ui_mcm_seals_offset_sm_x_desc">
-		<text>Offset from the edge of icon in pixels. Only works when rotated</text>
+		<text>Offset from the edge of icon in pixels. Only works with small icons (grid height size 1).</text>
 	</string>	
 	<string id ="ui_mcm_seals_offset_y">
 		<text>Vertical offset</text>
@@ -62,10 +62,10 @@
 		<text>Offset from the edge of icon in pixels.</text>
 	</string>
 	<string id ="ui_mcm_seals_offset_sm_y">
-		<text>Vertical offset (rotated).</text>
+		<text>Vertical offset (Horizontal if rotated).</text>
 	</string>
 	<string id ="ui_mcm_seals_offset_sm_y_desc">
-		<text>Offset from the edge of icon in pixels. Only works when rotated</text>
+		<text>Offset from the edge of icon in pixels. Only works with small icons (grid height size 1).</text>
 	</string>	
 	<string id ="ui_mcm_seals_spacing_x">
 		<text>Horizontal spacing</text>

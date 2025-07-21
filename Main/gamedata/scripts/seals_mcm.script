@@ -117,8 +117,8 @@ function parse_properties()
     for i = 1, #kinds do
         local kind = kinds[i]
         local defaults = properties[kind].default_settings
-        print_dbg("bulding options for %s", kind)
-        print_table("default_settings",  properties[kind].default_settings)
+        -- print_dbg("bulding options for %s", kind)
+        -- print_table("default_settings",  properties[kind].default_settings)
         table.insert(op.gr[2].gr, { id = "desc" .. kind, type = "desc", text = string_format("ui_mcm_desc_%s_prop_%s", mcm_id, kind)})
         table.insert(op.gr[2].gr, { id = "show_" .. kind, hint = string_format("%s_show", mcm_id), val = 1, type = "check", def = true })
         -- if kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg" then
@@ -138,18 +138,20 @@ function parse_properties()
                 {"bottom", string_format("%s_bottom", mcm_id)},
             }
         })
-        table.insert(op.gr[2].gr, { id = "offset_x_" .. kind, hint = string_format("%s_offset_x", mcm_id), type = "track", val = 2, step = 1,def = defaults.offset_x, max = 50, min = -50})
-        table.insert(op.gr[2].gr, { id = "offset_y_" .. kind, hint = string_format("%s_offset_y", mcm_id), type = "track", val = 2, step = 1, def = defaults.offset_y, max = 50, min = -50})
+        table.insert(op.gr[2].gr, { id = "offset_x_" .. kind, hint = string_format("%s_offset_x", mcm_id), type = "track", val = 2, step = 1,def = defaults.offset_x, max = 100, min = -100})
+        table.insert(op.gr[2].gr, { id = "offset_y_" .. kind, hint = string_format("%s_offset_y", mcm_id), type = "track", val = 2, step = 1, def = defaults.offset_y, max = 100, min = -100})
         table.insert(op.gr[2].gr, { id = "spacing_x_" .. kind, hint = string_format("%s_spacing_x", mcm_id), type = "track", val = 2, step = 1, def = defaults.spacing_x, max = 10, min = 0})
         table.insert(op.gr[2].gr, { id = "spacing_y_" .. kind, hint = string_format("%s_spacing_y", mcm_id), type = "track", val = 2, step = 1,def = defaults.spacing_y, max = 10, min = 0})
         table.insert(op.gr[2].gr, { id = "limit_" .. kind, hint = string_format("%s_limit", mcm_id), val = 1, type = "check", def = defaults.limit })
         table.insert(op.gr[2].gr, { id = "amount_" .. kind, hint = string_format("%s_amount", mcm_id), type = "track", val = 2, step = 1, def = defaults.amount, max = 10, min = 0 })
         if kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg" then
             table.insert(op.gr[2].gr, { id = "small_icons" .. kind, type = "desc", clr = {200, 200, 255, 200}, text = "ui_mcm_small_icons_desc"})
-            table.insert(op.gr[2].gr, { id = "rotate_" .. kind, hint = string_format("%s_rotate", mcm_id), val = 1, type = "check", def = true })
+            if kind == "w_pistol" or kind == "w_smg" then
+                table.insert(op.gr[2].gr, { id = "rotate_" .. kind, hint = string_format("%s_rotate", mcm_id), val = 1, type = "check", def = true })
+            end
             table.insert(op.gr[2].gr, { id = "scale_sm_" .. kind, hint = string_format("%s_scale_sm", mcm_id), type = "track", val = 2, step = 0.1,def = defaults.scale_sm, max = 5, min = 0.1})
-            table.insert(op.gr[2].gr, { id = "offset_sm_x_" .. kind, hint = string_format("%s_offset_sm_x", mcm_id), type = "track", val = 2, step = 1,def = defaults.offset_sm_x, max = 50, min = -50})
-            table.insert(op.gr[2].gr, { id = "offset_sm_y_" .. kind, hint = string_format("%s_offset_sm_y", mcm_id), type = "track", val = 2, step = 1, def = defaults.offset_sm_y, max = 50, min = -50})
+            table.insert(op.gr[2].gr, { id = "offset_sm_x_" .. kind, hint = string_format("%s_offset_sm_x", mcm_id), type = "track", val = 2, step = 1,def = defaults.offset_sm_x, max = 100, min = -100})
+            table.insert(op.gr[2].gr, { id = "offset_sm_y_" .. kind, hint = string_format("%s_offset_sm_y", mcm_id), type = "track", val = 2, step = 1, def = defaults.offset_sm_y, max = 100, min = -100})
         end        
         table.insert(op.gr[2].gr, { id = "divider", type = "line" })
     end
@@ -169,7 +171,7 @@ function get_settings_for_prop(kind)
         settings[k] = get_config(path, k)
     end
 
-    print_table("Got settings for kind %s", settings, kind)
+    -- print_table("Got settings for kind %s", settings, kind)
 
     -- for some weird reason these options can get saved as false
     if (not anchors.x[settings.anchor_x]) or (not anchors.y[settings.anchor_y]) then
@@ -300,8 +302,8 @@ function parse_groups()
         until true
     end
 
-    print_dbg("!! total # of layers %s", #layers)
-    print_dbg("!! total # of groups %s", #groups)
+    -- print_dbg("!! total # of layers %s", #layers)
+    -- print_dbg("!! total # of groups %s", #groups)
 end
 
 parse_groups()
@@ -326,14 +328,13 @@ layer_functors.custom_layers = function(sec, cell, xml)
     local kind = SYS_GetParam(0,sec,"kind", "na")
     local settings = get_settings_for_prop(kind)
     local custom_layers = {}
-    print_dbg("- MAXXXX custom layer %s", sec)
+    print_dbg("!! MAXXXX custom layer %s", sec)
+    print_dbg("is_small_icon %s", is_small_icon(sec))
 
-    -- Track layer names and overrides for this group
-    local layer_name_to_index = {}
-    local layer_overrides = {}
     local row_width = 0
     local row_index = 0
     local icon_index = 0
+    -- Build custom_layers
     for i = 1, #layer_info do
         print_dbg("layer %s", i)
         local group = layers[layer_info[i]]
@@ -343,11 +344,9 @@ layer_functors.custom_layers = function(sec, cell, xml)
                     print_dbg("!! layer skipped %s", data.caption)
                     do break end -- continue
                 end
-                
-                print_dbg("- FOUND")
-                print_dbg("data.texture %s", data.texture)
+                print_dbg("layer %s", layer)
                 local scale = settings.scale
-                if is_small_icon(sec) and settings.rotate then
+                if is_small_icon(sec) then
                     scale = settings.scale_sm
                 end
                 local rect = get_texture_rect(data.texture, cell, xml)
@@ -366,7 +365,7 @@ layer_functors.custom_layers = function(sec, cell, xml)
                 local y = anchors.y[settings.anchor_y](axis, y_offset + (h * row_index), h)
                 local offset_x = settings.offset_x
                 local offset_y = settings.offset_y
-                if is_small_icon(sec) and settings.rotate then
+                if is_small_icon(sec) then
                     offset_x = settings.offset_sm_x
                     offset_y = settings.offset_sm_y
                 end                
@@ -377,90 +376,78 @@ layer_functors.custom_layers = function(sec, cell, xml)
                     ["w"] = w,
                     ["texture"] = data.texture,
                     ["primary"] = data.primary or "",
+                    ["overrides"] = data.overrides or "",
+                    ["caption"] = data.caption,
+                    ["layer"] = layer,
                 }
-                -- if data.align == "relative" then
-                --     layer_tbl["x"] = layer_tbl["x"] + w * (i-1) + data.margin_horz * (i-1)
-                -- end
-                -- print_dbg(" layer.x %s", layer_tbl["x"])
-                -- print_dbg(" layer.y %s", layer_tbl["y"])
-                -- Track index and override info
-                layer_name_to_index[layer] = #custom_layers + 1
-                layer_overrides[layer] = data.overrides
+
                 custom_layers[#custom_layers + 1] = layer_tbl
             until true
-            print_table("custom_layers data", data)
         end
     end
 
--- -- ...existing code...
---     -- Remove overridden layers
---     local overridden_layers = {}
---     for layer_name, overridden_name in pairs(layer_overrides) do
---         if overridden_name and overridden_name ~= "" then
---             overridden_layers[overridden_name] = true
---         end
---     end
---     local indices_to_remove = {}
---     for overridden_name, _ in pairs(overridden_layers) do
---         local idx = layer_name_to_index[overridden_name]
---         if idx then
---             table.insert(indices_to_remove, idx)
---         end
---     end
---     table.sort(indices_to_remove, function(a, b) return a > b end)
---     for _, idx in ipairs(indices_to_remove) do
---         table.remove(custom_layers, idx)
---     end
+    -- Remove overridden layers
+    local to_remove = {}
+    for i = 1, #custom_layers do
+        local overrides = custom_layers[i].overrides
+        if overrides and overrides ~= "" then
+            -- Find the layer that matches the overrides value and mark it for removal
+            for j = 1, #custom_layers do
+                if custom_layers[j].layer == overrides then
+                    to_remove[j] = true
+                end
+            end
+        end
+    end
+    local filtered_layers = {}
+    for i = 1, #custom_layers do
+        if not to_remove[i] then
+            filtered_layers[#filtered_layers + 1] = custom_layers[i]
+        end
+    end
+    custom_layers = filtered_layers
 
---     -- Sort custom_layers so that primary=true layers come first, if any exist
---     table.sort(custom_layers, function(a, b)
---         -- Find the original data for a and b
---         local function get_data_by_texture(texture)
---             for j = 1, #layer_info do
---                 local group = layers[layer_info[j]]
---                 for _, data in pairs(group) do
---                     if data.texture == texture then
---                         return data
---                     end
---                 end
---             end
---             return nil
---         end
---         local data_a = get_data_by_texture(a.texture)
---         local data_b = get_data_by_texture(b.texture)
---         local a_primary = data_a and data_a.primary
---         local b_primary = data_b and data_b.primary
---         if a_primary == b_primary then return false end
---         return a_primary and not b_primary
---     end)
+    -- Sort custom_layers so that primary=true layers come first, if any exist
+    table.sort(custom_layers, function(a, b)
+        -- Convert to boolean for strict comparison
+        local a_primary = (a.primary == true or a.primary == 1)
+        local b_primary = (b.primary == true or b.primary == 1)
+        if a_primary == b_primary then
+            return false
+        end
+        return a_primary and not b_primary
+    end)
 
---     -- Recalculate x for relative layers after removal
---     local rel_idx = 0
---     for i, layer_tbl in ipairs(custom_layers) do
---         -- Find the original data for this layer
---         local found_data = nil
---         for j = 1, #layer_info do
---             local group = layers[layer_info[j]]
---             for _, data in pairs(group) do
---                 if data.texture == layer_tbl.texture then
---                     found_data = data
---                     break
---                 end
---             end
---             if found_data then break end
---         end
---         if found_data and found_data.align == "relative" then
---             rel_idx = rel_idx + 1
---             layer_tbl.x = anchors.x[settings.anchor_x](axis, found_data.margin_horz, layer_tbl.w)
---                 + found_data.width * (rel_idx-1)
---                 + found_data.margin_horz * (rel_idx-1)
---         end
---     end
+    -- Recalculate x for layers after removal
+    row_width = 0
+    row_index = 0
+    icon_index = 0
+    for i = 1, #custom_layers do
+        local layer_tbl = custom_layers[i]
+        icon_index = icon_index + 1
+        local x_offset = icon_index > 1 and (settings.spacing_x) or 0
+        row_width = row_width + (layer_tbl.w + x_offset)
+        if row_width > axis.w and i > 1 then
+            row_index = row_index + 1
+            row_width = layer_tbl.w
+            icon_index = 1
+        end
+        local y_offset = row_index * (settings.spacing_y)
+        local x = anchors.x[settings.anchor_x](axis, (row_width - layer_tbl.w), layer_tbl.w)
+        local y = anchors.y[settings.anchor_y](axis, y_offset + (layer_tbl.h * row_index), layer_tbl.h)
+        local offset_x = settings.offset_x
+        local offset_y = settings.offset_y
+        if is_small_icon(sec) then
+            offset_x = settings.offset_sm_x
+            offset_y = settings.offset_sm_y
+        end
+        layer_tbl.x = x - offset_x
+        layer_tbl.y = y - offset_y
+    end
 
     print_table("custom_layers", custom_layers)
     return custom_layers
 end
--- ...existing code...
 
 function add_texture_layer(self, ele, base, tbl, sec, ele_no)
 
@@ -471,6 +458,7 @@ function add_texture_layer(self, ele, base, tbl, sec, ele_no)
     -- if not sec or not ele_no then return end
     local ratio = utils_xml.screen_ratio()
     local grid_size = self.grid_size
+    -- printf("grid_size %s", grid_size)
     local x = tbl.x or 0
     local y = tbl.y or 0
     local w = tbl.w
@@ -478,16 +466,6 @@ function add_texture_layer(self, ele, base, tbl, sec, ele_no)
     local scale = (grid_size / 50)
     local scale_pos = scale
 
-    -- local inv_grid_height = (sec and SYS_GetParam(2,sec,"inv_grid_height",1)) or 1
-
-    -- local force_rot = false
-    -- local force_factor = 1
-    -- if inv_grid_height == 1 and (kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg") and settings.rotate then
-    --     force_rot = true
-    --     force_factor = tbl.sm_scale
-    --     x = tbl.sm_x
-    --     y = tbl.sm_x
-    -- end
     local rot =  ele:GetHeading() > 0
     local x_s = x * ratio * scale_pos
     local y_s = y * scale_pos
@@ -498,21 +476,25 @@ function add_texture_layer(self, ele, base, tbl, sec, ele_no)
 
     local force_rot = false
     local force_factor = 1
+    local g_offset = 0
     if is_small_icon(sec) and settings.rotate then
         force_rot = true
+        local inv_grid_width = (sec and SYS_GetParam(2,sec,"inv_grid_width",1)) or 1
+        force_factor = inv_grid_width - 1
+        g_offset = base:GetHeight()/4
     end
     
     if rot or force_rot then
-        scale = scale / force_factor
+        -- scale = scale / force_factor
         -- despite rotation, movement for x and y stays normal! 
         -- Move start pos to match the one for rotated base icon
         local w_b, h_b = base:GetWidth(), base:GetHeight()
-        local x_st = (w_b/2) - (h_b/2)
+        local x_st = ((w_b/2) - (h_b/2)) 
         local y_st = h_b + x_st
         
         -- On 90 rotation, x and y are inverted, y axis goes negative simulate normal x movement
-        x_s = x_st + (y * ratio * scale_pos)
-        y_s = y_st - (x * scale_pos) 
+        x_s = x_st + (y * ratio * scale_pos) - g_offset
+        y_s = y_st - (x * scale_pos) - g_offset*2
         w_s = w * scale
         h_s = h * scale
         w_off = (h_s - h_s * ratio/2)
@@ -522,7 +504,7 @@ function add_texture_layer(self, ele, base, tbl, sec, ele_no)
     ele:InitTexture( tbl.texture )
     ele:SetStretchTexture(true)
 
-    ele:SetWndPos(vector2():set( (x_s + w_off) / force_factor , (y_s + h_off) / force_factor ))
+    ele:SetWndPos(vector2():set( (x_s + w_off) , (y_s + h_off) ))
     ele:SetWndSize(vector2():set( w_s , h_s ))
     ele:Show(true)
 end
@@ -540,7 +522,7 @@ end
 
 function get_all_layers(sec, cell, xml)
     if not is_valid_kind(sec) then return end
-    print_dbg("!! get_all_layers for %s", sec)
+    -- print_dbg("!! get_all_layers for %s", sec)
     local seals_layers = {}
 
     for name, functor in pairs(layer_functors) do
@@ -551,7 +533,7 @@ function get_all_layers(sec, cell, xml)
             end
         end
     end
-    print_dbg("- Number of layers %s", seals_layers and #seals_layers or 0)
+    -- print_dbg("- Number of layers %s", seals_layers and #seals_layers or 0)
     return seals_layers
 end
 
@@ -577,7 +559,7 @@ utils_ui.UICellItem.Add_Layers = function(self, xml, obj, sec, clsid)
 
                 self.seals_layer[i] = xml:InitStatic(self.path .. ":" .. self.cx .. ":pic", self.ico)
             end
-            printf(" Add_Layers[%s] = %s", i, seals_layers[i].texture)
+            -- printf(" Add_Layers[%s] = %s", i, seals_layers[i].texture)
             add_texture_layer(self, self.seals_layer[i], self.ico, seals_layers[i], sec, i)
         end
     end
@@ -590,9 +572,9 @@ function get_seals(sec)
     if not layer_info then return {} end
     local seals = {}
     -- local scale = get_config(main_settings_path, "scale", 1.1)
-    print_dbg("- MAXXXX get_seals %s", sec)
+    -- print_dbg("- MAXXXX get_seals %s", sec)
     for i = 1, #layer_info do
-        print_dbg("layer %s", i)
+        -- print_dbg("layer %s", i)
         local group = layers[layer_info[i]]
         for layer, data in pairs(group) do
             repeat
@@ -603,9 +585,9 @@ function get_seals(sec)
                 -- if kind == "w_pistol" and disable_pistols then
                 --     return
                 -- end
-                print_dbg("- FOUND")
-                print_dbg("data.texture %s", data.texture)
-                print_dbg("data.caption %s", data.caption)
+                -- print_dbg("- FOUND")
+                -- print_dbg("data.texture %s", data.texture)
+                -- print_dbg("data.caption %s", data.caption)
                 local seal = {
                     ["name"] = layer,
                     ["caption"] = data.caption,
@@ -624,7 +606,10 @@ end
 function is_small_icon(sec)
     local kind = SYS_GetParam(0,sec,"kind", "na")
     local inv_grid_height = (sec and SYS_GetParam(2,sec,"inv_grid_height",1)) or 1
-    return inv_grid_height == 1 and (kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg")
+    -- print_dbg("- sec %s inv_grid_height %s", sec, inv_grid_height)
+    local is_small_icon = inv_grid_height == 1 and (kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg") 
+    -- print_dbg("is_small_icon %s", is_small_icon)
+    return is_small_icon
 end
 
 function is_pistol(sec)
