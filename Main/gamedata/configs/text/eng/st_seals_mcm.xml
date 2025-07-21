@@ -1,12 +1,44 @@
 <?xml version="1.0" encoding="windows-1251"?>
 
 <string_table>
-	<string id ="ui_mcm_seals_scale">
+	<string id ="seals_desc_keybind">
+		<text>The SEALs are set to display by default, but you can toggle this mode on/off in inventory by holding Left Shift</text>
+	</string>
+	<string id ="ui_mcm_seals_notification">
+		<text>Notifications</text>
+	</string>	
+	<string id ="ui_mcm_seals_notification_desc">
+		<text>Sends a notification text when the mode is toggled</text>
+	</string>	
+	<string id ="seals_desc_tooltip">
+		<text>Seals in tooltips configuration</text>
+	</string>
+	<string id ="ui_mcm_seals_scale_tooltip">
 		<text>Scale</text>
+	</string>	
+	<string id ="ui_mcm_seals_scale_tooltip_desc">
+		<text>Scale seals in tooltips</text>
 	</string>
-	<string id ="ui_mcm_seals_scale_desc">
-		<text>Scale of all the seals.</text>
+	<string id ="ui_mcm_seals_show_tooltip">
+		<text>Show</text>
+	</string>	
+	<string id ="ui_mcm_seals_show_tooltip_desc">
+		<text>Show seals in tooltips</text>
+	</string>		
+	<string id ="ui_mcm_seals_limit_tooltip">
+		<text>Limit</text>
+	</string>	
+	<string id ="ui_mcm_seals_limit_tooltip_desc">
+		<text>Turn on/off limit of seals displayed in tooltips</text>
+	</string>	
+	<string id ="ui_mcm_seals_amount_tooltip">
+		<text>Amount</text>
+	</string>	
+	<string id ="ui_mcm_seals_amount_tooltip_desc">
+		<text>The maximum amount of seals when limit seals is on</text>
 	</string>
+
+
 	<string id ="ui_mcm_seals_show">
 		<text>Show</text>
 	</string>

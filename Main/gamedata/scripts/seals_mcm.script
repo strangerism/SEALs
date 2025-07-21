@@ -23,8 +23,16 @@ main_settings_path = string_format("%s/%s_main_settings", mcm_id, mcm_id) .. "/%
 
 op.gr[1] = { id = mcm_id .. "_main_settings", sh = true, gr = {
     { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 },
-    -- { id = "keybind", type = "key_bind", val = 2, def= KEY},
-	        
+    -- { id = "keybind", type = "key_bind", val = 2, def= KEY},    
+    { id = "desc_keybind", type = "desc", text = string_format("%s_desc_keybind", mcm_id)},
+    { id = "notification", hint = string_format("%s_notification", mcm_id), val = 1, type = "check", def = true },
+    { id = "divider", type = "line" },
+    { id = "desc_tooltip", type = "desc", text = string_format("%s_desc_tooltip", mcm_id)},
+    { id = "scale_tooltip", hint = string_format("%s_scale_tooltip", mcm_id), type = "track", val = 2, step = 0.1, def = 1, max = 1.5, min = 0.5},
+    { id = "show_tooltip", hint = string_format("%s_show_tooltip", mcm_id), val = 1, type = "check", def = true },
+    { id = "limit_tooltip", hint = string_format("%s_limit_tooltip", mcm_id), val = 1, type = "check", def = true },
+    { id = "amount_tooltip", hint = string_format("%s_amount_tooltip", mcm_id), type = "track", val = 2, step = 1, def = 6, max = 9, min = 0 },
+
 }}
 
 function print_table(text, node, ...)
@@ -741,8 +749,7 @@ function get_current_tab()
 end
 
 function on_option_change()
-	-- KEY = get_config(main_settings_path, "keybind", DIK_keys.DIK_LSHIFT)
-    -- printf("-- on_option_change KEY %s", KEY )
+	show_tooltip = get_config(seals_mcm.main_settings_path, "notification", true)
 end
 
 function on_game_start()

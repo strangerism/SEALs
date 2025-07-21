@@ -13,7 +13,7 @@
 		</weight>
         <seal x="0" y="60" width="25" height="25">
 			<icon x="0" y="0" width="25" height="25" stretch="1"/>
-			<cap x="2" y="30" width="30" height="8" stretch="1">
+			<cap x="2" y="0" width="30" height="8" stretch="1">
 				<text complex_mode="1" font="arial_14" align="l" color="ui_gray_1"/>
 			</cap>			
         </seal>			

@@ -59,6 +59,10 @@ function utils_ui.UICellItem:Add_Upgrade(xml, obj, sec)
 	
 end
 
+local show_tooltip
+local limit_tooltip
+local amount_tooltip
+local scale_tooltip
 -- draws the seal badges on the tooltip dialog
 local XMLP = CScriptXmlInit()
 XMLP:ParseFile("utils.xml")
@@ -80,6 +84,7 @@ function utils_ui.UIInfoItem:Update(obj, sec, flags)
 		end
 	end
 	---
+	if not show_tooltip then return end
 
 	self.seals = {}
 
@@ -88,26 +93,41 @@ function utils_ui.UIInfoItem:Update(obj, sec, flags)
 	local margin = 0
 	local y_offset = 0
 	for i = 1, #seals do
-		if i > 6 then break end
+		if limit_tooltip and i > amount_tooltip then break end
 		-- printf("-- Creating Seal id %s name %s", i, seals[i].name)
 		self.seals[i]        = {}
 		self.seals[i].base = XMLP:InitStatic("item_info:seal", self.dialog)
 		self.seals[i].icon  = XMLP:InitStatic("item_info:seal:icon", self.seals[i].base)
 		self.seals[i].icon:InitTexture(seals[i].texture)
+		
 		self.seals[i].cap    = XMLP:InitTextWnd("item_info:seal:cap", self.seals[i].base)
 		self.seals[i].cap:SetText(strformat("%s", game.translate_string(seals[i].caption)))
+		self.seals[i].cap:SetWndPos(vector2():set(self.seals[i].cap:GetWndPos().x, self.seals[i].cap:GetWndPos().y + 30 * scale_tooltip))
 		if (i == 4) then
 			-- reset x margin
 			margin = 0
 			-- add y_offset 
 			y_offset = (self.seals[i].icon:GetHeight() + self.seals[i].cap:GetHeight()) + 25 * 768/device().height 
 		end
-		local xx = (self.dialog:GetWidth() - self.seals[i].icon:GetWidth() - margin) - 100 * 1024/device().width
-		local yy = self.seals[i].base:GetWndPos().y - 20 * 768/device().height + y_offset
+		local xx = (self.dialog:GetWidth() - self.seals[i].icon:GetWidth() - margin ) - 100 * 1024/device().width
+		local yy = self.seals[i].base:GetWndPos().y - 20 * 768/device().height + y_offset * scale_tooltip
 		self.seals[i].base:SetWndPos(vector2():set(xx , yy))
+		self.seals[i].icon:SetWndSize(vector2():set( self.seals[i].icon:GetWidth() * scale_tooltip , self.seals[i].icon:GetHeight() * scale_tooltip ))
 		self.seals[i].icon:Show(true)
 		self.seals[i].icon:IsAutoDelete(true)
-		margin = margin + self.seals[i].icon:GetWidth() + 35 * 1024/device().width
+		margin = margin + self.seals[i].base:GetWidth() * scale_tooltip + 35 * 1024/device().width
 	end
 	
+end
+
+function on_option_change()
+	show_tooltip = seals_mcm.get_config(seals_mcm.main_settings_path, "show_tooltip", true)
+	limit_tooltip = seals_mcm.get_config(seals_mcm.main_settings_path, "limit_tooltip", true)
+	amount_tooltip = seals_mcm.get_config(seals_mcm.main_settings_path, "amount_tooltip", 6)
+	scale_tooltip = seals_mcm.get_config(seals_mcm.main_settings_path, "scale_tooltip", 1)
+end
+
+function on_game_start()
+    RegisterScriptCallback("on_option_change",on_option_change)
+	on_option_change()
 end
