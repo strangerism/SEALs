@@ -128,9 +128,12 @@ function utils_ui.UIInfoItem:Update(obj, sec, flags)
 
 	local seals = seals_mcm.get_seals(sec)
 	-- printf("* -- create new icons")
-	local margin = 0
+	local rows_offset_x = 0
 	local rows_offset_y = 0
+	local col = 0
+	local row = 0
 	for i = 1, #seals do
+		-- printf("-- iteration[i] %s - max column %s",i, columns_count)
 		if limit_tooltip and i > amount_tooltip then break end
 		-- printf("-- Creating Seal id %s name %s", i, seals[i].name)
 		self.seals[i]        = {}
@@ -147,24 +150,33 @@ function utils_ui.UIInfoItem:Update(obj, sec, flags)
 		local cap_w = self.seals[i].cap:GetWidth()
 		local icon_w = self.seals[i].icon:GetWidth()
 		local icon_h = self.seals[i].icon:GetHeight()
-		if (i == columns_count) then
-			-- reset x margin
-			margin = 0
-			-- add row_offset_y 
-			rows_offset_y =  (icon_h + icon_h/2) + cap_h + spacing_y -- * 768/device().height 
+		local rows_base_offset_x = (icon_w + icon_w/2)
+		local rows_base_offset_y =  (icon_h + icon_h/2) + cap_h
+		if i == 1 or math.fmod(i-1,columns_count) == 0 then
+			-- printf("! reset row")
+			-- reset the row
+			row = row + 1
+			col = 1
 		end
-		local anchor_x = self.dialog:GetWidth() - (icon_w + icon_w/2)
-		local xx = anchor_x - (margin + offset_x  * icon_tooltip_scale) -- * 1024/device().width
-		local yy = self.seals[i].base:GetWndPos().y + icon_h/2 + rows_offset_y * icon_tooltip_scale + offset_y -- * 768/device().height
-		self.seals[i].base:SetWndPos(vector2():set(xx , yy ))
-		margin = margin + (icon_w + icon_w/2) + spacing_x * icon_tooltip_scale
-		
-		printf(" x=%s, y=%s", xx, yy)
-		printf("margin [%s] %s", i, margin)
+		-- printf("col %s, row %s", col, row)
+		-- x offset at first col is 0
+		rows_offset_x = rows_base_offset_x * col - rows_base_offset_x
+		-- y offset at first row is 0
+		rows_offset_y = rows_base_offset_y * row - rows_base_offset_y
 
+		-- printf("rows_offset_x %s, rows_offset_y %s", rows_offset_x, rows_offset_y)
+
+		local anchor_x = self.dialog:GetWidth() - (icon_w + icon_w/2) - offset_x * icon_tooltip_scale
+		local xx = anchor_x - rows_offset_x - spacing_x * (col - 1) * icon_tooltip_scale
 		
-		-- self.seals[i].icon:Show(true)
-		-- self.seals[i].icon:IsAutoDelete(true)
+		local anchor_y = self.seals[i].base:GetWndPos().y + icon_h/2 + offset_y * icon_tooltip_scale
+		local yy = anchor_y + rows_offset_y + spacing_y * (row - 1) * icon_tooltip_scale
+	
+		self.seals[i].base:SetWndPos(vector2():set(xx , yy ))
+		
+		-- printf(" x=%s, y=%s", xx, yy)
+		-- increase the column index
+		col = col + 1
 	end
 	
 end
