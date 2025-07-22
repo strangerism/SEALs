@@ -102,12 +102,18 @@ function utils_ui.UIInfoItem:Update(obj, sec, flags)
 		-- printf("* -- destroy icons first")
 		for i = 1, #self.seals do
 			-- printf("-- Creating Seal id %s name %s", i, self.seals[i].cap:GetText())
-			self.seals[i].icon:Show(false)
-			self.seals[i].icon = nil
-			self.seals[i].cap:Show(false)
-			self.seals[i].cap = nil
-			self.seals[i].base:Show(false)
-			self.seals[i].base = nil
+			if self.seals[i].icon then
+				self.seals[i].icon:Show(false)
+				self.seals[i].icon = nil				
+			end
+			if self.seals[i].cap then 
+				self.seals[i].cap:Show(false)
+				self.seals[i].cap = nil
+			end
+			if self.seals[i].base then
+				self.seals[i].base:Show(false)
+				self.seals[i].base = nil
+			end
 		end
 	end
 	---
@@ -148,10 +154,10 @@ function utils_ui.UIInfoItem:Update(obj, sec, flags)
 end
 
 function on_option_change()
-	show_tooltip = seals_mcm.get_config(seals_mcm.main_settings_path, "show_tooltip", true)
-	limit_tooltip = seals_mcm.get_config(seals_mcm.main_settings_path, "limit_tooltip", true)
-	amount_tooltip = seals_mcm.get_config(seals_mcm.main_settings_path, "amount_tooltip", 6)
-	scale_tooltip = seals_mcm.get_config(seals_mcm.main_settings_path, "scale_tooltip", 1)
+	show_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "show_tooltip", true)
+	limit_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "limit_tooltip", true)
+	amount_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "amount_tooltip", 6)
+	scale_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "scale_tooltip", 1)
 end
 
 function on_game_start()

@@ -3,7 +3,7 @@
 <string_table>
 	<!-- mcm tab/group -->
 	<string id ="ui_mcm_menu_seals_custom_layers_manufacturer">
-		<text>Scopes</text>
+		<text>Manufacturer</text>
 	</string>				
 	<!-- seal mcm toggle -->
 	<string id ="ui_mcm_seals_franchi_show">

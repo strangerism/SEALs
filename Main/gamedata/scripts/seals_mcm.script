@@ -1,6 +1,6 @@
 local options = {
     debug = false,
-    notification = false,
+    notification = true,
     TOGGLE_KEY = DIK_keys.DIK_RSHIFT
 }
 
@@ -15,21 +15,24 @@ groups = {}
 
 
 local op = { id = mcm_id, gr = {} }
-main_settings_path = string_format("%s/%s_main_settings", mcm_id, mcm_id) .. "/%s"
 
+main_settings_path = string_format("%s/%s_main_settings", mcm_id, mcm_id) .. "/%s"
 op.gr[1] = { id = mcm_id .. "_main_settings", sh = true, gr = {
     { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 },
     { id = "desc_keybind", type = "desc", clr = {200, 200, 255, 200}, text = string_format("%s_desc_keybind", mcm_id)},
     { id = "keybind", hint = string_format("%s_keybind", mcm_id), type = "key_bind", val = 2, def= options.TOGGLE_KEY},    
     { id = "logging", hint = string_format("%s_logging", mcm_id), val = 1, type = "check", def = options.debug },
     { id = "notification", hint = string_format("%s_notification", mcm_id), val = 1, type = "check", def = options.notification },
-    { id = "divider", type = "line" },
-    { id = "desc_tooltip", type = "desc", text = string_format("%s_desc_tooltip", mcm_id)},
+}}
+
+tooltips_settings_path = string_format("%s/%s_tooltips", mcm_id, mcm_id) .. "/%s"
+op.gr[2] = { id = mcm_id .. "_tooltips", sh = true, gr = {
+    { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 },
+    { id = "desc_tooltip", type = "desc", clr = {200, 200, 255, 200}, text = string_format("%s_desc_tooltip", mcm_id)},
     { id = "scale_tooltip", hint = string_format("%s_scale_tooltip", mcm_id), type = "track", val = 2, step = 0.1, def = 1, max = 1.5, min = 0.5},
     { id = "show_tooltip", hint = string_format("%s_show_tooltip", mcm_id), val = 1, type = "check", def = true },
     { id = "limit_tooltip", hint = string_format("%s_limit_tooltip", mcm_id), val = 1, type = "check", def = true },
-    { id = "amount_tooltip", hint = string_format("%s_amount_tooltip", mcm_id), type = "track", val = 2, step = 1, def = 6, max = 9, min = 0 },
-
+    { id = "amount_tooltip", hint = string_format("%s_amount_tooltip", mcm_id), type = "track", val = 2, step = 1, def = 6, max = 9, min = 0 },        
 }}
 
 function print_table(text, node, ...)
@@ -122,7 +125,7 @@ function parse_properties()
     end
 
     -- build options
-    op.gr[2] = { id = mcm_id .. "_properties", sh = true, gr = {
+    op.gr[3] = { id = mcm_id .. "_properties", sh = true, gr = {
         { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 }
     }}
     
@@ -131,48 +134,48 @@ function parse_properties()
         local defaults = properties[kind].default_settings
         -- print_dbg("bulding options for %s", kind)
         -- print_table("default_settings",  properties[kind].default_settings)
-        table.insert(op.gr[2].gr, { id = "desc" .. kind, type = "desc", text = string_format("ui_mcm_desc_%s_prop_%s", mcm_id, kind)})
-        table.insert(op.gr[2].gr, { id = "show_" .. kind, hint = string_format("%s_show", mcm_id), val = 1, type = "check", def = true })
+        table.insert(op.gr[3].gr, { id = "desc" .. kind, type = "desc", text = string_format("ui_mcm_desc_%s_prop_%s", mcm_id, kind)})
+        table.insert(op.gr[3].gr, { id = "show_" .. kind, hint = string_format("%s_show", mcm_id), val = 1, type = "check", def = true })
         -- if kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg" then
-        --     table.insert(op.gr[2].gr, { id = "rotate_" .. kind, hint = string_format("%s_rotate", mcm_id), val = 1, type = "check", def = true })
-        --     table.insert(op.gr[2].gr, { id = "scale_sm_" .. kind, hint = string_format("%s_scale_sm", mcm_id), type = "track", val = 2, step = 0.1,def = defaults.scale_sm, max = 5, min = 0.1})
+        --     table.insert(op.gr[3].gr, { id = "rotate_" .. kind, hint = string_format("%s_rotate", mcm_id), val = 1, type = "check", def = true })
+        --     table.insert(op.gr[3].gr, { id = "scale_sm_" .. kind, hint = string_format("%s_scale_sm", mcm_id), type = "track", val = 2, step = 0.1,def = defaults.scale_sm, max = 5, min = 0.1})
         -- end
-        table.insert(op.gr[2].gr, { id = "scale_" .. kind, hint = string_format("%s_scale", mcm_id), type = "track", val = 2, step = 0.1,def = defaults.scale, max = 5, min = 0.1})
-        table.insert(op.gr[2].gr, { id = "anchor_x_" .. kind, hint = string_format("%s_anchor_x", mcm_id),  type = "list", val = 0, def = defaults.anchor_x,
+        table.insert(op.gr[3].gr, { id = "scale_" .. kind, hint = string_format("%s_scale", mcm_id), type = "track", val = 2, step = 0.1,def = defaults.scale, max = 5, min = 0.1})
+        table.insert(op.gr[3].gr, { id = "anchor_x_" .. kind, hint = string_format("%s_anchor_x", mcm_id),  type = "list", val = 0, def = defaults.anchor_x,
             content = { 
                 {"right", string_format("%s_right", mcm_id)},
                 {"left", string_format("%s_left", mcm_id)},
             }
         })
-        table.insert(op.gr[2].gr, { id = "anchor_y_" .. kind, hint = string_format("%s_anchor_y", mcm_id), type = "list", val = 0, def = defaults.anchor_y, 
+        table.insert(op.gr[3].gr, { id = "anchor_y_" .. kind, hint = string_format("%s_anchor_y", mcm_id), type = "list", val = 0, def = defaults.anchor_y, 
             content = { 
                 {"top", string_format("%s_top", mcm_id)},
                 {"bottom", string_format("%s_bottom", mcm_id)},
             }
         })
-        table.insert(op.gr[2].gr, { id = "offset_x_" .. kind, hint = string_format("%s_offset_x", mcm_id), type = "track", val = 2, step = 1,def = defaults.offset_x, max = 100, min = -100})
-        table.insert(op.gr[2].gr, { id = "offset_y_" .. kind, hint = string_format("%s_offset_y", mcm_id), type = "track", val = 2, step = 1, def = defaults.offset_y, max = 100, min = -100})
-        table.insert(op.gr[2].gr, { id = "spacing_x_" .. kind, hint = string_format("%s_spacing_x", mcm_id), type = "track", val = 2, step = 1, def = defaults.spacing_x, max = 10, min = 0})
-        table.insert(op.gr[2].gr, { id = "spacing_y_" .. kind, hint = string_format("%s_spacing_y", mcm_id), type = "track", val = 2, step = 1,def = defaults.spacing_y, max = 10, min = 0})
-        table.insert(op.gr[2].gr, { id = "limit_" .. kind, hint = string_format("%s_limit", mcm_id), val = 1, type = "check", def = defaults.limit })
-        table.insert(op.gr[2].gr, { id = "amount_" .. kind, hint = string_format("%s_amount", mcm_id), type = "track", val = 2, step = 1, def = defaults.amount, max = 10, min = 0 })
+        table.insert(op.gr[3].gr, { id = "offset_x_" .. kind, hint = string_format("%s_offset_x", mcm_id), type = "track", val = 2, step = 1,def = defaults.offset_x, max = 100, min = -100})
+        table.insert(op.gr[3].gr, { id = "offset_y_" .. kind, hint = string_format("%s_offset_y", mcm_id), type = "track", val = 2, step = 1, def = defaults.offset_y, max = 100, min = -100})
+        table.insert(op.gr[3].gr, { id = "spacing_x_" .. kind, hint = string_format("%s_spacing_x", mcm_id), type = "track", val = 2, step = 1, def = defaults.spacing_x, max = 10, min = 0})
+        table.insert(op.gr[3].gr, { id = "spacing_y_" .. kind, hint = string_format("%s_spacing_y", mcm_id), type = "track", val = 2, step = 1,def = defaults.spacing_y, max = 10, min = 0})
+        table.insert(op.gr[3].gr, { id = "limit_" .. kind, hint = string_format("%s_limit", mcm_id), val = 1, type = "check", def = defaults.limit })
+        table.insert(op.gr[3].gr, { id = "amount_" .. kind, hint = string_format("%s_amount", mcm_id), type = "track", val = 2, step = 1, def = defaults.amount, max = 10, min = 0 })
         if kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg" then
-            table.insert(op.gr[2].gr, { id = "small_icons" .. kind, type = "desc", clr = {200, 200, 255, 200}, text = "ui_mcm_small_icons_desc"})
+            table.insert(op.gr[3].gr, { id = "small_icons" .. kind, type = "desc", clr = {200, 200, 255, 200}, text = "ui_mcm_small_icons_desc"})
             if kind == "w_pistol" or kind == "w_smg" then
-                table.insert(op.gr[2].gr, { id = "rotate_" .. kind, hint = string_format("%s_rotate", mcm_id), val = 1, type = "check", def = true })
+                table.insert(op.gr[3].gr, { id = "rotate_" .. kind, hint = string_format("%s_rotate", mcm_id), val = 1, type = "check", def = true })
             end
-            table.insert(op.gr[2].gr, { id = "scale_sm_" .. kind, hint = string_format("%s_scale_sm", mcm_id), type = "track", val = 2, step = 0.1,def = defaults.scale_sm, max = 5, min = 0.1})
-            table.insert(op.gr[2].gr, { id = "offset_sm_x_" .. kind, hint = string_format("%s_offset_sm_x", mcm_id), type = "track", val = 2, step = 1,def = defaults.offset_sm_x, max = 100, min = -100})
-            table.insert(op.gr[2].gr, { id = "offset_sm_y_" .. kind, hint = string_format("%s_offset_sm_y", mcm_id), type = "track", val = 2, step = 1, def = defaults.offset_sm_y, max = 100, min = -100})
+            table.insert(op.gr[3].gr, { id = "scale_sm_" .. kind, hint = string_format("%s_scale_sm", mcm_id), type = "track", val = 2, step = 0.1,def = defaults.scale_sm, max = 5, min = 0.1})
+            table.insert(op.gr[3].gr, { id = "offset_sm_x_" .. kind, hint = string_format("%s_offset_sm_x", mcm_id), type = "track", val = 2, step = 1,def = defaults.offset_sm_x, max = 100, min = -100})
+            table.insert(op.gr[3].gr, { id = "offset_sm_y_" .. kind, hint = string_format("%s_offset_sm_y", mcm_id), type = "track", val = 2, step = 1, def = defaults.offset_sm_y, max = 100, min = -100})
         end        
-        table.insert(op.gr[2].gr, { id = "divider", type = "line" })
+        table.insert(op.gr[3].gr, { id = "divider", type = "line" })
     end
-    op.gr[2].gr[#op.gr[2].gr] = nil
+    op.gr[3].gr[#op.gr[3].gr] = nil
 end
 
 parse_properties()
 
-property_path = string_format("%s/%s", mcm_id, op.gr[2].id) .. "/%s_"
+property_path = string_format("%s/%s", mcm_id, op.gr[3].id) .. "/%s_"
 
 function get_settings_for_prop(kind)
     local path = property_path .. kind
@@ -236,7 +239,7 @@ function parse_groups()
 
     if is_empty(layer_secs) then return end
 
-    op.gr[3] = { id = mcm_id .. "_custom_layers", gr = {} }
+    op.gr[4] = { id = mcm_id .. "_custom_layers", gr = {} }
     local tabs = {}
 
     for i = 1, #layer_secs do
@@ -285,10 +288,10 @@ function parse_groups()
             print_dbg("- tab %s", tab)
             
             if not tabs[tab] then
-                table.insert(op.gr[3].gr, { id =  tab, sh = true, gr = {
+                table.insert(op.gr[4].gr, { id =  tab, sh = true, gr = {
                     { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 }
                 }})
-                tabs[tab] = {idx = #op.gr[3].gr, settings = {}}
+                tabs[tab] = {idx = #op.gr[4].gr, settings = {}}
             end
 
             local setting = str[2] or str[1]
@@ -305,7 +308,7 @@ function parse_groups()
                 ["width"]   = layers_ini:r_float_ex(layer, "width") or 25,
                 ["margin_horz"] = layers_ini:r_float_ex(layer, "margin_horz") or 1,
                 ["margin_vert"] = layers_ini:r_float_ex(layer, "margin_vert") or 1,
-                ["settings_path"] = string_format("%s/%s/%s", mcm_id, op.gr[3].id, tab) .. "/%s_" .. setting
+                ["settings_path"] = string_format("%s/%s/%s", mcm_id, op.gr[4].id, tab) .. "/%s_" .. setting
             }
 
             print_table("- Created layer: %s", layers[group][layer], layer)
@@ -316,7 +319,7 @@ function parse_groups()
 
             tabs[tab].settings[setting] = true
 
-            table.insert(op.gr[3].gr[tabs[tab].idx].gr, { id = "show_" .. setting, hint = string_format("%s_%s_show", mcm_id, setting), val = 1, type = "check", def = true })
+            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "show_" .. setting, hint = string_format("%s_%s_show", mcm_id, setting), val = 1, type = "check", def = true })
         until true
     end
 
