@@ -89,7 +89,12 @@ end
 local show_tooltip
 local limit_tooltip
 local amount_tooltip
-local scale_tooltip
+local icon_tooltip_scale
+local tt_offset_x
+local tt_offset_y
+local tt_margin_offset_x
+local tt_margin_offset_y
+local columns_count
 -- draws the seal badges on the tooltip dialog
 local XMLP = CScriptXmlInit()
 XMLP:ParseFile("utils.xml")
@@ -124,31 +129,42 @@ function utils_ui.UIInfoItem:Update(obj, sec, flags)
 	local seals = seals_mcm.get_seals(sec)
 	-- printf("* -- create new icons")
 	local margin = 0
-	local y_offset = 0
+	local rows_offset_y = 0
 	for i = 1, #seals do
 		if limit_tooltip and i > amount_tooltip then break end
 		-- printf("-- Creating Seal id %s name %s", i, seals[i].name)
 		self.seals[i]        = {}
 		self.seals[i].base = XMLP:InitStatic("item_info:seal", self.dialog)
+		
 		self.seals[i].icon  = XMLP:InitStatic("item_info:seal:icon", self.seals[i].base)
 		self.seals[i].icon:InitTexture(seals[i].texture)
+		self.seals[i].icon:SetWndSize(vector2():set( self.seals[i].icon:GetWidth() * icon_tooltip_scale , self.seals[i].icon:GetHeight() * icon_tooltip_scale ))
 		
 		self.seals[i].cap    = XMLP:InitTextWnd("item_info:seal:cap", self.seals[i].base)
 		self.seals[i].cap:SetText(strformat("%s", game.translate_string(seals[i].caption)))
-		self.seals[i].cap:SetWndPos(vector2():set(self.seals[i].cap:GetWndPos().x, self.seals[i].cap:GetWndPos().y + 30 * scale_tooltip))
-		if (i == 4) then
+		self.seals[i].cap:SetWndPos(vector2():set(self.seals[i].cap:GetWndPos().x, self.seals[i].cap:GetWndPos().y + 30 * icon_tooltip_scale))
+		local cap_h = self.seals[i].cap:GetHeight()
+		local cap_w = self.seals[i].cap:GetWidth()
+		local icon_w = self.seals[i].icon:GetWidth()
+		local icon_h = self.seals[i].icon:GetHeight()
+		if (i == columns_count) then
 			-- reset x margin
 			margin = 0
-			-- add y_offset 
-			y_offset = (self.seals[i].icon:GetHeight() + self.seals[i].cap:GetHeight()) + 25 * 768/device().height 
+			-- add row_offset_y 
+			rows_offset_y =  (icon_h + icon_h/2) + cap_h + tt_margin_offset_y -- * 768/device().height 
 		end
-		local xx = (self.dialog:GetWidth() - self.seals[i].icon:GetWidth() - margin ) - 100 * 1024/device().width
-		local yy = self.seals[i].base:GetWndPos().y - 20 * 768/device().height + y_offset * scale_tooltip
-		self.seals[i].base:SetWndPos(vector2():set(xx , yy))
-		self.seals[i].icon:SetWndSize(vector2():set( self.seals[i].icon:GetWidth() * scale_tooltip , self.seals[i].icon:GetHeight() * scale_tooltip ))
-		self.seals[i].icon:Show(true)
-		self.seals[i].icon:IsAutoDelete(true)
-		margin = margin + self.seals[i].base:GetWidth() * scale_tooltip + 35 * 1024/device().width
+		local anchor_x = self.dialog:GetWidth() - (icon_w + icon_w/2)
+		local xx = anchor_x - (margin + tt_offset_x  * icon_tooltip_scale) -- * 1024/device().width
+		local yy = self.seals[i].base:GetWndPos().y + icon_h/2 + rows_offset_y * icon_tooltip_scale + tt_offset_y -- * 768/device().height
+		self.seals[i].base:SetWndPos(vector2():set(xx , yy ))
+		margin = margin + (icon_w + icon_w/2) + tt_margin_offset_x * icon_tooltip_scale
+		
+		printf(" x=%s, y=%s", xx, yy)
+		printf("margin [%s] %s", i, margin)
+
+		
+		-- self.seals[i].icon:Show(true)
+		-- self.seals[i].icon:IsAutoDelete(true)
 	end
 	
 end
@@ -157,7 +173,12 @@ function on_option_change()
 	show_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "show_tooltip", true)
 	limit_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "limit_tooltip", true)
 	amount_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "amount_tooltip", 6)
-	scale_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "scale_tooltip", 1)
+	icon_tooltip_scale = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "scale_tooltip", 1)
+	tt_offset_x = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "tt_offset_x", 20)
+	tt_offset_y = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "tt_offset_y", 20)
+	tt_margin_offset_x = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "tt_margin_offset_x", 35)
+	tt_margin_offset_y = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "tt_margin_offset_y", 25)
+	columns_count = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "columns_count", 3)
 end
 
 function on_game_start()
