@@ -90,10 +90,10 @@ local show_tooltip
 local limit_tooltip
 local amount_tooltip
 local icon_tooltip_scale
-local tt_offset_x
-local tt_offset_y
-local tt_margin_offset_x
-local tt_margin_offset_y
+local offset_x
+local offset_y
+local spacing_x
+local spacing_y
 local columns_count
 -- draws the seal badges on the tooltip dialog
 local XMLP = CScriptXmlInit()
@@ -151,13 +151,13 @@ function utils_ui.UIInfoItem:Update(obj, sec, flags)
 			-- reset x margin
 			margin = 0
 			-- add row_offset_y 
-			rows_offset_y =  (icon_h + icon_h/2) + cap_h + tt_margin_offset_y -- * 768/device().height 
+			rows_offset_y =  (icon_h + icon_h/2) + cap_h + spacing_y -- * 768/device().height 
 		end
 		local anchor_x = self.dialog:GetWidth() - (icon_w + icon_w/2)
-		local xx = anchor_x - (margin + tt_offset_x  * icon_tooltip_scale) -- * 1024/device().width
-		local yy = self.seals[i].base:GetWndPos().y + icon_h/2 + rows_offset_y * icon_tooltip_scale + tt_offset_y -- * 768/device().height
+		local xx = anchor_x - (margin + offset_x  * icon_tooltip_scale) -- * 1024/device().width
+		local yy = self.seals[i].base:GetWndPos().y + icon_h/2 + rows_offset_y * icon_tooltip_scale + offset_y -- * 768/device().height
 		self.seals[i].base:SetWndPos(vector2():set(xx , yy ))
-		margin = margin + (icon_w + icon_w/2) + tt_margin_offset_x * icon_tooltip_scale
+		margin = margin + (icon_w + icon_w/2) + spacing_x * icon_tooltip_scale
 		
 		printf(" x=%s, y=%s", xx, yy)
 		printf("margin [%s] %s", i, margin)
@@ -174,10 +174,10 @@ function on_option_change()
 	limit_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "limit_tooltip", true)
 	amount_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "amount_tooltip", 6)
 	icon_tooltip_scale = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "scale_tooltip", 1)
-	tt_offset_x = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "tt_offset_x", 20)
-	tt_offset_y = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "tt_offset_y", 20)
-	tt_margin_offset_x = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "tt_margin_offset_x", 35)
-	tt_margin_offset_y = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "tt_margin_offset_y", 25)
+	offset_x = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "offset_x", 20)
+	offset_y = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "offset_y", 20)
+	spacing_x = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "spacing_x", 35)
+	spacing_y = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "spacing_y", 25)
 	columns_count = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "columns_count", 3)
 end
 

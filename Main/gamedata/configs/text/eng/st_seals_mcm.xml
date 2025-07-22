@@ -32,29 +32,29 @@
 		<text>Scale seals in tooltips</text>
 	</string>
 
-	<string id ="ui_mcm_seals_tt_offset_x">
+	<string id ="ui_mcm_seals_offset_x">
 		<text>Horizontal offset</text>
 	</string>	
-	<string id ="ui_mcm_seals_tt_offset_x_desc">
-		<text>Offset from the edge of tooltip border (right) in pixels.</text>
+	<string id ="ui_mcm_seals_offset_x_desc">
+		<text>Offset from the edge of tooltip border (right) in pixels. The anchor point of the seals is always the top-right corner with right to left direction</text>
 	</string>
-	<string id ="ui_mcm_seals_tt_offset_y">
+	<string id ="ui_mcm_seals_offset_y">
 		<text>Vertical offset</text>
 	</string>	
-	<string id ="ui_mcm_seals_tt_offset_y_desc">
-		<text>Offset from the edge of tooltip border (top) in pixels.</text>
+	<string id ="ui_mcm_seals_offset_y_desc">
+		<text>Offset from the edge of tooltip border (top) in pixels. The anchor point of the seals is always the top-right corner with right to left direction</text>
 	</string>
-	<string id ="ui_mcm_seals_tt_margin_offset_x">
+	<string id ="ui_mcm_seals_spacing_x">
 		<text>Horizontal spacing offset</text>
 	</string>	
-	<string id ="ui_mcm_seals_tt_margin_offset_x_desc">
-		<text>Amount of pixels between columns of icons.</text>
+	<string id ="ui_mcm_seals_spacing_x_desc">
+		<text>An offset to the spacing between seals' icons</text>
 	</string>
-	<string id ="ui_mcm_seals_tt_margin_offset_y">
+	<string id ="ui_mcm_seals_spacing_y">
 		<text>Vertical spacing offset</text>
 	</string>	
-	<string id ="ui_mcm_seals_tt_margin_offset_y_desc">
-		<text>Amount of pixels between rows of icons.</text>
+	<string id ="ui_mcm_seals_spacing_y_desc">
+		<text>An offset to the spacing between the seals' rows of icons</text>
 	</string>			
 	<string id ="ui_mcm_seals_columns_count">
 		<text>Number of columns</text>
