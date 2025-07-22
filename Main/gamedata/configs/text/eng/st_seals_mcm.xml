@@ -2,13 +2,25 @@
 
 <string_table>
 	<string id ="seals_desc_keybind">
-		<text>The SEALs are set to display by default, but you can toggle this mode on/off in inventory by holding Left Shift</text>
+		<text>The SEALs are set to display by default, but you can toggle this mode on/off in inventory by holding Right Shift (default)</text>
 	</string>
+	<string id ="ui_mcm_seals_keybind">
+		<text>Toggle Key</text>
+	</string>	
+	<string id ="ui_mcm_seals_keybind_desc">
+		<text>Change the keybind for the toggle key</text>
+	</string>	
 	<string id ="ui_mcm_seals_notification">
 		<text>Notifications</text>
 	</string>	
 	<string id ="ui_mcm_seals_notification_desc">
 		<text>Sends a notification text when the mode is toggled</text>
+	</string>	
+	<string id ="ui_mcm_seals_logging">
+		<text>Logging</text>
+	</string>	
+	<string id ="ui_mcm_seals_logging_desc">
+		<text>Enables debug logs (enable it only for troubleshooting purporses, very heavy logging)</text>
 	</string>	
 	<string id ="seals_desc_tooltip">
 		<text>Seals in tooltips configuration</text>

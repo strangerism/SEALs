@@ -1,4 +1,31 @@
 
+local E_PRESS   = ui_events.WINDOW_KEY_PRESSED
+local E_RELEASE = ui_events.WINDOW_KEY_RELEASED
+
+local og_OnKeyboard = ui_inventory.UIInventory.OnKeyboard
+function ui_inventory.UIInventory:OnKeyboard(dik, keyboard_action)
+	
+	local res = CUIScriptWnd.OnKeyboard(self,dik,keyboard_action)
+	if (res == false) then
+		local KEY = seals_mcm.get_toggle_key()
+		if keyboard_action == E_RELEASE then
+			if dik == KEY then
+				-- printf("-- DIK %s E_RELEASE", dik)
+				seals_mcm.on_key_release(dik)
+			end
+			
+		elseif keyboard_action == E_PRESS then
+			
+			if dik == KEY then
+				-- printf("-- DIK %s E_PRESS", dik)
+				seals_mcm.on_key_press(dik)
+			end
+		end
+	end
+
+	og_OnKeyboard(self, dik, keyboard_action)
+end
+
 -- moves the upgrade indicator to the top rigth
 local og_Add_Upgrade = utils_ui.UICellItem.Add_Upgrade
 function utils_ui.UICellItem:Add_Upgrade(xml, obj, sec)
