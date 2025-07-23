@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="windows-1251"?>
+
+<string_table>
+
+	<string id ="ui_mcm_seals_gammaexp_show">
+		<text>gammaexp</text>
+	</string>
+	<string id ="ui_seals_gammaexp_caption">
+		<text>gammaexp</text>
+	</string>			
+</string_table>  

@@ -1,4 +1,5 @@
 param (
+    [Parameter(Mandatory = $false)][switch]$create,
     [Parameter(Mandatory = $false)][switch]$generate,
     [Parameter(Mandatory = $false)][switch]$update,
     [Parameter(Mandatory = $true)][string]$name,
@@ -101,6 +102,56 @@ function GenerateModlistGroupFile{
 
 }
 
+function CreateSealsTemplateProject{
+    Param(
+        $ReplacementValue
+    )
+
+
+    $templatePath = "generation/templates/gamedata"
+    $templateOutputPath = "generation/output/gamedata"
+
+    # Verify the gamedata exists
+    if (Test-Path -Path $templateOutputPath) {
+        Remove-Item $templateOutputPath -Recurse -Force | Out-Null
+        
+    }
+
+    Copy-Item -Path $templatePath -Destination $templateOutputPath -Recurse
+
+    # Verify the gamedata exists
+    if (-not (Test-Path -Path $templateOutputPath)) {
+        Write-Error "$templateOutputPath does not exist."
+        return
+    }
+
+    # Get all text-based files recursively
+    $files = Get-ChildItem -Path $templateOutputPath -Recurse -File
+
+    foreach ($file in $files) {
+        try {
+            $content = Get-Content -Path $file.FullName -Raw
+            $updatedContent = $content -replace [regex]::Escape("{{default}}"), $ReplacementValue
+
+            # Overwrite the original file with updated content
+            $updatedContent | Set-Content -Path $file.FullName
+
+            # Rename file if filename contains "default"
+            if ($file.Name -like "*default*") {
+                $newName = $file.Name -replace "default", $ReplacementValue
+                $newPath = Join-Path -Path $file.DirectoryName -ChildPath $newName
+                Rename-Item -Path $file.FullName -NewName $newPath
+                Write-Host "Renamed: $($file.Name) → $newName"
+            }
+
+            Write-Host "Processed: $($file.FullName)"
+        }
+        catch {
+            Write-Warning "Failed to process $($file.FullName): $_"
+        }
+    }
+}
+
 
 # handling exclude
 $excludeWeaponNames = @()
@@ -134,5 +185,7 @@ if ($generate.IsPresent) {
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 }
 
-
+if($create.IsPresent){
+    CreateSealsTemplateProject $name
+}
 
