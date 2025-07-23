@@ -10,7 +10,7 @@
 		<text>GAMMA</text>
 	</string>
 	<!-- seal caption -->
-	<string id ="ui_seals_gamma">
+	<string id ="ui_seals_gamma_caption">
 		<text>GAMMA</text>
 	</string>				
 </string_table>  

@@ -99,7 +99,7 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
 }
 
 # Add header and sort
-$header = "[custmod_seal]"
+$header = "[default]"
 $finalOutput = @($header) + ($weaponSet | Sort-Object)
 
 # Write to file

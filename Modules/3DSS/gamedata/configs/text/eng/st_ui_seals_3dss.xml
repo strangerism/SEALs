@@ -10,7 +10,7 @@
 		<text>3DSS</text>
 	</string>
 	<!-- seal caption -->
-	<string id ="ui_seals_3dss">
+	<string id ="ui_seals_3dss_caption">
 		<text>3D Scopes</text>
 	</string>			
 </string_table>  

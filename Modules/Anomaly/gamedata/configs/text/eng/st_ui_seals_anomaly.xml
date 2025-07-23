@@ -2,10 +2,10 @@
 
 <string_table>
 
-	<string id ="ui_mcm_seals_anomaly_seal_show">
+	<string id ="ui_mcm_seals_anomaly_show">
 		<text>Anomaly</text>
 	</string>
-	<string id ="ui_seals_anomaly">
+	<string id ="ui_seals_anomaly_caption">
 		<text>Anomaly</text>
 	</string>			
 </string_table>  

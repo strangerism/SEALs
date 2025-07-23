@@ -84,7 +84,7 @@ $modlistWeaponNames = Get-Content ".\gamedata\configs\custom_seal_layers\groups\
 $weaponNames = ($anomalyWeaponNames + $modlistWeaponNames) | Sort-Object -Unique
 
 # group header
-$header = "[3dss_seal]"
+$header = "[3dss]"
 
 # Write the header to the output file first
 Set-Content -Path $outputFile -Value $header

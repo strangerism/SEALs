@@ -35,27 +35,27 @@
 	</string>	
 
 	<!-- seal caption -->
-	<string id ="ui_seals_bm_wp">
+	<string id ="ui_seals_bm_wp_caption">
 		<text>BlackMarket Warsaw</text>
 	</string>
 	<!-- seal caption -->
-	<string id ="ui_seals_bm_nato">
+	<string id ="ui_seals_bm_nato_caption">
 		<text>BlackMarket Nato</text>
 	</string>
 	<!-- seal caption -->
-	<string id ="ui_seals_blackg">
+	<string id ="ui_seals_blackg_caption">
 		<text>Blackgrowl</text>
 	</string>	
 	<!-- seal caption -->
-	<string id ="ui_seals_zona">
+	<string id ="ui_seals_zona_caption">
 		<text>Gift from the Zone</text>
 	</string>
 	<!-- seal caption -->
-	<string id ="ui_seals_ccon">
+	<string id ="ui_seals_ccon_caption">
 		<text>The Group</text>
 	</string>
 	<!-- seal caption -->
-	<string id ="ui_seals_rwap">
+	<string id ="ui_seals_rwap_caption">
 		<text>Retrogue</text>
 	</string>				
 </string_table>  

@@ -7,11 +7,11 @@
 		<text>Modlist</text>
 	</string>	
 	<!-- seal mcm toggle -->
-	<string id ="ui_mcm_seals_custmod_show">
-		<text>Custom Modlist</text>
+	<string id ="ui_mcm_seals_default_show">
+		<text>Default modlist</text>
 	</string>
 	<!-- seal caption -->
-	<string id ="ui_seals_custmod">
-		<text>Cust Modlist</text>
+	<string id ="ui_seals_default">
+		<text>Default modlist</text>
 	</string>			
 </string_table>  

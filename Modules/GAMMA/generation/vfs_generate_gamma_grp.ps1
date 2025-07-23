@@ -82,7 +82,7 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
 }
 
 # Add header and sort
-$header = "[gamma_seal]"
+$header = "[gamma]"
 $finalOutput = @($header) + ($weaponSet | Sort-Object)
 
 # Write to file

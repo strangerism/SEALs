@@ -29,12 +29,12 @@ tooltips_settings_path = string_format("%s/%s_tooltips", mcm_id, mcm_id) .. "/%s
 op.gr[2] = { id = mcm_id .. "_tooltips", sh = true, gr = {
     { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 },
     { id = "desc_tooltip", type = "desc", clr = {200, 200, 255, 200}, text = string_format("%s_desc_tooltip", mcm_id)},
-    { id = "scale_tooltip", hint = string_format("%s_scale_tooltip", mcm_id), type = "track", val = 2, step = 0.1, def = 1, max = 1.5, min = 0.5},
+    { id = "scale_tooltip", hint = string_format("%s_scale_tooltip", mcm_id), type = "track", val = 2, step = 0.1, def = 1, max = 1.6, min = 0.5},
     
-    { id = "offset_x", hint = string_format("%s_offset_x", mcm_id), type = "track", val = 2, step = 1,def = 0, max = 250, min = 0},
-    { id = "offset_y", hint = string_format("%s_offset_y", mcm_id), type = "track", val = 2, step = 1,def = 0, max = 250, min = 0},
-    { id = "spacing_x", hint = string_format("%s_spacing_x", mcm_id), type = "track", val = 2, step = 1,def = 35, max = 100, min = 0},
-    { id = "spacing_y", hint = string_format("%s_spacing_y", mcm_id), type = "track", val = 2, step = 1,def = 25, max = 100, min = 0},
+    { id = "offset_x", hint = string_format("%s_offset_x", mcm_id), type = "track", val = 2, step = 1,def = 20, max = 150, min = 0},
+    { id = "offset_y", hint = string_format("%s_offset_y", mcm_id), type = "track", val = 2, step = 1,def = 30, max = 150, min = 0},
+    { id = "spacing_x", hint = string_format("%s_spacing_x", mcm_id), type = "track", val = 2, step = 1,def = 5, max = 75, min = 0},
+    { id = "spacing_y", hint = string_format("%s_spacing_y", mcm_id), type = "track", val = 2, step = 1,def = 15, max = 75, min = 0},
     
     { id = "divider", type = "line" },
     { id = "show_tooltip", hint = string_format("%s_show_tooltip", mcm_id), val = 1, type = "check", def = true },
@@ -311,11 +311,6 @@ function parse_groups()
                 ["icon_scale"]   = layers_ini:r_float_ex(layer, "icon_scale") or 1,
                 ["tooltip_scale"]   = layers_ini:r_float_ex(layer, "tooltip_scale") or 1,
                 ["caption"]   = layers_ini:r_string_ex(layer, "caption") or "Seal",
-                ["anchor"]   = anchor,
-                ["align"]   = layers_ini:r_string_ex(layer, "align") or 1,
-                ["width"]   = layers_ini:r_float_ex(layer, "width") or 25,
-                ["margin_horz"] = layers_ini:r_float_ex(layer, "margin_horz") or 1,
-                ["margin_vert"] = layers_ini:r_float_ex(layer, "margin_vert") or 1,
                 ["settings_path"] = string_format("%s/%s/%s", mcm_id, op.gr[4].id, tab) .. "/%s_" .. setting
             }
 

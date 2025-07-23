@@ -200,16 +200,16 @@
 		<text>SEALs</text>
 	</string>
 	<string id ="ui_mcm_menu_seals_main_settings">
-		<text>Main Settings</text>
+		<text>General</text>
 	</string>
 	<string id ="ui_mcm_menu_seals_properties">
-		<text>Icon config</text>
+		<text>Icons</text>
 	</string>	
 	<string id ="ui_mcm_menu_seals_tooltips">
-		<text>Tooltip config</text>
+		<text>Tooltip</text>
 	</string>		
 	<string id ="ui_mcm_menu_seals_custom_layers">
-		<text>Seal activation</text>
+		<text>Seals</text>
 	</string>
 	<string id ="ui_mcm_menu_seals_custom_layers_main">
 		<text>Main</text>

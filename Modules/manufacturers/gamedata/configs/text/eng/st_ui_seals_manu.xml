@@ -18,15 +18,15 @@
 		<text>Sig Sauer</text>
 	</string>	
 	<!-- seal caption -->
-	<string id ="ui_seals_franchi">
+	<string id ="ui_seals_franchi_caption">
 		<text>Luigi Franchi</text>
 	</string>	
 	<!-- seal caption -->
-	<string id ="ui_seals_kalash">
+	<string id ="ui_seals_kalash_caption">
 		<text>Kalashnikov</text>
 	</string>
 	<!-- seal caption -->
-	<string id ="ui_seals_sig">
+	<string id ="ui_seals_sig_caption">
 		<text>Sig Sauer</text>
 	</string>				
 </string_table>  
