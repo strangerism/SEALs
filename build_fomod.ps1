@@ -41,8 +41,7 @@ function BuildGAMMAConfigs {
     New-Item -Path $target -ItemType Directory | Out-Null
 
     Copy-Item -Recurse -Force -Path ".\Modules\GAMMA\gamedata" -Destination $target -Exclude .bak
-    Copy-Item -Recurse -Force -Path ".\Modules\GAMMA\generation" -Destination $target -Exclude .bak, "vfs_generate*"
-    Copy-Item -Recurse -Force -Path ".\Modules\GAMMA\generation\vfs_generate_gamma_grp.ps1" -Destination $target -Exclude .bak
+    Copy-Item -Recurse -Force -Path ".\Tools\seals_cli.ps1" -Destination $target
 
     $compress = @{
         Path = "$target/*" 
@@ -59,8 +58,43 @@ function BuildModlistConfigs {
     New-Item -Path $target -ItemType Directory | Out-Null
 
     Copy-Item -Recurse -Force -Path ".\Modules\Modlist\gamedata" -Destination $target -Exclude .bak
-    Copy-Item -Recurse -Force -Path ".\Modules\Modlist\generation" -Destination $target -Exclude .bak, "vfs_generate*"
-    Copy-Item -Recurse -Force -Path ".\Modules\Modlist\generation\vfs_generate_modlist_grp.ps1" -Destination $target -Exclude .bak
+    Copy-Item -Recurse -Force -Path ".\Tools\seals_cli.ps1" -Destination $target
+
+    $compress = @{
+        Path = "$target/*" 
+        CompressionLevel = "Fastest"
+        DestinationPath = "release/SEALs Config - Modlist.zip"
+    }
+    Compress-Archive @compress -Force     
+}
+
+function BuildTemplateConfigs {
+
+    $target = "build/SEALs Config - Template"
+
+    New-Item -Path $target -ItemType Directory | Out-Null
+
+    Copy-Item -Recurse -Force -Path ".\Tools\generation\templates\gamedata" -Destination "$target\gamedata"
+    Copy-Item -Recurse -Force -Path ".\Tools\seals_cli.ps1" -Destination $target
+    Copy-Item -Recurse -Force -Path ".\Tools\template.ini" -Destination $target
+
+    $compress = @{
+        Path = "$target/*" 
+        CompressionLevel = "Fastest"
+        DestinationPath = "release/SEALs Config - Template.zip"
+    }
+    Compress-Archive @compress -Force     
+}
+
+function BuildConfigsGenerator {
+
+    $target = "build/SEALs Config - Generator"
+
+    New-Item -Path $target -ItemType Directory | Out-Null
+
+    Copy-Item -Recurse -Force -Path ".\Tools\generation" -Destination "$target\generation"
+    Remove-Item -Recurse -Force -Path "$target\generation\ouput\gamedata"
+    Copy-Item -Recurse -Force -Path ".\Tools\seals_cli.ps1" -Destination $target
 
     $compress = @{
         Path = "$target/*" 
@@ -92,11 +126,11 @@ BuildMod
 BuildGAMMAConfigs
 Build3DSSConfigs
 BuildModlistConfigs
+BuildTemplateConfigs
 
 BuildConfigs "demo"
 BuildConfigs "manufacturers"
 BuildConfigs "mods"
-BuildConfigs "template"
 BuildConfigs "Anomaly"
 
 

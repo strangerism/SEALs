@@ -1,8 +1,9 @@
 param (
-    [Parameter(Mandatory = $false)][switch]$create,
+    [Parameter(Mandatory = $false)][switch]$new,
     [Parameter(Mandatory = $false)][switch]$generate,
     [Parameter(Mandatory = $false)][switch]$update,
     [Parameter(Mandatory = $true)][string]$name,
+    [Parameter(Mandatory = $false)][string]$from,
     [Parameter(Mandatory = $false)][switch]$exclude,
     [Parameter(Mandatory = $false)][string]$groups
 )
@@ -17,7 +18,8 @@ function GenerateModlistGroupFile{
     Param(
         $name,
         $excludeWeaponNames,
-        $outputFile
+        $outputFile,
+        $modName
     )
 
 
@@ -46,8 +48,18 @@ function GenerateModlistGroupFile{
     $weaponSet = [System.Collections.Generic.HashSet[string]]::new()
     $noMatchesList = @()
 
+    $src = "."
+    if ($null -ne $modName){
+        $src = "..\$modName"
+        # Verify the mod exists
+        if (-not (Test-Path -Path $src)) {
+            Write-Error "$src does not exist."
+            return
+        }
+    }
+
     # Search for files recursively with names starting with npc_loadouts
-    Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object { 
+    Get-ChildItem -Path "$src\gamedata\configs" -Recurse -File | Where-Object { 
         $_.Name -like "new_game_loadouts*" -or  
         $_.Name -like "mod_new_game_loadouts*" -or  
         $_.Name -like "npc_loadouts*" -or 
@@ -102,54 +114,102 @@ function GenerateModlistGroupFile{
 
 }
 
-function CreateSealsTemplateProject{
+function NameTemplate{
     Param(
-        $ReplacementValue
-    )
-
-
-    $templatePath = "generation/templates/gamedata"
-    $templateOutputPath = "generation/output/gamedata"
-
-    # Verify the gamedata exists
-    if (Test-Path -Path $templateOutputPath) {
-        Remove-Item $templateOutputPath -Recurse -Force | Out-Null
-        
-    }
-
-    Copy-Item -Path $templatePath -Destination $templateOutputPath -Recurse
-
-    # Verify the gamedata exists
-    if (-not (Test-Path -Path $templateOutputPath)) {
-        Write-Error "$templateOutputPath does not exist."
-        return
-    }
+        $templatePath,
+        $name
+    )    
 
     # Get all text-based files recursively
-    $files = Get-ChildItem -Path $templateOutputPath -Recurse -File
+    $files = Get-ChildItem -Path $templatePath -Recurse -File
 
     foreach ($file in $files) {
         try {
-            $content = Get-Content -Path $file.FullName -Raw
-            $updatedContent = $content -replace [regex]::Escape("{{default}}"), $ReplacementValue
-
-            # Overwrite the original file with updated content
-            $updatedContent | Set-Content -Path $file.FullName
 
             # Rename file if filename contains "default"
             if ($file.Name -like "*default*") {
-                $newName = $file.Name -replace "default", $ReplacementValue
+                $newName = $file.Name -replace "default", $name
                 $newPath = Join-Path -Path $file.DirectoryName -ChildPath $newName
                 Rename-Item -Path $file.FullName -NewName $newPath
                 Write-Host "Renamed: $($file.Name) → $newName"
             }
-
-            Write-Host "Processed: $($file.FullName)"
         }
         catch {
             Write-Warning "Failed to process $($file.FullName): $_"
         }
     }
+}
+
+function Templating{
+    Param(
+        $templatePath,
+        $tokens
+    )    
+
+    # Get all text-based files recursively
+    $files = Get-ChildItem -Path $templatePath -Recurse -File
+
+    foreach ($file in $files) {
+        try {
+            $content = Get-Content -Path $file.FullName -Raw
+
+            foreach ($key in $tokens.Keys) {
+                $content = $content -replace [regex]::Escape("{{${key}}}"), $tokens[$key]
+            }
+
+            $content | Set-Content -Path $file.FullName
+            Write-Host "Processed: $($file.FullName)"
+        }
+        catch {
+            Write-Warning "Failed to process $($file.FullName): $_"
+        }
+    }    
+}
+
+function CreateSealsTemplateProject{
+
+    $templateScaffoldPath = "generation/templates/gamedata"
+    
+
+    if (Test-Path -Path $templateScaffoldPath) {
+
+        $templatePath = "generation/output/gamedata"
+
+        # Verify the gamedata exists
+        if (Test-Path -Path $templatePath) {
+            Remove-Item $templatePath -Recurse -Force | Out-Null
+            
+        }
+
+        Copy-Item -Path $templateScaffoldPath -Destination $templatePath -Recurse
+
+        # Verify the gamedata exists
+        if (-not (Test-Path -Path $templatePath)) {
+            Write-Error "$templatePath does not exist."
+            return
+        }
+    }else{
+        $templatePath = "./gamedata"
+    }
+    
+    $TokensFile = "template.ini"
+
+    if (-not (Test-Path -Path $TokensFile)) {
+        Write-Error "Tokens file '$TokensFile' does not exist."
+        return
+    }
+
+    # Read token-value pairs from the file
+    $tokens = @{}
+    foreach ($line in Get-Content -Path $TokensFile) {
+        if ($line -match "^\s*(\w+)\s*=\s*(.+)\s*$") {
+            $tokens[$matches[1]] = $matches[2]
+        }
+    }
+
+    Templating $templatePath $tokens
+
+    NameTemplate $templatePath $tokens["sealid"]
 }
 
 
@@ -165,6 +225,7 @@ if ($exclude.IsPresent){
     }
 }
 
+
 # update
 if ($update.IsPresent) {
     Write-Host " Warning!! you are generating with UPDATE intent"
@@ -174,18 +235,24 @@ if ($update.IsPresent) {
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');    
 
     $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
-    GenerateModlistGroupFile $name $excludeWeaponNames $outputFile
+    GenerateModlistGroupFile $name $excludeWeaponNames $outputFile $from
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 }
 
 # generate
 if ($generate.IsPresent) {
     $outputFile = ".\generation\output\seals_group_$name.ltx"
-    GenerateModlistGroupFile $name $excludeWeaponNames $outputFile
+    GenerateModlistGroupFile $name $excludeWeaponNames $outputFile $from
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 }
 
-if($create.IsPresent){
-    CreateSealsTemplateProject $name
+# new
+if($new.IsPresent){
+    CreateSealsTemplateProject
+
+    if ($null -ne $from){
+        $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
+        GenerateModlistGroupFile $name $excludeWeaponNames $outputFile $from
+    }
 }
 
