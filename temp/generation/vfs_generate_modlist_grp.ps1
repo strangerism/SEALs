@@ -1,20 +1,36 @@
 param (
-    [string]$param,
-    [string]$mode
+    [Parameter(Mandatory = $false)][switch]$generate,
+    [Parameter(Mandatory = $false)][switch]$update,
+    [Parameter(Mandatory = $true)][string]$name,
+    [Parameter(Mandatory = $false)][switch]$exclude,
+    [Parameter(Mandatory = $false)][string]$groups
 )
 
-if ($param) {
-    Write-Host " Warning!! you are generating with $param intent"
+# function ModlistGeneration{
+#     param (
+#         [Parameter(Mandatory = $false)][switch]$generate,
+#         [Parameter(Mandatory = $false)][switch]$update,
+#         [Parameter(Mandatory = $true)][string]$name,
+#         [Parameter(Mandatory = $false)][switch]$exclude,
+#         [Parameter(Mandatory = $false)][string]$groups
+#     )    
+
+if ($update.IsPresent) {
+    Write-Host " Warning!! you are generating with UPDATE intent"
     Write-Host " Close window or continue"
 
     Write-Host
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');    
-}
 
-if ($param -eq "update"){
-    $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_modlist.ltx"
+    $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
+}elseif ($generate.IsPresent) {
+    $outputFile = ".\generation\output\seals_group_$name.ltx"
 }else{
-    $outputFile = ".\generation\output\seals_group_modlist.ltx"
+    Write-Host
+    Write-Host "Could not understand command."
+    Write-Host "Use -generate or -update switch followed by group name for output. [optional] use -exclude switch followed by array of group name lists from which to exclude sections"
+    Write-Host
+    exit
 }
 
 # Clear previous output if exists
@@ -40,17 +56,15 @@ New-Item -Path $hitPathFilesPath -ItemType Directory
 
 
 $weaponNames = @()
-if ($mode -eq "exclusive"){
-    $anomalyWeaponNames = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_anomaly.ltx"
+if ($exclude.IsPresent){
 
-    $gammaWeaponNames = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_gamma.ltx"
+    $groupNames = $groups -split ','
 
-    # Merge and deduplicate
-    $weaponNames = ($anomalyWeaponNames + $gammaWeaponNames) | Sort-Object -Unique
+    foreach( $groupName in $groupNames){
+        $sectionList = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_$groupName.ltx"
+        $weaponNames = ($weaponNames + $sectionList) | Sort-Object -Unique 
+    }
 }
-
-
-
 
 # Use a hash set for uniqueness
 $weaponSet = [System.Collections.Generic.HashSet[string]]::new()
@@ -99,7 +113,7 @@ Get-ChildItem -Path "gamedata\configs" -Recurse -File | Where-Object {
 }
 
 # Add header and sort
-$header = "[default]"
+$header = "[$name]"
 $finalOutput = @($header) + ($weaponSet | Sort-Object)
 
 # Write to file
@@ -109,5 +123,7 @@ $noMatchesList | Set-Content -Path $noMatchesPath
 Write-Host " Done! Unique section names saved to $outputFile"
 Write-Host " Done! Logged all the hit to $hitPath in MO2 overwrite folder"
 Write-Host " Done! Logged all the miss to $noMatchesPath in MO2 overwrite folder"
+
+# ModlistGeneration $generate $update $name $exclude $groups
 
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');

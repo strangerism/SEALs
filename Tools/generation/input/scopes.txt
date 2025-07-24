@@ -60,4 +60,4 @@ pk6
 kit_aus_tri
 kit_sa5x_spec
 kit_fal_leup
-hud
+kaban_kab_up

@@ -112,7 +112,7 @@ function Build3DSSConfigs {
 
     Copy-Item -Recurse -Force -Path ".\Modules\3DSS\gamedata" -Destination $target -Exclude .bak
     Copy-Item -Recurse -Force -Path ".\Modules\3DSS\generation" -Destination $target -Exclude .bak, "vfs_generate*"
-    Copy-Item -Recurse -Force -Path ".\Modules\3DSS\generation\vfs_generate_3dss_grp.ps1" -Destination $target -Exclude .bak
+    Copy-Item -Recurse -Force -Path ".\Tools\seals_cli.ps1" -Destination $target
 
     $compress = @{
         Path = "$target/*" 
