@@ -1,5 +1,6 @@
 param (
     [Parameter(Mandatory = $false)][switch]$new,
+    [Parameter(Mandatory = $false)][switch]$add,
     [Parameter(Mandatory = $false)][switch]$generate,
     [Parameter(Mandatory = $false)][switch]$update,
     [Parameter(Mandatory = $false)][switch]$3dss,
@@ -48,6 +49,26 @@ function LogDup {
 
     Write-Host $entry -ForegroundColor Red
     $logs.Value += $entry
+}
+
+function AddModlistGroupFile{
+    Param(
+        $name,
+        $outputFile,
+        $modName
+    )
+
+    $excludeWeaponNames = @()
+
+    GenerateModlistGroupFile $name $excludeWeaponNames ".\generation\output\$name\add.ltx" $modName
+
+    $addSections = Get-Content ".\generation\output\$name\add.ltx"
+    $nameSections = Get-Content $outputFile   
+    
+    $sectionNames = ($nameSections + $addSections) | Sort-Object -Unique 
+
+    # Save unique section names to the output file
+    $sectionNames | Set-Content -Path $outputFile
 }
 
 function GenerateModlistGroupFile{
@@ -405,38 +426,10 @@ $excludeWeaponNames = @()
 if ($exclude.IsPresent){
 
     $groupNames = $groups -split ','
-    Write-Host $groupNames
 
-    if ($new.IsPresent){
-
-        # Might not be needed because exclude cannot be used in new, maybe if from is set. verify
-
-        # $paths = Get-ChildItem -Path ".." -Directory |
-        #     Where-Object {
-        #         $_.Name -like "SEALs*" -and (Test-Path "$($_.FullName)\gamedata\configs\custom_seal_layers\groups")
-        #     }
-
-        # $allGroupFiles = foreach ($p in $paths) {
-        #     # Write-Host --> $p
-        #     Get-ChildItem -Path "$($p.FullName)\gamedata\configs\custom_seal_layers\groups" `
-        #                 -Filter "seals_group*.ltx" -File
-        # }
-        # foreach ($groupName in $groupNames) {
-        #     $expectedFileName = "seals_group_$groupName.ltx"
-        #     # Write-Host "seals_group_$groupName.ltx"
-        #     $groupFile = $allGroupFiles | Where-Object { $_.Name -eq $expectedFileName }
-
-        #     if ($groupFile) {
-        #         # Write-Host found $groupFile.FullName
-        #         $sectionList = Get-Content $groupFile.FullName
-        #         $excludeWeaponNames = ($excludeWeaponNames + $sectionList) | Sort-Object -Unique
-        #     }
-        # }
-    }else{    
-        foreach( $groupName in $groupNames){
-            $sectionList = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_$groupName.ltx"
-            $excludeWeaponNames = ($excludeWeaponNames + $sectionList) | Sort-Object -Unique 
-        }
+    foreach( $groupName in $groupNames){
+        $sectionList = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_$groupName.ltx"
+        $excludeWeaponNames = ($excludeWeaponNames + $sectionList) | Sort-Object -Unique 
     }
 }
 
@@ -469,6 +462,16 @@ if($new.IsPresent){
 
         $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
         GenerateModlistGroupFile $name $excludeWeaponNames $outputFile $from
+    }
+}
+
+# new
+if($add.IsPresent){
+    
+    if (($null -ne $from) -and ("" -ne $from)){
+
+        $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
+        AddModlistGroupFile $name $outputFile $from
     }
 }
 
