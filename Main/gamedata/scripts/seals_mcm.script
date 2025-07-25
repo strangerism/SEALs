@@ -50,6 +50,16 @@ function print_table(text, node, ...)
     end
 end
 
+function printlog_table(text, node, ...)
+    
+    text = string_format(text, ...)
+    printf("Seal Overlayer: | %s | \n" .. utils_data.print_table(node, text, true), time_global(), ...)
+end
+
+function print_log(text , ...)
+	printf("Seal Overlayer: | %s | " .. text, time_global(), ...)
+end
+
 function print_dbg(text , ...)
 	if (options.debug) then
 		printf("Seal Overlayer: | %s | " .. text, time_global(), ...)
@@ -90,7 +100,7 @@ function get_config(path, config, def)
 end
 
 function parse_properties()
-    print_dbg("- SEALs parse_properties ")
+    print_log("- SEALs parse_properties ")
     local property_kinds_ini = ini_file_ex("custom_seal_layers\\properties\\kinds\\base_seals_kinds.ltx")
     local kinds = property_kinds_ini:get_sections()
 
@@ -103,9 +113,9 @@ function parse_properties()
             properties[kind] = {}
             local functor = property_kinds_ini:r_string_ex(kind, "functor")
             if functor then
-                -- print_dbg("kind = %s", kind)
-                -- print_dbg("test read prop show %s", property_kinds_ini:r_bool_ex(kind, "show"))
-                -- print_dbg("test read prop scale %s", property_kinds_ini:r_float_ex(kind, "scale"))
+                -- print_log("kind = %s", kind)
+                -- print_log("test read prop show %s", property_kinds_ini:r_bool_ex(kind, "show"))
+                -- print_log("test read prop scale %s", property_kinds_ini:r_float_ex(kind, "scale"))
                 properties[kind].functor = str_explode(functor, ",")
                 properties[kind].props = {}
                 properties[kind].default_settings = {
@@ -124,10 +134,10 @@ function parse_properties()
                     ["limit"] = property_kinds_ini:r_bool_ex(kind, "limit") or false,
                     ["amount"] = property_kinds_ini:r_float_ex(kind, "amount") or 1
                 }
-                -- print_dbg("test read show %s", properties[kind].default_settings.show)
-                -- print_dbg("test read scale %s", properties[kind].default_settings.scale)
+                -- print_log("test read show %s", properties[kind].default_settings.show)
+                -- print_log("test read scale %s", properties[kind].default_settings.scale)
             else
-                print_dbg("! No functor defined for the kind [%s]", kind)
+                print_log("! No functor defined for the kind [%s]", kind)
             end
         until true
     end
@@ -140,7 +150,7 @@ function parse_properties()
     for i = 1, #kinds do
         local kind = kinds[i]
         local defaults = properties[kind].default_settings
-        -- print_dbg("bulding options for %s", kind)
+        -- print_log("bulding options for %s", kind)
         -- print_table("default_settings",  properties[kind].default_settings)
         table.insert(op.gr[3].gr, { id = "desc" .. kind, type = "desc", text = string_format("ui_mcm_desc_%s_prop_%s", mcm_id, kind)})
         table.insert(op.gr[3].gr, { id = "show_" .. kind, hint = string_format("%s_show", mcm_id), val = 1, type = "check", def = true })
@@ -219,7 +229,7 @@ function get_texture_rect(texture, cell, xml)
 end
 
 function parse_groups()
-    print_dbg("!! parse_groups")
+    print_log("!! parse_groups")
 
     local groups_ini = ini_file_ex("custom_seal_layers\\groups\\base_seals_groups.ltx")
     local layers_ini = ini_file_ex("custom_seal_layers\\layers\\base_seals_layers.ltx")
@@ -259,13 +269,13 @@ function parse_groups()
 
             local group = layers_ini:r_string_ex(layer, "group")
             if not group then
-                print_dbg("! No group specified for the layer: [%s]", layer)
+                print_log("! No group specified for the layer: [%s]", layer)
                 do break end -- continue
             end
 
             local settings_group = layers_ini:r_string_ex(layer, "settings_group") or group
 
-            print_dbg("- settings_group %s", settings_group)
+            print_log("- settings_group %s", settings_group)
             -- create single item groups automatically
             if not groups_ini:section_exist(group) then
                 local item = group
@@ -273,7 +283,7 @@ function parse_groups()
                     groups[item] = {}
                 end
                 group = string_format("%s_%s", group, layer)
-                print_dbg("- Created group %s", group)
+                -- print_log("- Created group %s", group)
                 groups[item][#groups[item] + 1] = group
             end
 
@@ -289,11 +299,11 @@ function parse_groups()
             }
 
             local str = str_explode(settings_group, "/")
-            print_dbg("- tab str 1 %s - 2 %s", str[1], str[2])
+            -- print_log("- tab str 1 %s - 2 %s", str[1], str[2])
 
             local tab = str[2] and mcm_id .. "_custom_layers_" .. str[1] or mcm_id .. "_custom_layers_main"
             
-            print_dbg("- tab %s", tab)
+            -- print_log("- tab %s", tab)
             
             if not tabs[tab] then
                 table.insert(op.gr[4].gr, { id =  tab, sh = true, gr = {
@@ -303,7 +313,7 @@ function parse_groups()
             end
 
             local setting = str[2] or str[1]
-            print_dbg("- Created group %s", group)
+            print_log("- Created group %s", group)
             layers[group][layer] = {
                 ["primary"]   = layers_ini:r_bool_ex(layer,"primary",false),
                 ["overrides"]   = layers_ini:r_string_ex(layer, "overrides") or "",
@@ -314,7 +324,7 @@ function parse_groups()
                 ["settings_path"] = string_format("%s/%s/%s", mcm_id, op.gr[4].id, tab) .. "/%s_" .. setting
             }
 
-            print_table("- Created layer: %s", layers[group][layer], layer)
+            printlog_table("- Created layer: %s", layers[group][layer], layer)
 
             if tabs[tab].settings[setting] then
                 do break end
@@ -326,8 +336,8 @@ function parse_groups()
         until true
     end
 
-    -- print_dbg("!! total # of layers %s", #layers)
-    -- print_dbg("!! total # of groups %s", #groups)
+    -- print_log("!! total # of layers %s", #layers)
+    -- print_log("!! total # of groups %s", #groups)
 end
 
 parse_groups()
@@ -352,8 +362,8 @@ layer_functors.custom_layers = function(sec, cell, xml)
     local kind = SYS_GetParam(0,sec,"kind", "na")
     local settings = get_settings_for_prop(kind)
     local custom_layers = {}
-    print_dbg("!! MAXXXX custom layer %s", sec)
-    print_dbg("is_small_icon %s", is_small_icon(sec))
+    print_dbg("!! Creating custom layer %s", sec)
+    -- print_dbg("is_small_icon %s", is_small_icon(sec))
 
     local row_width = 0
     local row_index = 0
@@ -362,51 +372,55 @@ layer_functors.custom_layers = function(sec, cell, xml)
     for i = 1, #layer_info do
         print_dbg("layer %s", i)
         local group = layers[layer_info[i]]
-        for layer, data in pairs(group) do
-            repeat
-                if not get_config(data.settings_path, "show", true) or not SEALS_SHOW then
-                    print_dbg("!! layer skipped %s", data.caption)
-                    do break end -- continue
-                end
-                print_dbg("layer %s", layer)
-                local scale = settings.scale
-                if is_small_icon(sec) then
-                    scale = settings.scale_sm
-                end
-                local rect = get_texture_rect(data.texture, cell, xml)
-                icon_index = icon_index + 1
-                local h = ((rect.y2 - rect.y1) / (data.icon_scale or 1)) * scale
-                local w = ((rect.x2 - rect.x1) / (data.icon_scale or 1)) * scale
-                local x_offset = icon_index > 1 and (settings.spacing_x) or 0
-                row_width = row_width + (w + x_offset)
-                if row_width > axis.w and i > 1 then
-                    row_index = row_index + 1
-                    row_width = w
-                    icon_index = 1
-                end
-                local y_offset = row_index * (settings.spacing_y)
-                local x = anchors.x[settings.anchor_x](axis, (row_width - w), w)
-                local y = anchors.y[settings.anchor_y](axis, y_offset + (h * row_index), h)
-                local offset_x = settings.offset_x
-                local offset_y = settings.offset_y
-                if is_small_icon(sec) then
-                    offset_x = settings.offset_sm_x
-                    offset_y = settings.offset_sm_y
-                end                
-                local layer_tbl = {
-                    ["x"] = x - offset_x,
-                    ["y"] = y - offset_y,
-                    ["h"] = h,
-                    ["w"] = w,
-                    ["texture"] = data.texture,
-                    ["primary"] = data.primary or "",
-                    ["overrides"] = data.overrides or "",
-                    ["caption"] = data.caption,
-                    ["layer"] = layer,
-                }
+        if group then
+            for layer, data in pairs(group) do
+                repeat
+                    if not get_config(data.settings_path, "show", true) or not SEALS_SHOW then
+                        print_dbg("!! layer skipped %s", data.caption)
+                        do break end -- continue
+                    end
+                    print_dbg("layer %s", layer)
+                    local scale = settings.scale
+                    if is_small_icon(sec) then
+                        scale = settings.scale_sm
+                    end
+                    local rect = get_texture_rect(data.texture, cell, xml)
+                    icon_index = icon_index + 1
+                    local h = ((rect.y2 - rect.y1) / (data.icon_scale or 1)) * scale
+                    local w = ((rect.x2 - rect.x1) / (data.icon_scale or 1)) * scale
+                    local x_offset = icon_index > 1 and (settings.spacing_x) or 0
+                    row_width = row_width + (w + x_offset)
+                    if row_width > axis.w and i > 1 then
+                        row_index = row_index + 1
+                        row_width = w
+                        icon_index = 1
+                    end
+                    local y_offset = row_index * (settings.spacing_y)
+                    local x = anchors.x[settings.anchor_x](axis, (row_width - w), w)
+                    local y = anchors.y[settings.anchor_y](axis, y_offset + (h * row_index), h)
+                    local offset_x = settings.offset_x
+                    local offset_y = settings.offset_y
+                    if is_small_icon(sec) then
+                        offset_x = settings.offset_sm_x
+                        offset_y = settings.offset_sm_y
+                    end                
+                    local layer_tbl = {
+                        ["x"] = x - offset_x,
+                        ["y"] = y - offset_y,
+                        ["h"] = h,
+                        ["w"] = w,
+                        ["texture"] = data.texture,
+                        ["primary"] = data.primary or false,
+                        ["overrides"] = data.overrides or "",
+                        ["caption"] = data.caption,
+                        ["layer"] = layer,
+                    }
 
-                custom_layers[#custom_layers + 1] = layer_tbl
-            until true
+                    custom_layers[#custom_layers + 1] = layer_tbl
+                until true
+            end
+        else 
+            print_dbg("! group returned as null for layer_info[%s]=%s", i, layer_info[i])
         end
     end
 
@@ -596,31 +610,39 @@ function get_seals(sec)
     if not layer_info then return {} end
     local seals = {}
     -- local scale = get_config(main_settings_path, "scale", 1.1)
-    -- print_dbg("- MAXXXX get_seals %s", sec)
+    -- print_dbg("- get_seals %s", sec)
     for i = 1, #layer_info do
         -- print_dbg("layer %s", i)
         local group = layers[layer_info[i]]
-        for layer, data in pairs(group) do
-            repeat
-                if not get_config(data.settings_path, "show", true) then
-                    do break end -- continue
-                end
-                -- local kind = SYS_GetParam(0,sec,"kind")
-                -- if kind == "w_pistol" and disable_pistols then
-                --     return
-                -- end
-                -- print_dbg("- FOUND")
-                -- print_dbg("data.texture %s", data.texture)
-                -- print_dbg("data.caption %s", data.caption)
-                local seal = {
-                    ["name"] = layer,
-                    ["caption"] = data.caption,
-                    ["texture"] = data.texture,
-                    ["scale"] = data.tooltip_scale,
-                }
+        if group then
+            for layer, data in pairs(group) do
+                repeat
+                    if not get_config(data.settings_path, "show", true) then
+                        do break end -- continue
+                    end
+                    -- local kind = SYS_GetParam(0,sec,"kind")
+                    -- if kind == "w_pistol" and disable_pistols then
+                    --     return
+                    -- end
+                    -- print_dbg("- FOUND")
+                    print_dbg("data.texture %s", data.texture)
+                    -- print_dbg("data.caption %s", data.caption)
+                    print_dbg("data.primary %s", data.primary)
+                    -- print_dbg("data.overridden %s", data.overridden)
+                    -- print_dbg("tooltip primary %s", (data.primary and not data.overridden) or false)
+                    local seal = {
+                        ["name"] = layer,
+                        ["primary"] = data.primary, --(data.primary and not data.overridden) or false,
+                        ["caption"] = data.caption,
+                        ["texture"] = data.texture,
+                        ["scale"] = data.tooltip_scale,
+                    }
 
-                seals[#seals + 1] = seal
-            until true
+                    seals[#seals + 1] = seal
+                until true
+            end
+        else 
+            print_dbg("! group returned as null for layer_info[%s]=%s", i, layer_info[i])
         end
     end
 

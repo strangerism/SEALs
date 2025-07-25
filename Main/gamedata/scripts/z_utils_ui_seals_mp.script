@@ -95,6 +95,7 @@ local offset_y
 local spacing_x
 local spacing_y
 local columns_count
+local c_gold = GetARGB(255, 255, 223, 0)
 -- draws the seal badges on the tooltip dialog
 local XMLP = CScriptXmlInit()
 XMLP:ParseFile("utils.xml")
@@ -146,6 +147,9 @@ function utils_ui.UIInfoItem:Update(obj, sec, flags)
 		self.seals[i].cap    = XMLP:InitTextWnd("item_info:seal:cap", self.seals[i].base)
 		self.seals[i].cap:SetText(strformat("%s", game.translate_string(seals[i].caption)))
 		self.seals[i].cap:SetWndPos(vector2():set(self.seals[i].cap:GetWndPos().x, self.seals[i].cap:GetWndPos().y + 30 * icon_tooltip_scale))
+		if seals[i].primary then
+			self.seals[i].cap:SetTextColor(c_gold)
+		end
 		local cap_h = self.seals[i].cap:GetHeight()
 		local cap_w = self.seals[i].cap:GetWidth()
 		local icon_w = self.seals[i].icon:GetWidth()
