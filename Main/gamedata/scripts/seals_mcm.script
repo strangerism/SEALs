@@ -628,14 +628,16 @@ function get_seals(sec)
                     print_dbg("data.texture %s", data.texture)
                     -- print_dbg("data.caption %s", data.caption)
                     print_dbg("data.primary %s", data.primary)
-                    -- print_dbg("data.overridden %s", data.overridden)
-                    -- print_dbg("tooltip primary %s", (data.primary and not data.overridden) or false)
+                    print_dbg("data.overridden %s", data.overridden)
+                    print_dbg("tooltip primary %s", (data.primary and not data.overridden) or false)
                     local seal = {
                         ["name"] = layer,
-                        ["primary"] = data.primary, --(data.primary and not data.overridden) or false,
+                        ["primary"] = data.primary or false,
+                        ["overrides"] = data.overrides or "",                        
                         ["caption"] = data.caption,
                         ["texture"] = data.texture,
                         ["scale"] = data.tooltip_scale,
+                        ["layer"] = layer,
                     }
 
                     seals[#seals + 1] = seal
@@ -646,6 +648,18 @@ function get_seals(sec)
         end
     end
 
+    -- Mark overridden layers
+    for i = 1, #seals do
+        local overrides = seals[i].overrides
+        if overrides and overrides ~= "" then
+            -- Find the layer that matches the overrides value and mark it for removal
+            for j = 1, #seals do
+                if seals[j].layer == overrides then
+                    seals[j].primary = false
+                end
+            end
+        end
+    end
     return seals
 end
 
