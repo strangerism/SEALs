@@ -146,6 +146,7 @@ BuildTemplateConfigs
 BuildConfigs "manufacturers"
 BuildConfigs "mods"
 BuildConfigs "Anomaly"
+BuildConfigs "RWAP"
 
 
 Remove-Item -Force -Recurse -Path "./build"

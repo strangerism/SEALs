@@ -1,6 +1,7 @@
 param (
     [Parameter(Mandatory = $false)][switch]$new,
     [Parameter(Mandatory = $false)][switch]$add,
+    [Parameter(Mandatory = $false)][switch]$clear,
     [Parameter(Mandatory = $false)][switch]$generate,
     [Parameter(Mandatory = $false)][switch]$update,
     [Parameter(Mandatory = $false)][switch]$3dss,
@@ -67,19 +68,31 @@ function Get-ScopesFromLTXFile {
     foreach ($line in $lines) {
         # Match: name = scope
         if ($line -match '^\s*([^\s;=\[\]!]+)\s*=\s*scope\b') {
-            $scopes.Add($matches[1]) | Out-Null
+            $scope = $matches[1]
+            if ($scope -notmatch '^wpn_') {
+                $scopes.Add($scope) | Out-Null
+            }
         }
         # Match: [name]:addon
         elseif ($line -match '^\s*\[([^\]]+)\]:addon\b') {
-            $scopes.Add($matches[1]) | Out-Null
+            $scope = $matches[1]
+            if ($scope -notmatch '^wpn_') {
+                $scopes.Add($scope) | Out-Null
+            }
         }
         # Match: ![name]
         elseif ($line -match '^\s*!\[([^\]]+)\]') {
-            $scopes.Add($matches[1]) | Out-Null
+            $scope = $matches[1]
+            if ($scope -notmatch '^wpn_') {
+                $scopes.Add($scope) | Out-Null
+            }
         }
         # Match: [name] (no colon, no exclamation)
         elseif ($line -match '^\s*\[([^\]]+)\]') {
-            $scopes.Add($matches[1]) | Out-Null
+            $scope = $matches[1]
+            if ($scope -notmatch '^wpn_') {
+                $scopes.Add($scope) | Out-Null
+            }
         }
     }
 
@@ -519,7 +532,7 @@ function GenerateScopesList{
 
     $scopeList = @()
 
-    if (Test-Path $inputFile){
+    if ((($null -ne $inputFile) -and ("" -ne $inputFile)) -and (Test-Path $inputFile)){
 
         Write-Host Generating from $inputFile
 
@@ -533,6 +546,27 @@ function GenerateScopesList{
         Set-Content -Path $outFile -Value $scopeList        
 
         Write-Host Saved scope list to $outFile
+    }else{
+
+        $addonFiles = Get-ChildItem -Path "gamedata/configs" -Recurse -File | Where-Object { 
+                $_.Name -like "*addons*" -or  
+                $_.Name -like "*sights*"
+            }
+
+        $addonFiles | ForEach-Object {
+            Write-Host Generating from $_.FullName
+            # Extract scopes from the LTX file
+            $scopeList = $scopeList + (Get-ScopesFromLTXFile $_.FullName)
+        }
+
+        # Sort and deduplicate the list
+        $scopeList = $scopeList | Sort-Object -Unique
+
+        # Write the sorted list to a file
+        Set-Content -Path $outFile -Value $scopeList        
+
+        Write-Host Saved scope list to $outFile        
+
     }
 
     return $scopeList
@@ -559,10 +593,10 @@ function GenerateScopesList{
 
 if ($refresh.IsPresent){
 
-    $inputFile = "gamedata\configs\items\weapons\weapon_addons.ltx"
+    # $inputFile = "gamedata\configs\items\weapons\weapon_addons.ltx"
     $outFile = "generation\input\scopes\scopes.txt"
 
-    GenerateScopesList $inputFile $outFile
+    GenerateScopesList -outFile $outFile
 
     $inputFile = "gamedata\configs\mod_system_3dss_gamma_scopes.ltx"
     $outFile = "generation\input\scopes\scopes_3dss.txt"
@@ -604,6 +638,12 @@ if ($generate.IsPresent -and -not($3dss.IsPresent)) {
     $outputFile = ".\generation\output\seals_group_$name.ltx"
     GenerateModlistGroupFile $name $excludeWeaponNames $outputFile $from $static
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+}
+
+if($clear.IsPresent){
+    $emptyList = @()
+    $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
+    Set-Content $outputFile $emptyList
 }
 
 # new
