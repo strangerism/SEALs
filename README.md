@@ -623,6 +623,8 @@ The **SEALs** MCM menu groups the seals settings by tabs, by default a new custo
 
 You specify the tab with the `settings_group` directive
 
+settings_group = <tabid>/<sealid>
+
 e.g.
 
 ```ini
@@ -634,6 +636,8 @@ tooltip_scale = 4
 caption = ui_seals_3dss_caption
 settings_group = scope/3dss
 ```
+
+The tabid is as defined in the string files (see next)
 
 ## The UI strings file
 
@@ -667,6 +671,10 @@ This file define the strings used by the custom seal mainly two string
 ```
 
 If you used the ***CLI*** templating, you have already set the first two strings in the `template.ini`
+
+the mcm/tab group defines the tabid as
+
+`ui_mcm_menu_seals_custom_layers_tabid`
 
 # SEALs Distribuition
 
