@@ -9,7 +9,9 @@ param (
     [Parameter(Mandatory = $false)][switch]$exclude,
     [Parameter(Mandatory = $false)][string]$groups,
     [Parameter(Mandatory = $false)][switch]$static,
-    [Parameter(Mandatory = $false)][switch]$scopes
+    # [Parameter(Mandatory = $false)][switch]$scopes,
+    [Parameter(Mandatory = $false)][switch]$refresh
+    
 )
 Write-Host generate $new
 Write-Host new $generate
@@ -18,6 +20,8 @@ Write-Host name $name
 Write-Host "from $from"
 Write-Host exclude $exclude
 Write-Host groups $groups
+
+$CLI_FOLDER = "SEALs - CLI"
 
 # logfile
 $logpath = ".\generation\output\seals.log"
@@ -158,9 +162,9 @@ function GenerateModlistGroupFile{
     if ($static){
 
         # Extract scopes from the LTX file
-        $scopeList = Get-ScopesFromLTXFile "generation\input\weapon_addons.ltx"
+        $scopeList = Get-Content "..\$CLI_FOLDER\generation\input\scopes\scopes.txt"
 
-        $3dssScopeList = Get-ScopesFromLTXFile "generation\input\mod_system_3dss_gamma_scopes.ltx"
+        $3dssScopeList = Get-Content "..\$CLI_FOLDER\generation\input\scopes\scopes_3dss.txt"
 
         # Sort and deduplicate the list
         $scopeNames = ( $scopeList + $3dssScopeList ) | Sort-Object -Unique
@@ -292,10 +296,10 @@ function Generate3DSSGroupFile{
     New-Item -Path $hitPathFilesPath -ItemType Directory
 
     # Define files to ignore
-    $ignoreFiles = Get-Content ".\generation\input\ignoreFiles.txt"
+    $ignoreFiles = Get-Content ".\generation\input\ignore3DSSFiles.txt"
 
     # The list of 3DSS scopes
-    $scopeNames = Get-Content ".\generation\input\scopes_3dss.txt"
+    $scopeNames = Get-Content ".\generation\input\scopes\scopes_3dss.txt"
 
     # the list of manually entered sections. When the generation fails, you can fall back to this file and add what is being missed
     $manualEntries = Get-Content ".\generation\input\manual_entries.ltx"
@@ -507,29 +511,65 @@ function CreateSealsTemplateProject{
     NameTemplate $templatePath $tokens["sealid"]
 }
 
+function GenerateScopesList{
+    Param(
+        $inputFile,
+        $outFile
+    ) 
 
-if($scopes.IsPresent){
+    $scopeList = @()
 
-    if ($3dss.IsPresent){
-        $inputFile = "generation\input\mod_system_3dss_gamma_scopes.ltx"
-        $outFile = "generation\input\scopes_3dss.txt"
-    }else{
-        $inputFile = "generation\input\weapon_addons.ltx"
-        $outFile = "generation\input\scopes.txt"
+    if (Test-Path $inputFile){
+
+        Write-Host Generating from $inputFile
+
+        # Extract scopes from the LTX file
+        $scopeList = Get-ScopesFromLTXFile $inputFile
+
+        # Sort and deduplicate the list
+        $scopeList = $scopeList | Sort-Object -Unique
+
+        # Write the sorted list to a file
+        Set-Content -Path $outFile -Value $scopeList        
+
+        Write-Host Saved scope list to $outFile
     }
 
-    # Extract scopes from the LTX file
-    $scopeList = Get-ScopesFromLTXFile $inputFile
+    return $scopeList
+}
 
-    # Sort and deduplicate the list
-    $scopeList = $scopeList | Sort-Object -Unique
 
-    # Write the sorted list to a file
-    Set-Content -Path $outFile -Value $scopeList
+# if($scopes.IsPresent){
 
-    # Optional: Output to console
-    $scopeList
+#     if ($3dss.IsPresent){
+#         $inputFile = "generation\input\mod_system_3dss_gamma_scopes.ltx"
+#         $outFile = "generation\input\scopes\scopes_3dss.txt"
+#     }else{
+#         $inputFile = "generation\input\weapon_addons.ltx"
+#         $outFile = "generation\input\scopes\scopes.txt"
+#     }
 
+#     $scopeList = GenerateScopesList $inputFile $outFile
+
+#     # Optional: Output to console
+#     $scopeList
+
+#     exit
+# }
+
+if ($refresh.IsPresent){
+
+    $inputFile = "gamedata\configs\items\weapons\weapon_addons.ltx"
+    $outFile = "generation\input\scopes\scopes.txt"
+
+    GenerateScopesList $inputFile $outFile
+
+    $inputFile = "gamedata\configs\mod_system_3dss_gamma_scopes.ltx"
+    $outFile = "generation\input\scopes\scopes_3dss.txt"
+
+    GenerateScopesList $inputFile $outFile
+
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
     exit
 }
 
