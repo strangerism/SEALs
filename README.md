@@ -37,7 +37,7 @@ is used to
 ## List of configuration modules
 
 > [!CAUTION]
-> These modules are provided as examples. 
+> Some of these modules are provided as examples. 
 > The mod is meant to be supported only by the community's contribuitions
 
 - **Anomaly**: Applies Anomaly seals to all weapons from the base game (this is a static prefab configuration).
@@ -46,13 +46,13 @@ is used to
 - **manufactorers**: applies manufactorers seals to guns (this is an example of static configuration)
 - **mods**: applies mods related seals (this is an example of static configuration)
 
-> static configuration are mainly manually edited (e.g. guns added manually to a list) in contrast to the use of generation tools, which we will see below, which can dynamically compile these lists by scanning mods folders or the entire modlist
+> static configuration are mainly manually edited (e.g. guns added manually to a list) in contrast to the use of generation tools, that we will see below, which can dynamically compile these lists by scanning mods folders or the entire modlist
 
 ## The CLI
 
 The CLI, an interactive powershell script, is used to create new config modules, blank or already compiled with data from mods. Data is generated dynamically scanning mods folders or entire modlists.
 
-You execute it's command from the windows terminal
+You execute its commands from the windows terminal
 
 e.g.
 
@@ -60,15 +60,15 @@ e.g.
 SEALs.ps1 -new athi -from "GAMMA EXP Edition Redux - 3DSS ATHI Weapon Pack"
 ```
 
-or as a **Mod Organizer 2** Executables
+or as **Mod Organizer 2** Executables
 
 e.g.
 
 ![mo_exe](doc/images/mo_exe.png)
 
-# How to build
+# How to build this project
 
-Launching the powershell `build_fomod.ps1` file in a windows terminal will build all the modules as above.
+By launching the powershell `build_fomod.ps1` file in a windows terminal will build all the modules as above.
 
 ```shell
 ./build_fomod.ps1
@@ -77,6 +77,8 @@ Launching the powershell `build_fomod.ps1` file in a windows terminal will build
 # How to install and requirements
 
 SEALs is a "spin" or total rework of **Dynamic Icons Indicator**, you don't need this mod installed to use SEALs but you will need it if you want the **Dynamic Icons Indicator** funtionalities. 
+
+[ddi](https://www.moddb.com/mods/stalker-anomaly/addons/dynamic-icon-indicators)
 
 > [!CAUTION]
 > **SEALs** does not replace **Dynamic Icons Indicator**
@@ -91,7 +93,7 @@ The **SEALs** mod only requirement is the mighty
 
 ## End User
 
-The end user will only need to install **SEALs** main module and one or more config modules. This will allow to see seals that are defined in the configs module.
+The end user will only need to install **SEALs** main module and one or more config modules. This will allow to enable seals in the game weapons icons, that are defined in the configs module.
 
 ![end_user](doc/images/end_user.png)
 
