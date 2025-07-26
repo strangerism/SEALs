@@ -7,9 +7,10 @@ param (
     [Parameter(Mandatory = $false)][string]$name,
     [Parameter(Mandatory = $false)][string]$from,
     [Parameter(Mandatory = $false)][switch]$exclude,
-    [Parameter(Mandatory = $false)][string]$groups
+    [Parameter(Mandatory = $false)][string]$groups,
+    [Parameter(Mandatory = $false)][switch]$static,
+    [Parameter(Mandatory = $false)][switch]$scopes
 )
-
 Write-Host generate $new
 Write-Host new $generate
 Write-Host update $update
@@ -51,16 +52,47 @@ function LogDup {
     $logs.Value += $entry
 }
 
+function Get-ScopesFromLTXFile {
+    param (
+        [string]$FilePath
+    )
+
+    $scopes = [System.Collections.Generic.HashSet[string]]::new()
+    $lines = Get-Content $FilePath
+
+    foreach ($line in $lines) {
+        # Match: name = scope
+        if ($line -match '^\s*([^\s;=\[\]!]+)\s*=\s*scope\b') {
+            $scopes.Add($matches[1]) | Out-Null
+        }
+        # Match: [name]:addon
+        elseif ($line -match '^\s*\[([^\]]+)\]:addon\b') {
+            $scopes.Add($matches[1]) | Out-Null
+        }
+        # Match: ![name]
+        elseif ($line -match '^\s*!\[([^\]]+)\]') {
+            $scopes.Add($matches[1]) | Out-Null
+        }
+        # Match: [name] (no colon, no exclamation)
+        elseif ($line -match '^\s*\[([^\]]+)\]') {
+            $scopes.Add($matches[1]) | Out-Null
+        }
+    }
+
+    return $scopes
+}
+
 function AddModlistGroupFile{
     Param(
         $name,
         $outputFile,
-        $modName
+        $modName,
+        $static
     )
 
     $excludeWeaponNames = @()
 
-    GenerateModlistGroupFile $name $excludeWeaponNames ".\generation\output\$name\add.ltx" $modName
+    GenerateModlistGroupFile $name $excludeWeaponNames ".\generation\output\$name\add.ltx" $modName $static
 
     $addSections = Get-Content ".\generation\output\$name\add.ltx"
     $nameSections = Get-Content $outputFile   
@@ -76,7 +108,8 @@ function GenerateModlistGroupFile{
         $name,
         $excludeWeaponNames,
         $outputFile,
-        $modName
+        $modName,
+        $static
     )
 
     Write-Host name $name
@@ -85,7 +118,7 @@ function GenerateModlistGroupFile{
     
     # Clear previous output if exists
     if (Test-Path $outputFile) {
-        Remove-Item $outputFile
+        Remove-Item $outputFile -Force
     }
 
     # Path to miss report and files
@@ -119,13 +152,32 @@ function GenerateModlistGroupFile{
         $src = "gamedata\configs"
     }
 
+    # The list of the scopes found in the modlist
+    $scopeNames = @()
+
+    if ($static){
+
+        # Extract scopes from the LTX file
+        $scopeList = Get-ScopesFromLTXFile "generation\input\weapon_addons.ltx"
+
+        $3dssScopeList = Get-ScopesFromLTXFile "generation\input\mod_system_3dss_gamma_scopes.ltx"
+
+        # Sort and deduplicate the list
+        $scopeNames = ( $scopeList + $3dssScopeList ) | Sort-Object -Unique
+
+        $weaponLTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
+                            $_.Name -like "w_*"
+                        }
+    }else{
+        $weaponLTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
+                        $_.Name -like "new_game_loadouts*" -or  
+                        $_.Name -like "mod_new_game_loadouts*" -or  
+                        $_.Name -like "npc_loadouts*" -or 
+                        $_.Name -like "mod_npc_loadouts*" 
+                    }
+    }
     # Search for files recursively with names starting with npc_loadouts
-    Get-ChildItem -Path $src -Recurse -File | Where-Object { 
-        $_.Name -like "new_game_loadouts*" -or  
-        $_.Name -like "mod_new_game_loadouts*" -or  
-        $_.Name -like "npc_loadouts*" -or 
-        $_.Name -like "mod_npc_loadouts*" 
-    } | ForEach-Object {
+    $weaponLTXFiles | ForEach-Object {
         $content = Get-Content $_.FullName
         
         $fileWeaponSet = [System.Collections.Generic.HashSet[string]]::new()
@@ -160,6 +212,41 @@ function GenerateModlistGroupFile{
             # save the input scanned file
             Copy-Item -Path $_.FullName -Destination "$hitPathFilesPath\$($_.Name)"
         }
+    }
+
+    if ($static){
+
+        # Remove all duplicates from $weaponSet where duplicates are weaponname, weaponname_scopename, weaponname_scopename_hud
+        # Also filter out entries like weaponname_hud (keep only weaponname and weaponname_scopename)
+        # Use $scopeNames to match scopename in $weaponSet
+
+        $baseWeapons = @{}
+
+        foreach ($weapon in $weaponSet) {
+            $matched = $false
+            foreach ($scope in $scopeNames) {
+                # Match weapon_scopename or weapon_scopename_hud
+                if ($weapon -match "^(.*)_$scope(_hud)?$") {
+                    $base = $matches[1]
+                    # Only keep the base weapon (without scope and _hud)
+                    $baseWeapons[$base] = $base
+                    $matched = $true
+                    break
+                }
+            }
+            if (-not $matched) {
+                # Filter out entries ending with _hud (but not matching any scope)
+                if ($weapon -notmatch "_hud$") {
+                    $baseWeapons[$weapon] = $weapon
+                }
+            }
+        }
+
+        # Replace $weaponSet with only the purged, unique base entries
+        $weaponSet = [System.Collections.Generic.HashSet[string]]::new()
+        foreach ($w in $baseWeapons.Values) {
+            $weaponSet.Add($w) | Out-Null
+        }   
     }
 
     # Add header and sort
@@ -208,7 +295,7 @@ function Generate3DSSGroupFile{
     $ignoreFiles = Get-Content ".\generation\input\ignoreFiles.txt"
 
     # The list of 3DSS scopes
-    $scopeNames = Get-Content ".\generation\input\scopes.txt"
+    $scopeNames = Get-Content ".\generation\input\scopes_3dss.txt"
 
     # the list of manually entered sections. When the generation fails, you can fall back to this file and add what is being missed
     $manualEntries = Get-Content ".\generation\input\manual_entries.ltx"
@@ -421,6 +508,31 @@ function CreateSealsTemplateProject{
 }
 
 
+if($scopes.IsPresent){
+
+    if ($3dss.IsPresent){
+        $inputFile = "generation\input\mod_system_3dss_gamma_scopes.ltx"
+        $outFile = "generation\input\scopes_3dss.txt"
+    }else{
+        $inputFile = "generation\input\weapon_addons.ltx"
+        $outFile = "generation\input\scopes.txt"
+    }
+
+    # Extract scopes from the LTX file
+    $scopeList = Get-ScopesFromLTXFile $inputFile
+
+    # Sort and deduplicate the list
+    $scopeList = $scopeList | Sort-Object -Unique
+
+    # Write the sorted list to a file
+    Set-Content -Path $outFile -Value $scopeList
+
+    # Optional: Output to console
+    $scopeList
+
+    exit
+}
+
 # handling exclude
 $excludeWeaponNames = @()
 if ($exclude.IsPresent){
@@ -443,14 +555,14 @@ if ($update.IsPresent -and -not($3dss.IsPresent)) {
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');    
 
     $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
-    GenerateModlistGroupFile $name $excludeWeaponNames $outputFile $from
+    GenerateModlistGroupFile $name $excludeWeaponNames $outputFile $from $static
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 }
 
 # generate
 if ($generate.IsPresent -and -not($3dss.IsPresent)) {
     $outputFile = ".\generation\output\seals_group_$name.ltx"
-    GenerateModlistGroupFile $name $excludeWeaponNames $outputFile $from
+    GenerateModlistGroupFile $name $excludeWeaponNames $outputFile $from $static
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 }
 
@@ -461,7 +573,7 @@ if($new.IsPresent){
     if (($null -ne $from) -and ("" -ne $from)){
 
         $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
-        GenerateModlistGroupFile $name $excludeWeaponNames $outputFile $from
+        GenerateModlistGroupFile $name $excludeWeaponNames $outputFile $from $static
     }
 }
 
@@ -471,7 +583,7 @@ if($add.IsPresent){
     if (($null -ne $from) -and ("" -ne $from)){
 
         $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
-        AddModlistGroupFile $name $outputFile $from
+        AddModlistGroupFile $name $outputFile $from $static
     }
 }
 
