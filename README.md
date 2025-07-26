@@ -155,6 +155,20 @@ The **SEALs** main mod uses the ***group list*** from the configs modules to dis
 
 ![env_var](doc/images/env_var.png)
 
+4) Create your first CLI MO2 executable shortcut - ***refresh***
+
+create this executable in MO2 and run it at least once against your modlist of reference. e.g. GAMMA, custom modlist, etc
+
+![refresh_mo2](doc/images/refresh_mo2.png)
+
+`-ExecutionPolicy Bypass -File "SEALs.ps1" -refresh`
+
+5) Run refresh to generate CLI base lists
+
+![run_refresh](doc/images/run_refresh.png)
+
+This will create a number of base lists, e.g. the list of scopes available in the modlist, that CLI uses for its operations.
+
 ## Templating
 
 CLI allows you to create named configs projects from templates. These projects or mod, will be empty and require the compilation of the **group list** inside. Such compilation can be done manually or automatically through CLI geneneration functions.
@@ -227,6 +241,18 @@ SEALs.ps1 -add <sealid> -from "<mod_name>"
 ```
 
 Add to the group config new group sections (wpn_*) from a mod 
+
+### CLI static switch
+
+Use the `-static` switch to generate group list from weapon files instead of loadouts
+
+When using `-from` in `new` and `add` by default you are generating from loadouts, if you want instead generate from raw weapon files pass the `-static` switch to the command
+
+```powershell
+SEALs.ps1 -add <sealid> -from "<mod_name>" -static
+```
+
+The resulting group list can be more inclusive or identical depending on the mod loadouts configuration and if they are included or not  
 
 ## Generation
 
@@ -306,6 +332,16 @@ e.g.
 ```powershell
 -generate gamma
 ```
+
+### CLI refresh
+
+You need to run this as MO2 executable every time you update the ***SEAL CLI*** mod or you make guns related changes (e.g. new scopes) to the modlist or if you swap profile in MO2 that has a different mod list than the previous one
+
+![refresh_mo2](doc/images/refresh_mo2.png)
+
+`-ExecutionPolicy Bypass -File "SEALs.ps1" -refresh`
+
+This will refresh CLI base lists
 
 ## CLI Tutorials
 
