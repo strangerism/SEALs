@@ -1,0 +1,13 @@
+filterout 
+wpn_mp155_tcwp_snd_shoot
+wpn_mp155_tcwp_snd_shoot_actor
+wpn_mp155_tcwp_snd_silenced_shoot
+wpn_mp155_tcwp_snd_silenced_shoot_actor
+wpn_rpk16_drum_snd_shoot
+wpn_rpk16_drum_snd_silenced
+wpn_rpk16_drum_snd_silenced_actor
+
+wpn_sv98_kntl_sounds
+wpn_sv98_mmg_snd_shoot
+
+from GenerateModlistGroupFile

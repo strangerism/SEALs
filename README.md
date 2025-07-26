@@ -117,6 +117,8 @@ You can change the aspects of seals (scale, positions, etc) in both tooltips and
 
 # How to use the SEALs CLI
 
+![SEALs_lake](doc/images/SEALs_lake.png)
+
 The **SEALs CLI** is a script (porwershell) that you can execute in a windows terminal. It offers the following functions:
 
 - to create new **SEALs** seals config modules from a template
@@ -254,6 +256,23 @@ SEALs.ps1 -add <sealid> -from "<mod_name>" -static
 
 The resulting group list can be more inclusive or identical depending on the mod loadouts configuration and if they are included or not  
 
+The rules of thumb whether whether use the static switch or not are the following:
+
+- observation based rule: run first without static, if the output does not adds any sections to the group list then try with static
+
+- knowledge based rule: if the mod from which you are adding, introduces a **new** gun it will have loadouts files to add this gun to the game thus run without `static`, otherwise if the mod is a gun replacement than likely it won't have any loadouts therefore you must use the `static` switch 
+
+> [!TIP]
+> Honestly, the **observation** based rule it's the easier to apply.
+
+### CLI clear
+
+```powershell
+SEALs.ps1 -clear <sealid>
+```
+
+clear up the named group list
+
 ## Generation
 
 While SEALs templating is limited to create blank configs or single mod configs with generation you can generate configs from the entire modlist content.
@@ -344,6 +363,8 @@ You need to run this as MO2 executable every time you update the ***SEAL CLI*** 
 This will refresh CLI base lists
 
 ## CLI Tutorials
+
+![SEALs_tut](doc/images/SEALs_tut.png)
 
 ### 1. How to update the SEALs Config - GAMMA
 
@@ -472,6 +493,8 @@ wpn_ak74uvgrip
 3) you will also need to create a custom icon texture that will be used as SEAL. This will be explained in the next chapter below
 
 # Anatomy of a SEALs config module
+
+![SEALs_lab](doc/images/SEALs_lab.png)
 
 The SEALs config is a ***scaffolding*** type of mod which, as we have seen by now, it's used to hold guns lists and other information needed to display custom seal in game for those guns in the list. 
 

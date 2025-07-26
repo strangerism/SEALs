@@ -47,6 +47,19 @@ function LogAdd {
     Write-Host $entry -ForegroundColor Cyan
     $logs.Value += $entry
 }
+
+function LogList {
+    param (
+        $list,
+        [ref]$logs
+    )
+
+    foreach ($entry in $list) {
+        Write-Host "$entry" -ForegroundColor Cyan
+        $logs.Value += "$entry`r`n"
+    }
+}
+
 function LogDup {
     param (
         [string]$entry,
@@ -112,8 +125,15 @@ function AddModlistGroupFile{
     GenerateModlistGroupFile $name $excludeWeaponNames ".\generation\output\$name\add.ltx" $modName $static
 
     $addSections = Get-Content ".\generation\output\$name\add.ltx"
+
+    Write-Host
+    Write-Host
+    LogAdd "Added sections:" ([ref]$logs)
+    LogList $addSections ([ref]$logs)
+    Write-Host
+
     $nameSections = Get-Content $outputFile   
-    
+
     $sectionNames = ($nameSections + $addSections) | Sort-Object -Unique 
 
     # Save unique section names to the output file
@@ -207,8 +227,12 @@ function GenerateModlistGroupFile{
                 $count = $count + 1
                 # Write-Host found $matches[1]
                 $weaponName = $matches[1]
-                $fileWeaponSet.Add($weaponName) | Out-Null
-                $count = $count + 1
+                if (!($weaponName -like '*snd_shoot*') -and
+                    !($weaponName -like '*snd_silenced*') -and
+                    !($weaponName -like '*_sounds*')) {
+                    $fileWeaponSet.Add($weaponName) | Out-Null
+                    $count = $count + 1
+                }
             }
         }
         if ($count -eq 0){
