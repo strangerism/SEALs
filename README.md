@@ -16,7 +16,7 @@ This mod is considered a community tool and is meant to be used by weapon's mod 
 
 # Technical aspects
 
-![SEALs_mech](doc/images/SEALs_mech.png)
+![SEALs_mech2](doc/images/SEALs_mech2.png)
 
 The addon consist of the main module, a CLI for templating and generating/updating section's lists and several prefab configuration files modules
 
