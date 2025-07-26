@@ -1,6 +1,6 @@
 # **SEALs**
 
-![mod](doc/images/SEALs_splash_sm.png)
+![mod](doc/images/SEALs_icon_cartoon_sm.png)
 
 This mod is a simple configurator to add badges (seals) on the weapons icons in the inventory and tooltip.
 
