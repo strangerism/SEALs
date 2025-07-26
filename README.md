@@ -169,6 +169,9 @@ The **SEALs** main mod uses the ***group list*** from the configs modules to dis
 
 create this executable in MO2 and run it at least once against your modlist of reference. e.g. GAMMA, custom modlist, etc
 
+>[!TIP]
+> Create this shortcut in MO2 now
+
 ![refresh_mo2](doc/images/refresh_mo2.png)
 
 `-ExecutionPolicy Bypass -File "SEALs.ps1" -refresh`
@@ -299,13 +302,24 @@ To do this the SEALs CLI must be run while the MO2 VFS is running at the same ti
 
 Both are empty and need to be compiled with data from the modlist. Here's how to configure CLI in MO2 to generate data for them
 
+### CLI GAMMA generation
+
+To use **CLI** to generate such group list you pass the name `gamma` alongside with the `update|generate` switches
+
+e.g.
+
+```powershell
+SEALs.ps1 -update gamma
+```
+
+>[!TIP]
+> Create this shortcut in MO2 now
+
+#### Update GAMMA
+
 ![gamma_mo2](doc/images/gamma_mo2.png)
 
 `-ExecutionPolicy Bypass -File "SEALs.ps1" -update gamma`
-
-![3dss_mo2](doc/images/3dss_mo2.png)
-
-`-ExecutionPolicy Bypass -File "./SEALs.ps1" -update -3dss`
 
 ### CLI 3DSS generation
 
@@ -319,13 +333,22 @@ e.g.
 SEALs.ps1 -update -3dss
 ```
 
+>[!TIP]
+> Create this shortcut in MO2 now
+
+#### Update 3DSS
+
+![3dss_mo2](doc/images/3dss_mo2.png)
+
+`-ExecutionPolicy Bypass -File "./SEALs.ps1" -update -3dss`
+
 ### Static prefab
 
 These modules contain modlist data already compiled, which can be used as is but can be also used are reference data during the generation of other modules configs
 
 - **SEALs Config - Anomaly**: a prefab config with populated group list that reference all the guns present in **Anomaly** VANILLA. With this config only, SEALs will tag all the guns with the Anomaly seal icon ![anomaly_seal](doc/images/anomaly_seal.png)  
 
-## CLI commands support for VFS execution
+## CLI (Extra) commands support for VFS execution
 
 You can use the CLI in the MO2 VFS with only two commands (update|generate)
 
