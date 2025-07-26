@@ -147,6 +147,7 @@ BuildConfigs "manufacturers"
 BuildConfigs "mods"
 BuildConfigs "Anomaly"
 BuildConfigs "RWAP"
+BuildConfigs "ATHI"
 
 
 Remove-Item -Force -Recurse -Path "./build"

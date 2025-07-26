@@ -5,10 +5,10 @@
 	<string id ="ui_mcm_menu_seals_custom_layers_mod">
 		<text>Mod</text>
 	</string>
-	<string id ="ui_mcm_seals_rwap_show">
-		<text>Retrogue</text>
+	<string id ="ui_mcm_seals_athi_show">
+		<text>Athi Armory</text>
 	</string>
-	<string id ="ui_seals_rwap_caption">
-		<text>Retrogue Weapons</text>
+	<string id ="ui_seals_athi_caption">
+		<text>Athi Armory</text>
 	</string>			
 </string_table>  

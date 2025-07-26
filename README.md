@@ -16,6 +16,8 @@ This mod is considered a community tool and is meant to be used by weapon's mod 
 
 # Technical aspects
 
+![SEALs_mech](doc/images/SEALs_mech.png)
+
 The addon consist of the main module, a CLI for templating and generating/updating section's lists and several prefab configuration files modules
 
 ## The main module
@@ -66,7 +68,7 @@ e.g.
 
 ![mo_exe](doc/images/mo_exe.png)
 
-# How to build this project
+## How to build this project
 
 By launching the powershell `build_fomod.ps1` file in a windows terminal will build all the modules as above.
 
@@ -76,9 +78,11 @@ By launching the powershell `build_fomod.ps1` file in a windows terminal will bu
 
 # How to install and requirements
 
+![SEALs_bar](doc/images/SEALs_bar.png)
+
 SEALs is a "spin" or total rework of **Dynamic Icons Indicator**, you don't need this mod installed to use SEALs but you will need it if you want the **Dynamic Icons Indicator** funtionalities. 
 
-[ddi](https://www.moddb.com/mods/stalker-anomaly/addons/dynamic-icon-indicators)
+[Dynamic Icons Indicator](https://www.moddb.com/mods/stalker-anomaly/addons/dynamic-icon-indicators)
 
 > [!CAUTION]
 > **SEALs** does not replace **Dynamic Icons Indicator**
@@ -89,21 +93,21 @@ The **SEALs** mod only requirement is the mighty
 
 - [MCM Mod Configuration Menu](https://www.moddb.com/addons/anomaly-mod-configuration-menu)
 
-# Two distinct use cases
+## Two distinct use cases
 
-## End User
+### End User
 
 The end user will only need to install **SEALs** main module and one or more config modules. This will allow to enable seals in the game weapons icons, that are defined in the configs module.
 
 ![end_user](doc/images/end_user.png)
 
-## Modder - Modlist customizer
+### Modder - Modlist customizer
 
 The mod creator that wants to create seals for his gun mod or modlist, must install the main module, the CLI module, the config Anomaly module (optionally) and the config template module. This will allow to create new seals or update/maintain current ones.
 
 ![creator_user](doc/images/creator_user.png)
 
-# MCM Configuration
+## Mod Configuration
 
 **SEALs** has a configuration MCM menu where you can configure its behaviour.
 
@@ -113,7 +117,11 @@ The main one is toggling the UI. By holding a key, you can turn on/off the visua
 
 ![seal_toggle_ui](doc/images/seal_toggle_ui.gif)
 
-You can change the aspects of seals (scale, positions, etc) in both tooltips and icons. 
+You can change the aspects of seals (scale, positions, offset etc) in both tooltips and icons. 
+
+Additionally each seal can be disabled separately.
+
+![mcm_seals](<doc/images/mcm_seals.png>)
 
 # How to use the SEALs CLI
 
@@ -494,7 +502,7 @@ wpn_ak74uvgrip
 
 # Anatomy of a SEALs config module
 
-![SEALs_lab](doc/images/SEALs_lab.png)
+![SEALs_lab_alt](doc/images/SEALs_lab_alt.png)
 
 The SEALs config is a ***scaffolding*** type of mod which, as we have seen by now, it's used to hold guns lists and other information needed to display custom seal in game for those guns in the list. 
 
@@ -609,6 +617,24 @@ texture = ui_seals_icon_gamma
 
 The `override` directive must reference the group name to which it wants to override
 
+### settings group
+
+The **SEALs** MCM menu groups the seals settings by tabs, by default a new custom seals in placed always in the main tab. However you can change this by either reusing a prefab tab from the main mod, a tab from a different SEALs config module, or your own custom tab.
+
+You specify the tab with the `settings_group` directive
+
+e.g.
+
+```ini
+[3dss]
+group = 3dss
+texture = ui_seals_icon_3dss
+icon_scale = 8
+tooltip_scale = 4
+caption = ui_seals_3dss_caption
+settings_group = scope/3dss
+```
+
 ## The UI strings file
 
 `st_ui_seals_example.xml`
@@ -616,9 +642,31 @@ The `override` directive must reference the group name to which it wants to over
 This file define the strings used by the custom seal mainly two string
 
 - the seal MCM menu string
+
 - the seal caption string 
 
-If you used the CLI templating, you have already set these two strings in the `template.ini`
+- a custom MCM menu tab
+
+```xml
+<?xml version="1.0" encoding="windows-1251"?>
+
+<string_table>
+	<!-- mcm tab/group -->
+	<string id ="ui_mcm_menu_seals_custom_layers_scope">
+		<text>Scope</text>
+	</string>	
+	<!-- seal mcm toggle -->
+	<string id ="ui_mcm_seals_3dss_show">
+		<text>3DSS</text>
+	</string>
+	<!-- seal caption -->
+	<string id ="ui_seals_3dss_caption">
+		<text>3D Scopes</text>
+	</string>			
+</string_table>  
+```
+
+If you used the ***CLI*** templating, you have already set the first two strings in the `template.ini`
 
 # SEALs Distribuition
 
@@ -678,7 +726,7 @@ Some images to show how the result of using SEALs
 
 # Credits and disclaimers
 
-This mod could not exists without **HarukaSai** and its **Dynamic Icons Indicator** mod [ddi](https://www.moddb.com/mods/stalker-anomaly/addons/dynamic-icon-indicators) 
+This mod could not exists without **HarukaSai** and its **Dynamic Icons Indicator** mod [Dynamic Icons Indicator](https://www.moddb.com/mods/stalker-anomaly/addons/dynamic-icon-indicators) 
 
 Full credits to **HarukaSai** and its DII engine that is doing most of the work for **SEALs**
 
