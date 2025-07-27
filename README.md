@@ -70,7 +70,7 @@ You execute its commands from the windows terminal
 e.g.
 
 ```powershell
-SEALs.ps1 -new athi -from "GAMMA EXP Edition Redux - 3DSS ATHI Weapon Pack"
+SEALs.ps1 -new cod4 -from "3DSS COD4-MW Weapon Pack"
 ```
 
 or as **Mod Organizer 2** Executables
@@ -206,9 +206,9 @@ CLI allows you to create named configs projects from templates. These projects o
 
 ![template_inst](doc/images/template_inst.png)
 
-2) rename the template mod in MO2 with a name of your choice, e.g. `SEALs Configs - ATHI Guns`.
+2) rename the template mod in MO2 with a name of your choice, e.g. `SEALs Configs - COD4 Modern Warfare Weapon Pack`.
 
-![template_athi](doc/images/template_athi.png)
+![template_cod4](doc/images/template_cod4.png)
 
 3) open the renamed mod folder in explorer.
 
@@ -226,29 +226,33 @@ CLI allows you to create named configs projects from templates. These projects o
 
 	e.g. 
 	```
-	sealid=athi
-	sealmcm=Athi Armory
-	sealmcm_desc=This seal is an example, this is the hint box in the mcm menu 
-	sealcaption=Athi Armory
+	sealid=cod4
+	sealmcm=COD4 Modern Warfare
+	sealmcm_desc=A porting of all guns from COD4 Modern Warfare
+	sealcaption=COD4 Modern Warfare
 	```
 	
 	save the changes and exit.
 
-5) open a terminal in windows to the `SEALs Configs - ATHI weapons pack` mod folder 
+5) open a terminal in windows to the `SEALs Configs - COD4 Modern Warfare Weapon Pack` mod folder 
 
-![terminal](doc/images/terminal.png)
+![terminal_cod4](doc/images/terminal_cod4.png)
 
-6) use the CLI `new` command to create a new template config from a gun mod e.g. `3DSS ATHI Weapon Pack`
+6) use the CLI `new` command to create a new template config from a gun mod e.g. `3DSS COD4-MW Weapon Pack`
 
-```powershell
-SEALs.ps1 -new athi -from "GAMMA EXP Edition Redux - 3DSS ATHI Weapon Pack"
-```
-
-7) you can now add more group sections to this config mod using `add`
+![terminal_new_cod4](doc/images/terminal_new_cod4.png)
 
 ```powershell
-SEALs.ps1 -add athi -from "GAMMA EXP Edition Redux - 3DSS-BaS22-Hero-s-Choice"
+SEALs.ps1 -new cod4 -from "3DSS COD4-MW Weapon Pack"
 ```
+
+7) you can now add more group sections to this config mod using `add` from different gun mods
+
+```powershell
+SEALs.ps1 -add cod4 -from "3DSS COD4 Gold Desert Eagle"
+```
+
+## Templating commands summary 
 
 ### CLI new
 
@@ -367,7 +371,7 @@ These modules contain modlist data already compiled, which can be used as is but
 
 - **SEALs Config - Anomaly**: a prefab config with populated group list that reference all the guns present in **Anomaly** VANILLA. With this config only, SEALs will tag all the guns with the Anomaly seal icon ![anomaly_seal](doc/images/anomaly_seal.png)  
 
-## CLI (Extra) commands support for VFS execution
+## Generation commands summary 
 
 You can use the CLI in the MO2 VFS with only two commands (update|generate)
 
