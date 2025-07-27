@@ -10,7 +10,7 @@ param (
     [Parameter(Mandatory = $false)][switch]$exclude,
     [Parameter(Mandatory = $false)][string]$groups,
     [Parameter(Mandatory = $false)][switch]$static,
-    # [Parameter(Mandatory = $false)][switch]$scopes,
+    [Parameter(Mandatory = $false)][switch]$drops,
     [Parameter(Mandatory = $false)][switch]$refresh
     
 )
@@ -551,6 +551,81 @@ function CreateSealsTemplateProject{
     NameTemplate $templatePath $tokens["sealid"]
 }
 
+function GenerateWeaponRarityList{
+    Param(
+        $name,
+        $excludeWeaponNames,
+        $outputFile,
+        $modName,
+        $static
+    )
+
+    # Output file path
+    $outDir = "d:\games\GAMMA\GAMMA RC3\overwrite\generation\output\$name"
+
+    $dir = "d:\games\GAMMA\GAMMA RC3\overwrite\generation\output\gamma\hit\files"
+    $outGrouped = "$outDir\weapons_grouped_by_chance.ltx"
+    $outCsv = "$outDir\weapons_chances.csv"
+
+    # Get all files matching the pattern
+    $files = Get-ChildItem -Path $dir -Filter "npc_loadouts*"
+
+    # Dictionaries for grouping
+    $weaponsByChance = @{}
+    $weaponChances = @{}
+
+    foreach ($file in $files) {
+        $lines = Get-Content $file.FullName | Where-Object {
+            $_ -and ($_ -notmatch '^\s*;') -and ($_ -match '^wpn_')
+        }
+        foreach ($line in $lines) {
+            $parts = $line -split ':'
+            if ($parts.Count -ge 4) {
+                $weapon = $parts[0]
+                $chance = [int]$parts[3]
+
+                # Group by chance
+                if (-not $weaponsByChance.ContainsKey($chance)) {
+                    $weaponsByChance[$chance] = @()
+                }
+                if ($weaponsByChance[$chance] -notcontains $weapon) {
+                    $weaponsByChance[$chance] += $weapon
+                }
+
+                # Collect all chances for each weapon
+                if (-not $weaponChances.ContainsKey($weapon)) {
+                    $weaponChances[$weapon] = @()
+                }
+                if ($weaponChances[$weapon] -notcontains $chance) {
+                    $weaponChances[$weapon] += $chance
+                }
+            }
+        }
+    }
+
+    # Output grouped by chance
+    $output = @()
+    foreach ($chance in ($weaponsByChance.Keys | Sort-Object -Descending)) {
+        $output += "[$chance]"
+        $output += $weaponsByChance[$chance] | Sort-Object
+        $output += ""
+    }
+    $output | Set-Content $outGrouped -Encoding UTF8
+
+    # Output CSV: weapon,chances
+    $csv = @()
+    foreach ($weapon in $weaponChances.Keys | Sort-Object) {
+        $chances = ($weaponChances[$weapon] | Sort-Object -Descending) -join ", "
+        $csv += [PSCustomObject]@{
+            Weapon = $weapon
+            Chances = $chances
+        }
+    }
+    $csv | Export-Csv -Path $outCsv -NoTypeInformation -Encoding UTF8
+
+    Write-Host "Done! Grouped output: $outGrouped"
+    Write-Host "Done! CSV output: $outCsv"
+}
 function GenerateScopesList{
     Param(
         $inputFile,
@@ -617,6 +692,12 @@ function GenerateScopesList{
 
 #     exit
 # }
+
+if($drops.IsPresent){
+
+    GenerateWeaponRarityList $name 
+    exit
+}
 
 if ($refresh.IsPresent){
 
@@ -745,3 +826,4 @@ if($3dss.IsPresent){
 
     Remove-Item -Path $profileGroupFile
 }
+
