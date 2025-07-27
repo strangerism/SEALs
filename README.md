@@ -824,3 +824,15 @@ Full credits to **HarukaSai** and its DII engine that is doing most of the work 
 Thanks to all my invisible collaborators
 
 All icons and SEALs images for this project have been generated using ai tools
+
+# License
+
+Everything contained in this addon is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0). https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+This means you're allowed to redistribute and/or adapt the work, as long as you respect the following criteria:
+
+Attribution - You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+NonCommercial - You may not use the material for commercial purposes (this includes donations).
+
+ShareAlike - If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.
