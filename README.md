@@ -101,6 +101,8 @@ The **SEALs** mod only requirement is the mighty
 
 - [MCM Mod Configuration Menu](https://www.moddb.com/addons/anomaly-mod-configuration-menu)
 
+- [OPTIONAL] [NPE Framework](https://github.com/strangerism/New-Player-Experience) for the tutorial
+
 ## Two distinct use cases
 
 ### End User
