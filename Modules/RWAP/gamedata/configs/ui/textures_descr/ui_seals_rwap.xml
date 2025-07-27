@@ -1,6 +1,0 @@
-<w>
-	<!-- seal icon texture descriptor -->
-	<file name = "ui\seals_icon_rwap">
-		<texture id = "ui_seals_icon_rwap" 				x="0"	y="0"	width="200"	height="200" />	
-	</file>				
-</w>

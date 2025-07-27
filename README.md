@@ -51,9 +51,13 @@ is used to
 > The mod is meant to be supported only by the community's contribuitions
 
 - **Anomaly**: Applies Anomaly seals to all weapons from the base game (this is a static prefab configuration).
+
 - **3DSS**: Applies 3DSS seals to all weapons that support this kind of scopes (this is a blank prefab configuration ready to be compiled with data).
+
 - **GAMMA**: Applies seals to all available GAMMA weapons, such weapons are present in loadouts and can drop in game (this is a blank prefab configuration ready to be compiled with data).
+
 - **manufactorers**: applies manufactorers seals to guns (this is an example of static configuration)
+
 - **mods**: applies mods related seals (this is an example of static configuration)
 
 > static configuration are mainly manually edited (e.g. guns added manually to a list) in contrast to the use of generation tools, that we will see below, which can dynamically compile these lists by scanning mods folders or the entire modlist
@@ -78,10 +82,10 @@ e.g.
 
 ## How to build this project
 
-By launching the powershell `build_fomod.ps1` file in a windows terminal will build all the modules as above.
+By launching the powershell `build.ps1` file in a windows terminal will build all the modules as above.
 
 ```shell
-./build_fomod.ps1
+./build.ps1
 ```
 
 # How to install and requirements

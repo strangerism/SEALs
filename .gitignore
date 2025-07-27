@@ -1,17 +1,3 @@
-temp/mod_system_z_seal.ltx
-release/SEALs.zip
-temp/properties/kinds/kind_gun.ltx
-temp/properties/properties/property_seals.ltx
-temp/scripts/seal_mcm.script
-release/SEALs Config - 3DSS.zip
-release/SEALs Config - demo.zip
-release/SEALs Config - GAMMA.zip
-release/SEALs Config - manufacturers.zip
-release/SEALs Config - mods.zip
-release/SEALs Config - template.zip
-release/SEALs Config - Anomaly.zip
-release/SEALs Config - Modlist.zip
-release/SEALs - CLI.zip
-release/SEALs Config - RWAP.zip
-release/SEALs Config - ATHI.zip
-release/SEALs Config - BaS.zip
+temp
+release
+build
