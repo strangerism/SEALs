@@ -59,11 +59,11 @@ Here are few of them listed:
 
 - **manufacturer**: applies manufacturer seals to guns (this is an example of static configuration)
 
-> static configuration are mainly manually edited (e.g. guns added manually to a list) in contrast to the use of generation tools, that we will see below, which can dynamically compile these lists by scanning mods folders or the entire modlist
+> **static configuration** are mainly manually edited (e.g. guns added manually to a list) in contrast to the use of generation tools, that we will see below, which can dynamically compile these lists by scanning mod folders or the entire modlist.
 
 ## The CLI
 
-The CLI, an interactive powershell script, is used to create new config modules, blank or already compiled with data from mods. Data is generated dynamically scanning mods folders or entire modlists.
+The **CLI**, an interactive powershell script, is used to create new config modules, blank or already compiled with data from mods. Data is generated dynamically scanning mods folders or entire modlists.
 
 You execute its commands from the windows terminal
 
@@ -91,7 +91,7 @@ By launching the powershell `build.ps1` file in a windows terminal will build al
 
 ![SEALs_bar](doc/images/SEALs_bar.png)
 
-SEALs is a "spin" or total rework of **Dynamic Icons Indicator**, you don't need this mod installed to use SEALs but you will need it if you want the **Dynamic Icons Indicator** funtionalities. 
+**SEALs** is a "spin" or total rework of **Dynamic Icons Indicator**, you don't need this mod installed to use **SEALs** but you will need it if you want the **Dynamic Icons Indicator** funtionalities. 
 
 [Dynamic Icons Indicator](https://www.moddb.com/mods/stalker-anomaly/addons/dynamic-icon-indicators)
 
@@ -100,7 +100,7 @@ SEALs is a "spin" or total rework of **Dynamic Icons Indicator**, you don't need
 
 You install the main mod and then one or any of the config modules of choice.
 
-The **SEALs** mod only requirement is the mighty
+The **SEALs** mod only requirement are
 
 - [MCM Mod Configuration Menu](https://www.moddb.com/addons/anomaly-mod-configuration-menu)
 
@@ -110,13 +110,13 @@ The **SEALs** mod only requirement is the mighty
 
 ### End User
 
-The end user will only need to install **SEALs** main module and one or more config modules. This will allow to enable seals in the game weapons icons, that are defined in the configs module.
+The end user will only need to install **SEALs** main module and one or more config modules. This will allow SEALs to display badges (or seals) over the weapons's icons in game.
 
 ![end_user](doc/images/end_user.png)
 
 ### Modder - Modlist customizer
 
-The mod creator that wants to create seals for his gun mod or modlist, must install the main module, the CLI module, the config Anomaly module (optionally) and the config template module. This will allow to create new seals or update/maintain current ones.
+The mod creator that wants to create/add seals to his gun mod or modlist, must install the main module, the CLI module, the config Anomaly module (optionally) and the config template module. This will allow to create new seals or update/maintain current ones.
 
 ![creator_user](doc/images/creator_user.png)
 
@@ -162,25 +162,28 @@ wpn_ak103
 
 ```
 
-The **SEALs** main mod uses the ***group list*** from the configs modules to display seals icons on the gun that are listed in such list
+The **SEALs** main mod uses the ***group list*** from the configs modules to display seals icons on the gun that are listed in such list.
 
 ## Installing CLI
 
-1) Install the `SEALs - CLI.zip` addon in **MO2**
+1) Install the `SEALs - CLI.zip` addon in **MO2**.
 
 ![cli_mo2](doc/images/cli_mo2.png)
 
-2) Open the *SEALs - CLI* mod folder in **MO2** and and copy in the clipboard the path to the folder
+>[!CAUTION]
+> the mod name it's important. It must be named `SEALs - CLI`
+
+2) Open the *SEALs - CLI* mod folder in **MO2** and and copy in the clipboard the path to the folder.
 
 ![cli_folder](doc/images/cli_folder.png)
 
-3) Add this path to your *Windows environment variables*
+3) Add this path to your *Windows environment variables*.
 
 ![env_var](doc/images/env_var.png)
 
 4) Create your first CLI MO2 executable shortcut - ***refresh***
 
-create this executable in MO2 and run it at least once against your modlist of reference. e.g. GAMMA, custom modlist, etc
+create this executable in MO2 and run it at least once against your modlist of reference. e.g. GAMMA, custom modlist, etc.
 
 >[!TIP]
 > Create this shortcut in MO2 now
@@ -189,7 +192,7 @@ create this executable in MO2 and run it at least once against your modlist of r
 
 `-ExecutionPolicy Bypass -File "SEALs.ps1" -refresh`
 
-5) Run refresh to generate CLI base lists
+5) Select your profile in MO2 and run ***refresh*** to generate CLI base lists.
 
 ![run_refresh](doc/images/run_refresh.png)
 
@@ -199,23 +202,25 @@ This will create a number of base lists, e.g. the list of scopes available in th
 
 CLI allows you to create named configs projects from templates. These projects or mod, will be empty and require the compilation of the **group list** inside. Such compilation can be done manually or automatically through CLI geneneration functions.
 
-1) install a template module in MO2
+1) install a template module in MO2.
 
 ![template_inst](doc/images/template_inst.png)
 
-2) rename the template mod in MO2 with a name of your choice, e.g. `SEALs Configs - ATHI Guns`
+2) rename the template mod in MO2 with a name of your choice, e.g. `SEALs Configs - ATHI Guns`.
 
 ![template_athi](doc/images/template_athi.png)
 
-3) open the renamed mod folder in explorer
+3) open the renamed mod folder in explorer.
 
 ![template_ini](doc/images/template_ini.png)
 
-4) open the `template.ini` inside and edit the properties within
+4) open the `template.ini` inside and edit the properties within.
 
 	`sealid`: it's the id of the group list in this config module
 
 	`sealmcm`: it's the tab name in the MCM menu for this module
+
+	`sealmcm_desc`: it's the hint displayed when hovering over the seal option in mcm
 
 	`sealcaption`: it's the seal's caption that will appear in the item detail's tooltip
 
@@ -223,10 +228,11 @@ CLI allows you to create named configs projects from templates. These projects o
 	```
 	sealid=athi
 	sealmcm=Athi Armory
+	sealmcm_desc=This seal is an example, this is the hint box in the mcm menu 
 	sealcaption=Athi Armory
 	```
 	
-	save the changes and exit
+	save the changes and exit.
 
 5) open a terminal in windows to the `SEALs Configs - ATHI weapons pack` mod folder 
 
