@@ -124,6 +124,7 @@ function BuildSEALsCLI {
 
     Copy-Item -Recurse -Force -Path ".\CLI\generation" -Destination "$target\generation"
     Copy-Item -Recurse -Force -Path ".\CLI\SEALs.ps1" -Destination $target
+    Copy-Item -Recurse -Force -Path ".\CLI\CLI.ini" -Destination $target
     Copy-Item -Recurse -Force -Path ".\CLI\template.ini" -Destination $target
 
     $compress = @{
@@ -143,14 +144,14 @@ BuildSEALsCLI
 BuildTemplateConfigs
 BuildFOMod
 
-BuildGAMMAConfigs
-Build3DSSConfigs
-BuildConfigs "manufacturers"
-BuildConfigs "mods"
-BuildConfigs "Anomaly"
-BuildConfigs "RWAP"
-BuildConfigs "ATHI"
-BuildConfigs "BaS"
+# BuildGAMMAConfigs
+# Build3DSSConfigs
+# BuildConfigs "manufacturers"
+# BuildConfigs "mods"
+# BuildConfigs "Anomaly"
+# BuildConfigs "RWAP"
+# BuildConfigs "ATHI"
+# BuildConfigs "BaS"
 
 
 Remove-Item -Force -Recurse -Path "./build"

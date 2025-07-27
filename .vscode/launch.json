@@ -8,8 +8,9 @@
             "name": "PowerShell: Launch Current File",
             "type": "PowerShell",
             "request": "launch",
-            "script": "${workspaceFolder}/Tools/seals_cli.ps1",
-            "args": ["-update -3dss"]
+            "script": "${workspaceFolder}/CLI/SEALs.ps1",
+            "args": ["-update -3dss"],
+            "cwd": "${workspaceFolder}/CLI/"
         }
     ]
 }

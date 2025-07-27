@@ -22,7 +22,10 @@ Write-Host "from $from"
 Write-Host exclude $exclude
 Write-Host groups $groups
 
-$CLI_FOLDER = "SEALs - CLI"
+# Reads the folder filename
+$config = Get-Content -Path "$Env:SEALS_CLI\CLI.ini" | Where-Object { $_ -match '^CLI_FOLDER=' }
+$CLI_FOLDER = $config -replace '^CLI_FOLDER=', ''
+Write-Host "CLI folder is $CLI_FOLDER"
 
 # logfile
 $logpath = ".\generation\output\seals.log"

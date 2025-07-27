@@ -166,22 +166,27 @@ The **SEALs** main mod uses the ***group list*** from the configs modules to dis
 
 ## Installing CLI
 
-1) Install the `SEALs - CLI.zip` addon in **MO2**.
+1) Install the `SEALs_CLI.zip` addon in **MO2**.
 
 ![cli_mo2](doc/images/cli_mo2.png)
 
 >[!CAUTION]
-> the mod name it's important. It must be named `SEALs - CLI`
+> the mod name it's important. It must be named `SEALs_CLI`
+> you can use a different name but you must edit the default name in `CLI.ini`
 
 2) Open the *SEALs - CLI* mod folder in **MO2** and and copy in the clipboard the path to the folder.
 
 ![cli_folder](doc/images/cli_folder.png)
 
-3) Add this path to your *Windows environment variables*.
+3) Add this path as a new *Windows environment variable*.
+
+![cli_home](doc/images/cli_home.png)
+
+4) Add the **SEALS_CLI** to the PATH environment variable with `%SEALS_CLI%`
 
 ![env_var](doc/images/env_var.png)
 
-4) Create your first CLI MO2 executable shortcut - ***refresh***
+5) Create your first CLI MO2 executable shortcut - ***refresh***
 
 create this executable in MO2 and run it at least once against your modlist of reference. e.g. GAMMA, custom modlist, etc.
 
@@ -192,7 +197,7 @@ create this executable in MO2 and run it at least once against your modlist of r
 
 `-ExecutionPolicy Bypass -File "SEALs.ps1" -refresh`
 
-5) Select your profile in MO2 and run ***refresh*** to generate CLI base lists.
+6) Select your profile in MO2 and run ***refresh*** to generate CLI base lists.
 
 ![run_refresh](doc/images/run_refresh.png)
 
