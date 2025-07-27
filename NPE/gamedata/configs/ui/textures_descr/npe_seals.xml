@@ -1,0 +1,11 @@
+<w>
+	<file name="ui\npe\seals\cardname_card_01">
+		<texture id="ui_npe_seals_introduction_card_01" x="0" y="0" width="1024" height="576" />
+	</file>	
+	<file name="ui\npe\seals\cardname_card_02">
+		<texture id="ui_npe_seals_introduction_card_02" x="0" y="0" width="1024" height="576" />
+	</file>			
+	<file name="ui\npe\seals\cardname_card_03">
+		<texture id="ui_npe_seals_introduction_card_03" x="0" y="0" width="1024" height="576" />
+	</file>		
+</w>

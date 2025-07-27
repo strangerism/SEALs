@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="windows-1251"?>
+
+ <!-- NPE Module template -->
+
+<string_table>
+
+	<string id="ui_mcm_npe_module_seals">
+		<text>SEALs</text>
+	</string>
+	<string id="ui_mcm_npe_module_seals_title">
+		<text>SEALs introduction</text>
+	</string>
+	<string id="ui_mcm_npe_module_seals_desc">
+		<text>An introduction to SEALs</text>
+	</string>	
+
+	<string id="ui_mcm_npe_module_seals_introduction">
+		<text>SEALs introduction</text>
+	</string>
+
+
+	<string id="ui_npe_seals_introduction_set_title">
+		<text>SEALs introduction</text>
+	</string>
+	<string id="ui_npe_seals_introduction_card_01_title">
+		<text>Introducing SEALs</text>
+	</string>
+	<string id="ui_npe_seals_introduction_card_01_description">
+		<text>SEALs is installed in your profile
+		\n
+		\n
+		SEALs displays badges (seals) on weapon icons determining some of their characteristics (e.g. 3D scopes, manufactorer).
+		\n
+		\n
+		and provenience (mod author, modlist etc.)
+		\n
+		\n
+		seals are also shows on the weapon's item detail tooltip
+		</text>
+	</string>	
+	
+	<string id="ui_npe_seals_introduction_card_02_title">
+		<text>SEALs MCM menu</text>
+	</string>
+	<string id="ui_npe_seals_introduction_card_02_description">
+		<text>SEALs is configurable in the MCM menu
+		\n
+		\n
+		You can also toggle the display of the seals on the weapon icons using the keybind (by default, hold RIGHT_SHIFT).
+		\n
+		\n
+		You can also select which seals should appear and which not on the weapon icons. 
+		</text>
+	</string>	
+
+	<string id="ui_npe_seals_introduction_card_03_title">
+		<text>Have fun</text>
+	</string>
+	<string id="ui_npe_seals_introduction_card_03_description">
+		<text>Don't take it seriously
+		\n
+		\n
+		SEALs is just a fun project. 
+		\n
+		\n
+		If you find it intrusive, disable it in the MCM menu or in the profile directly.
+		\n
+		\n
+		Otherwise, have fun.
+		</text>
+	</string>
+
+	<!-- define below further sets strings -->
+
+</string_table>

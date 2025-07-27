@@ -14,21 +14,28 @@ At the end of the day is what you make out of it.
 
 This mod is considered a community tool and is meant to be used by weapon's mod makers or modpack curators/maintainers or to support user's custom modlists.
 
+A brief video showcasing the mod in action
+
+[![](https://markdown-videos-api.jorgenkh.no/youtube/U77XatOafVU)](https://youtu.be/U77XatOafVU)
+
 # Technical aspects
 
 ![SEALs_mech2](doc/images/SEALs_mech2.png)
 
-The addon consist of the main module, a CLI for templating and generating/updating section's lists and several prefab configuration files modules
+The addon consist of the main module, a CLI for templating and generating/updating weapons' (sections) lists and several prefab configuration modules
 
 ## The main module
 
 The main mod (under the hood) does the following:
 
 - reworks the **Dynamic Icons Indicator** mod so that it can apply seals as custom layers on the weapon icons 
+
 - customizes the anomaly's inventory scripts to shows the seals on the item's tooltip as well
 
 - customize the behavior of the mod itself (disable seals, icons scale, etc)
 
+An introductory tutorial (**NPE Framework**) is also included.
+ 
 ## The configuration module
 
 is used to

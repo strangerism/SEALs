@@ -6,6 +6,7 @@ function BuildMod {
 
     $target = "build/SEALs"
     Copy-Item -Recurse -Force -Path ".\Main\gamedata" -Destination $target -Exclude .bak
+    Copy-Item -Recurse -Force -Path ".\NPE\gamedata" -Destination $target -Exclude .bak
 
     $compress = @{
         Path = "build/SEALs/*" 

@@ -1,0 +1,51 @@
+local printlog = npe_director.Printlog_npe
+local printdebug = npe_director.Printdebug_npe
+
+
+local deck = { 
+    title = "Seals",
+    module= "seals",
+    id="seals",
+    mcm_menu_name = "ui_mcm_npe_module_seals",
+    mcm_menu_title = "ui_mcm_npe_module_seals_title",
+    mcm_menu_desc = "ui_mcm_npe_module_seals_desc",
+    dialog= npe.DIALOG.UI_TUTORIAL,
+    sets = {
+        {
+            id = "introduction",
+            title = "ui_npe_seals_introduction_set_title",
+            cards = {
+                [1] = {
+                    title = "ui_npe_seals_introduction_card_01_title",
+                    description = "ui_npe_seals_introduction_card_01_description",
+                    image = "ui_npe_seals_introduction_card_01",
+                },
+                [2] = {
+                    title = "ui_npe_seals_introduction_card_02_title",
+                    description = "ui_npe_seals_introduction_card_02_description",
+                    image = "ui_npe_seals_introduction_card_02",
+                },
+                [3] = {
+                    title = "ui_npe_seals_introduction_card_03_title",
+                    description = "ui_npe_seals_introduction_card_03_description",
+                    image = "ui_npe_seals_introduction_card_03",
+                },
+            },
+            context = {
+                event = npe.EVENT.GAME_START,
+                delay = 5,
+            },
+        }, 
+    }
+}
+
+function on_mcm_load()
+    op = { id = deck.id, sh = true, text = deck.mcm_menu_name, gr = npe_mcm.get_module_menu(deck) }
+    return op, "npe_module"
+end
+-- At game start the deck is registered with the NPE Manager
+function on_game_start()
+    if npe then
+        npe_director.Register_npe_module(deck)
+    end
+end
