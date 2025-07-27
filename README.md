@@ -254,7 +254,7 @@ SEALs.ps1 -add cod4 -from "3DSS COD4 Gold Desert Eagle"
 
 ## Templating commands summary 
 
-### CLI> new
+### CLI new
 
 ```powershell
 SEALs.ps1 -new <sealid>
@@ -262,7 +262,7 @@ SEALs.ps1 -new <sealid>
 
 Creates an new blank **SEALs** config mod
 
-### CLI> new from mod
+### CLI new from mod
 
 ```powershell
 SEALs.ps1 -new <sealid> -from "<mod_name>"
@@ -270,7 +270,7 @@ SEALs.ps1 -new <sealid> -from "<mod_name>"
 
 Creates and compile the **SEALs** config mod group sections from within the mod (from loadouts files)
 
-### CLI> add from mod
+### CLI add from mod
 
 ```powershell
 SEALs.ps1 -add <sealid> -from "<mod_name>"
@@ -278,7 +278,7 @@ SEALs.ps1 -add <sealid> -from "<mod_name>"
 
 Add to the group config new gun sections from a mod (from loadouts files)
 
-### CLI> static switch
+### CLI static switch
 
 Use the `-static` switch to generate group list from weapon files instead of loadouts
 
@@ -299,7 +299,7 @@ The rules of thumb whether whether use the static switch or not are the followin
 > [!TIP]
 > Honestly, the **observation** based rule it's the easier to apply.
 
-### CLI> clear
+### CLI clear
 
 ```powershell
 SEALs.ps1 -clear <sealid>
@@ -422,23 +422,29 @@ This will refresh CLI base lists
 
 CLI will log all commands to files and create several summary reports 
 
+### Logs locations
+
 Depending on how how you use CLI the logs location might differ:
 
 - running CLI from terminal, e.g. during **Templating**
 
-CLI will log in the folder where the terminal is launched inside the `generation` folder
+	CLI will log in the folder where the terminal is launched inside the `generation` folder
 
 - running CLI from VFS, e.g. launching MO2 shortcut
 
-CLI will log in the MO2 overwrite folder
+	CLI will log in the MO2 `overwrite` folder
+
+### Main log
 
 CLI logs the latest command execution in `generation\output\seals.log`
 
-CLI logs the summary report of the latest generation in two folders 
+### Summary report logs
 
-`generation\output\sealid\hit` contains report of all the file hits when searching for sections
+CLI logs the summary report of the latest generation in two folders:
 
-`generation\output\sealid\miss` contains report of all the file miss when searching for sections
+- `generation\output\sealid\hit` contains report of all the file hits when searching for sections
+
+- `generation\output\sealid\miss` contains report of all the file miss when searching for sections
 
 ## CLI Tutorials
 
@@ -521,7 +527,7 @@ now you should have a blank SEALs mod in MO2 which can name **SEALs Config - EXP
 
 3) run the CLI executable just created 
 
-![run_exp_redux](run_exp_redux.png)
+![run_exp_redux](doc/images/run_exp_redux.png)
 
 4) the exp_redux group list file in the blank mod is now compiled  
 
@@ -543,7 +549,7 @@ wpn_ak104_alfa
 
 You can use CLI `-exclude` option to update/generate exclusive lists. 
 
-For example you have a custom GAMMA modlist and you have both the **SEALs Config - Anomaly** and **SEALs Config - BAGGA** enabled which applies the Anomaly seals to all the Anomaly guns, but also the GAMMA seal to GAMMA ***enabled*** guns.
+For example you have a custom GAMMA modlist and you have both the **SEALs Config - Anomaly** and **SEALs Config - GAMMA** enabled which applies the Anomaly seals to all the Anomaly guns, but also the GAMMA seal to GAMMA ***enabled*** guns.
 
 However you want to create a new seals that tags all guns you have installed on top of these guns. 
 
@@ -584,7 +590,7 @@ You will see the content of the mod as such
 
 ![template_content](/doc/images/template_content.png)
 
-This is the agnostic form of the config mod or simply scaffold. Files are named with the `default` token and files inside will have tokens. This form is used by the CLI `new` command to create ***concrete*** config mod with name of your choice. 
+This is the agnostic form of the config mod or simply scaffold. Files are named with the `default` token and files inside will have tokens. This form is used by the CLI `new` command to create ***concrete*** config mod with names of your choice. 
 
 We will look in detail at each file and what they are used for, before doing use the `-new` to create an `example` group list config
 
