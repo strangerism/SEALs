@@ -46,9 +46,10 @@ is used to
 
 ## List of configuration modules
 
-> [!CAUTION]
-> Some of these modules are provided as examples. 
-> The mod is meant to be supported only by the community's contribuitions
+>[!CAUTION]
+> The configs modules are available at their repository [SEALs-Config](https://github.com/strangerism/SEALs-Config)
+
+Here are few of them listed:
 
 - **Anomaly**: Applies Anomaly seals to all weapons from the base game (this is a static prefab configuration).
 
@@ -56,9 +57,7 @@ is used to
 
 - **GAMMA**: Applies seals to all available GAMMA weapons, such weapons are present in loadouts and can drop in game (this is a blank prefab configuration ready to be compiled with data).
 
-- **manufactorers**: applies manufactorers seals to guns (this is an example of static configuration)
-
-- **mods**: applies mods related seals (this is an example of static configuration)
+- **manufacturer**: applies manufacturer seals to guns (this is an example of static configuration)
 
 > static configuration are mainly manually edited (e.g. guns added manually to a list) in contrast to the use of generation tools, that we will see below, which can dynamically compile these lists by scanning mods folders or the entire modlist
 

@@ -51,22 +51,6 @@ function BuildGAMMAConfigs {
     Compress-Archive @compress -Force     
 }
 
-function BuildModlistConfigs {
-
-    $target = "build/SEALs Config - Modlist"
-
-    New-Item -Path $target -ItemType Directory | Out-Null
-
-    Copy-Item -Recurse -Force -Path ".\Modules\Modlist\gamedata" -Destination $target -Exclude .bak
-
-    $compress = @{
-        Path = "$target/*" 
-        CompressionLevel = "Fastest"
-        DestinationPath = "release/SEALs Config - Modlist.zip"
-    }
-    Compress-Archive @compress -Force     
-}
-
 function BuildTemplateConfigs {
 
     $target = "build/SEALs Config - Template"
@@ -83,23 +67,6 @@ function BuildTemplateConfigs {
     }
     Compress-Archive @compress -Force     
 }
-
-# function BuildConfigsGenerator {
-
-#     $target = "build/SEALs Config - Generator"
-
-#     New-Item -Path $target -ItemType Directory | Out-Null
-
-#     Copy-Item -Recurse -Force -Path ".\CLI\generation" -Destination "$target\generation"
-#     Copy-Item -Recurse -Force -Path ".\CLI\SEALs.ps1" -Destination $target
-
-#     $compress = @{
-#         Path = "$target/*" 
-#         CompressionLevel = "Fastest"
-#         DestinationPath = "release/SEALs Config - Modlist.zip"
-#     }
-#     Compress-Archive @compress -Force     
-# }
 
 function Build3DSSConfigs {
 
@@ -138,18 +105,17 @@ function BuildSEALsCLI {
 }
 
 BuildMod
-BuildGAMMAConfigs
-Build3DSSConfigs
 BuildSEALsCLI
 BuildTemplateConfigs
 
-# BuildConfigs "demo"
-BuildConfigs "manufacturers"
-BuildConfigs "mods"
-BuildConfigs "Anomaly"
-BuildConfigs "RWAP"
-BuildConfigs "ATHI"
-BuildConfigs "BaS"
+# BuildGAMMAConfigs
+# Build3DSSConfigs
+# BuildConfigs "manufacturers"
+# BuildConfigs "mods"
+# BuildConfigs "Anomaly"
+# BuildConfigs "RWAP"
+# BuildConfigs "ATHI"
+# BuildConfigs "BaS"
 
 
 Remove-Item -Force -Recurse -Path "./build"
