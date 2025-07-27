@@ -9,6 +9,9 @@
 	<string id ="ui_mcm_seals_3dss_show">
 		<text>3DSS</text>
 	</string>
+	<string id ="ui_mcm_seals_3dss_show_desc">
+		<text>This seals signifies that the weapon has built-in 3DSS support</text>
+	</string>	
 	<!-- seal caption -->
 	<string id ="ui_seals_3dss_caption">
 		<text>3D Scopes</text>

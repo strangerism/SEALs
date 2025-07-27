@@ -8,6 +8,9 @@
 	<string id ="ui_mcm_seals_athi_show">
 		<text>Athi Armory</text>
 	</string>
+	<string id ="ui_mcm_seals_athi_show_desc">
+		<text>This seals qualifies those weapons that were made or re-packaged by ATHI</text>
+	</string>	
 	<string id ="ui_seals_athi_caption">
 		<text>Athi Armory</text>
 	</string>			

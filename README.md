@@ -761,9 +761,11 @@ Some images to show how the result of using SEALs
 
 ![showcase6](/doc/images/showcase6.png)
 
-# Project Mascotte
+# The project's mascotte
 
-![s3al](doc/images/SEALs_stalker_sm.png)
+![s3al](doc/images/SEALs_stalker_sm.png) 
+
+**Tyulko** 
 
 # Credits and disclaimers
 

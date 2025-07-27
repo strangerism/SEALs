@@ -9,13 +9,22 @@
 	<string id ="ui_mcm_seals_franchi_show">
 		<text>Luigi Franchi</text>
 	</string>	
+	<string id ="ui_mcm_seals_franchi_show_desc">
+		<text>Qualifies the weapon manufactorer</text>
+	</string>		
 	<!-- seal mcm toggle -->
 	<string id ="ui_mcm_seals_kalash_show">
 		<text>Kalashnikov</text>
 	</string>
+	<string id ="ui_mcm_seals_kalash_show_desc">
+		<text>Qualifies the weapon manufactorer</text>
+	</string>	
 	<!-- seal mcm toggle -->
 	<string id ="ui_mcm_seals_sig_show">
 		<text>Sig Sauer</text>
+	</string>	
+	<string id ="ui_mcm_seals_sig_show_desc">
+		<text>Qualifies the weapon manufactorer</text>
 	</string>	
 	<!-- seal caption -->
 	<string id ="ui_seals_franchi_caption">

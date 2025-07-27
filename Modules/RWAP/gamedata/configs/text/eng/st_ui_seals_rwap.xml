@@ -8,6 +8,9 @@
 	<string id ="ui_mcm_seals_rwap_show">
 		<text>Retrogue</text>
 	</string>
+	<string id ="ui_mcm_seals_rwap_show_desc">
+		<text>This seals qualifies those weapons that were made or re-packaged by Retrogue</text>
+	</string>	
 	<string id ="ui_seals_rwap_caption">
 		<text>Retrogue Weapons</text>
 	</string>			

@@ -5,6 +5,9 @@
 	<string id ="ui_mcm_seals_{{sealid}}_show">
 		<text>{{sealmcm}}</text>
 	</string>
+	<string id ="ui_mcm_seals_{{sealid}}_show_desc">
+		<text>{{sealmcm_desc}}</text>
+	</string>	
 	<string id ="ui_seals_{{sealid}}_caption">
 		<text>{{sealcaption}}</text>
 	</string>			

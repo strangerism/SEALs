@@ -9,6 +9,9 @@
 	<string id ="ui_mcm_seals_gamma_show">
 		<text>GAMMA</text>
 	</string>
+	<string id ="ui_mcm_seals_gamma_show_desc">
+		<text>A seal to qualify the weapons that are available in GAMMA (in the game loot tables)</text>
+	</string>	
 	<!-- seal caption -->
 	<string id ="ui_seals_gamma_caption">
 		<text>GAMMA</text>

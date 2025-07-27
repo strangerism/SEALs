@@ -1,0 +1,6 @@
+<w>
+	<!-- seal icon texture descriptor -->
+	<file name = "ui\seals_icon_bas">
+		<texture id = "ui_seals_icon_bas" 				x="0"	y="0"	width="400"	height="400" />	
+	</file>				
+</w>
