@@ -12,11 +12,12 @@ Seals are meant to represet certifications of provenience, like modders tag, mod
 
 At the end of the day is what you make out of it.
 
-This mod is considered a community tool and is meant to be used by weapon's mod makers or modpack curators/maintainers or to support user's custom modlists.
-
 A brief video showcasing the mod in action
 
 [![](https://markdown-videos-api.jorgenkh.no/youtube/U77XatOafVU)](https://youtu.be/U77XatOafVU)
+
+>[!TIP]
+> This mod is considered a community tool and is meant to be used by weapon's mod makers or modpack curators/maintainers or to support user's custom modlists.
 
 # Technical aspects
 
