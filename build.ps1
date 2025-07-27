@@ -1,10 +1,9 @@
 function BuildMod {
     
-    New-Item -Path "build" -ItemType Directory | Out-Null
-
-    New-Item -Path "build/SEALs" -ItemType Directory | Out-Null
-
     $target = "build/SEALs"
+    
+    New-Item -Path $target -ItemType Directory | Out-Null
+
     Copy-Item -Recurse -Force -Path ".\Main\gamedata" -Destination $target -Exclude .bak
     Copy-Item -Recurse -Force -Path ".\NPE\gamedata" -Destination $target -Exclude .bak
 
@@ -14,6 +13,29 @@ function BuildMod {
         DestinationPath = "release/SEALs.zip"
     }
     Compress-Archive @compress -Force
+
+    Remove-Item -Force -Recurse -Path $target
+}
+
+function BuildFOMod {
+
+    $target = "build/SEALs"
+
+    New-Item -Path $target -ItemType Directory | Out-Null
+
+    Copy-Item -Recurse -Force -Path ".\fomod", ".\Main", ".\CLI", ".\Config\Module", -Destination $target -Exclude .bak
+
+    New-Item -Path "$target\CLI\gamedata" -ItemType Directory | Out-Null
+    New-Item -Path "$target\CLI\gamedata\.keep" -ItemType File -Force | Out-Null
+
+    $compress = @{
+        Path = "build/SEALs" 
+        CompressionLevel = "Fastest"
+        DestinationPath = "release/SEALs FOMOD.zip"
+    }
+    Compress-Archive @compress -Force
+
+    Remove-Item -Force -Recurse -Path $target
 }
 
 function BuildConfigs {
@@ -25,7 +47,7 @@ function BuildConfigs {
 
     New-Item -Path $targetPath -ItemType Directory | Out-Null
 
-    Copy-Item -Recurse -Force -Path ".\Modules\$target\gamedata" -Destination $targetPath -Exclude .bak
+    Copy-Item -Recurse -Force -Path ".\Config\Module\$target\gamedata" -Destination $targetPath -Exclude .bak
 
     $compress = @{
         Path = "$targetPath/*" 
@@ -33,6 +55,8 @@ function BuildConfigs {
         DestinationPath = "release/SEALs Config - $target.zip"
     }
     Compress-Archive @compress -Force    
+
+    Remove-Item -Force -Recurse -Path $targetPath
 }
 
 function BuildGAMMAConfigs {
@@ -41,7 +65,7 @@ function BuildGAMMAConfigs {
 
     New-Item -Path $target -ItemType Directory | Out-Null
 
-    Copy-Item -Recurse -Force -Path ".\Modules\GAMMA\gamedata" -Destination $target -Exclude .bak
+    Copy-Item -Recurse -Force -Path ".\Config\Module\GAMMA\gamedata" -Destination $target -Exclude .bak
 
     $compress = @{
         Path = "$target/*" 
@@ -49,6 +73,8 @@ function BuildGAMMAConfigs {
         DestinationPath = "release/SEALs Config - GAMMA.zip"
     }
     Compress-Archive @compress -Force     
+
+    Remove-Item -Force -Recurse -Path $target
 }
 
 function BuildTemplateConfigs {
@@ -66,6 +92,8 @@ function BuildTemplateConfigs {
         DestinationPath = "release/SEALs Config - Template.zip"
     }
     Compress-Archive @compress -Force     
+
+    Remove-Item -Force -Recurse -Path $target
 }
 
 function Build3DSSConfigs {
@@ -74,7 +102,7 @@ function Build3DSSConfigs {
 
     New-Item -Path $target -ItemType Directory | Out-Null
 
-    Copy-Item -Recurse -Force -Path ".\Modules\3DSS\gamedata" -Destination $target -Exclude .bak
+    Copy-Item -Recurse -Force -Path ".\Config\Module\3DSS\gamedata" -Destination $target -Exclude .bak
 
     $compress = @{
         Path = "$target/*" 
@@ -82,6 +110,8 @@ function Build3DSSConfigs {
         DestinationPath = "release/SEALs Config - 3DSS.zip"
     }
     Compress-Archive @compress -Force         
+
+    Remove-Item -Force -Recurse -Path $target
 }
 
 function BuildSEALsCLI {
@@ -102,20 +132,25 @@ function BuildSEALsCLI {
         DestinationPath = "release/SEALs - CLI.zip"
     }
     Compress-Archive @compress -Force   
+
+    Remove-Item -Force -Recurse -Path $target
 }
+
+New-Item -Path "build" -ItemType Directory | Out-Null
 
 BuildMod
 BuildSEALsCLI
 BuildTemplateConfigs
+BuildFOMod
 
-# BuildGAMMAConfigs
-# Build3DSSConfigs
-# BuildConfigs "manufacturers"
-# BuildConfigs "mods"
-# BuildConfigs "Anomaly"
-# BuildConfigs "RWAP"
-# BuildConfigs "ATHI"
-# BuildConfigs "BaS"
+BuildGAMMAConfigs
+Build3DSSConfigs
+BuildConfigs "manufacturers"
+BuildConfigs "mods"
+BuildConfigs "Anomaly"
+BuildConfigs "RWAP"
+BuildConfigs "ATHI"
+BuildConfigs "BaS"
 
 
 Remove-Item -Force -Recurse -Path "./build"
