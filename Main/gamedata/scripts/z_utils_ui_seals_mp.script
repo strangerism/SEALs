@@ -87,6 +87,7 @@ function utils_ui.UICellItem:Add_Upgrade(xml, obj, sec)
 end
 
 local show_tooltip
+local show_caption
 local limit_tooltip
 local amount_tooltip
 local icon_tooltip_scale
@@ -147,6 +148,9 @@ function utils_ui.UIInfoItem:Update(obj, sec, flags)
 		self.seals[i].cap    = XMLP:InitTextWnd("item_info:seal:cap", self.seals[i].base)
 		self.seals[i].cap:SetText(strformat("%s", game.translate_string(seals[i].caption)))
 		self.seals[i].cap:SetWndPos(vector2():set(self.seals[i].cap:GetWndPos().x, self.seals[i].cap:GetWndPos().y + 30 * icon_tooltip_scale))
+		if not show_caption then
+			self.seals[i].cap:Show(false)
+		end
 		if seals[i].primary then
 			self.seals[i].cap:SetTextColor(c_gold)
 		end
@@ -187,6 +191,7 @@ end
 
 function on_option_change()
 	show_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "show_tooltip", true)
+	show_caption = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "show_caption", true)
 	limit_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "limit_tooltip", true)
 	amount_tooltip = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "amount_tooltip", 6)
 	icon_tooltip_scale = seals_mcm.get_config(seals_mcm.tooltips_settings_path, "scale_tooltip", 1)

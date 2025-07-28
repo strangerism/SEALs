@@ -67,7 +67,13 @@
 	</string>	
 	<string id ="ui_mcm_seals_show_tooltip_desc">
 		<text>Show seals in tooltips</text>
-	</string>		
+	</string>	
+	<string id ="ui_mcm_seals_show_caption">
+		<text>Show captions</text>
+	</string>	
+	<string id ="ui_mcm_seals_show_caption_desc">
+		<text>Toggle seals' captions on/off</text>
+	</string>			
 	<string id ="ui_mcm_seals_limit_tooltip">
 		<text>Limit</text>
 	</string>	

@@ -568,15 +568,23 @@ function GenerateWeaponRarityList{
     $outCsv = "$outDir\weapons_chances.csv"
 
     # Get all files matching the pattern
-    $files = Get-ChildItem -Path $dir -Filter "npc_loadouts*"
+    $files = Get-ChildItem -Path $dir -Filter "npc_loadouts_*.ltx"
 
-    # Dictionaries for grouping
+    # For .ltx output: chance -> set of weapons (all loot tables combined)
     $weaponsByChance = @{}
-    $weaponChances = @{}
+    # For CSV: weapon -> loot_table_id -> highest chance
+    $weaponLootTableChances = @{}
 
     foreach ($file in $files) {
+        # Extract loot_table_id from filename
+        if ($file.Name -match '^npc_loadouts_(.+)\.ltx$') {
+            $loot_table_id = $Matches[1]
+        } else {
+            continue
+        }
+
         $lines = Get-Content $file.FullName | Where-Object {
-            $_ -and ($_ -notmatch '^\s*;') -and ($_ -match '^wpn_')
+            $_ -and ($_ -notmatch '^\s*;') -and ($_ -match '^\s*(wpn_[^:]+):')
         }
         foreach ($line in $lines) {
             $parts = $line -split ':'
@@ -584,7 +592,7 @@ function GenerateWeaponRarityList{
                 $weapon = $parts[0]
                 $chance = [int]$parts[3]
 
-                # Group by chance
+                # For .ltx output: group by chance
                 if (-not $weaponsByChance.ContainsKey($chance)) {
                     $weaponsByChance[$chance] = @()
                 }
@@ -592,18 +600,20 @@ function GenerateWeaponRarityList{
                     $weaponsByChance[$chance] += $weapon
                 }
 
-                # Collect all chances for each weapon
-                if (-not $weaponChances.ContainsKey($weapon)) {
-                    $weaponChances[$weapon] = @()
+                # For CSV: keep only highest chance per loot_table_id
+                if (-not $weaponLootTableChances.ContainsKey($weapon)) {
+                    $weaponLootTableChances[$weapon] = @{}
                 }
-                if ($weaponChances[$weapon] -notcontains $chance) {
-                    $weaponChances[$weapon] += $chance
+                if (-not $weaponLootTableChances[$weapon].ContainsKey($loot_table_id)) {
+                    $weaponLootTableChances[$weapon][$loot_table_id] = $chance
+                } elseif ($chance -gt $weaponLootTableChances[$weapon][$loot_table_id]) {
+                    $weaponLootTableChances[$weapon][$loot_table_id] = $chance
                 }
             }
         }
     }
 
-    # Output grouped by chance
+    # Output grouped by chance (.ltx)
     $output = @()
     foreach ($chance in ($weaponsByChance.Keys | Sort-Object -Descending)) {
         $output += "[$chance]"
@@ -612,13 +622,19 @@ function GenerateWeaponRarityList{
     }
     $output | Set-Content $outGrouped -Encoding UTF8
 
-    # Output CSV: weapon,chances
+    # Output CSV: weapon,"chance (loot_table_id), chance (loot_table_id), ..."
     $csv = @()
-    foreach ($weapon in $weaponChances.Keys | Sort-Object) {
-        $chances = ($weaponChances[$weapon] | Sort-Object -Descending) -join ", "
+    foreach ($weapon in $weaponLootTableChances.Keys | Sort-Object) {
+        $pairs = @()
+        foreach ($loot_table_id in $weaponLootTableChances[$weapon].Keys) {
+            $chance = $weaponLootTableChances[$weapon][$loot_table_id]
+            $pairs += "$chance ($loot_table_id)"
+        }
+        # Sort pairs by chance descending
+        $pairs = $pairs | Sort-Object { [int]($_ -split ' ')[0] } -Descending
         $csv += [PSCustomObject]@{
             Weapon = $weapon
-            Chances = $chances
+            Chances = ($pairs -join ", ")
         }
     }
     $csv | Export-Csv -Path $outCsv -NoTypeInformation -Encoding UTF8

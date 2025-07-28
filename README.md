@@ -2,13 +2,13 @@
 
 ![mod](doc/images/SEALs_icon_cartoon_sm.png)
 
-This mod is a simple configurator to add badges (seals) on the weapons icons in the inventory and tooltip.
+This mod is a simple configurator to add badges (seals) on the weapons icons in the inventory and tooltips.
 
 ![saiga12 ico](doc/images/saiga12ico.png)
 
 ![saiga12 tip](doc/images/saiga12tip.png)
 
-Seals are meant to represet certifications of provenience, like modders tag, modpack exclusives, manufacturers, or features support (3DSS etc.), mod support (Black Market, Loot boxes, etc) or qualities (unique weapons, quest rewards, etc)   
+Seals are meant to represent certifications of provenience, like modders tag, modpack exclusives, manufacturers, or features support (3DSS etc.), mod support (Black Market, Loot boxes, etc) or qualities (unique weapons, quest rewards, etc)   
 
 At the end of the day is what you make out of it.
 

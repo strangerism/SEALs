@@ -38,6 +38,7 @@ op.gr[2] = { id = mcm_id .. "_tooltips", sh = true, gr = {
     
     { id = "divider", type = "line" },
     { id = "show_tooltip", hint = string_format("%s_show_tooltip", mcm_id), val = 1, type = "check", def = true },
+    { id = "show_caption", hint = string_format("%s_show_caption", mcm_id), val = 1, type = "check", def = true },
     { id = "limit_tooltip", hint = string_format("%s_limit_tooltip", mcm_id), val = 1, type = "check", def = true },
     { id = "amount_tooltip", hint = string_format("%s_amount_tooltip", mcm_id), type = "track", val = 2, step = 1, def = 6, max = 10, min = 0 },
     { id = "columns_count", hint = string_format("%s_columns_count", mcm_id), type = "track", val = 2, step = 1, def = 3, max = 5, min = 0 },     
@@ -429,10 +430,18 @@ layer_functors.custom_layers = function(sec, cell, xml)
     for i = 1, #custom_layers do
         local overrides = custom_layers[i].overrides
         if overrides and overrides ~= "" then
-            -- Find the layer that matches the overrides value and mark it for removal
-            for j = 1, #custom_layers do
-                if custom_layers[j].layer == overrides then
-                    to_remove[j] = true
+            -- Split overrides by comma and trim whitespace
+            local override_list = {}
+            for name in string.gmatch(overrides, '([^,]+)') do
+                local trimmed = string.match(name, "^%s*(.-)%s*$")
+                override_list[#override_list + 1] = trimmed
+            end
+            -- Mark all matching layers for removal
+            for _, override_name in ipairs(override_list) do
+                for j = 1, #custom_layers do
+                    if custom_layers[j].layer == override_name then
+                        to_remove[j] = true
+                    end
                 end
             end
         end

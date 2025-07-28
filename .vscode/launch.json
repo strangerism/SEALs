@@ -9,7 +9,7 @@
             "type": "PowerShell",
             "request": "launch",
             "script": "${workspaceFolder}/CLI/SEALs.ps1",
-            "args": ["-update -3dss"],
+            "args": ["-drops gamma"],
             "cwd": "${workspaceFolder}/CLI/"
         }
     ]

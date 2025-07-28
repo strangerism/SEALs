@@ -27,15 +27,15 @@
 	</string>
 	<string id="ui_npe_seals_introduction_card_01_description">
 		<text>SEALs is installed in your profile
-		\n
-		\n
-		SEALs displays badges (seals) on weapon icons determining some of their characteristics (e.g. 3D scopes, manufactorer).
-		\n
-		\n
-		and provenience (mod author, modlist etc.)
-		\n
-		\n
-		seals are also shows on the weapon's item detail tooltip
+\n
+\n
+SEALs displays badges (seals) on weapon icons determining some of their characteristics (e.g. 3D scopes, manufactorer).
+\n
+\n
+and provenience (mod author, modlist etc.)
+\n
+\n
+seals are also shows on the weapon's item detail tooltip
 		</text>
 	</string>	
 	
@@ -44,29 +44,29 @@
 	</string>
 	<string id="ui_npe_seals_introduction_card_02_description">
 		<text>SEALs is configurable in the MCM menu
-		\n
-		\n
-		You can also toggle the display of the seals on the weapon icons using the keybind (by default, hold RIGHT_SHIFT).
-		\n
-		\n
-		You can also select which seals should appear and which not on the weapon icons. 
+\n
+\n
+You can also toggle the display of the seals on the weapon icons using the keybind (by default, hold RIGHT_SHIFT).
+\n
+\n
+You can also select which seals should appear and which not on the weapon icons. 
 		</text>
 	</string>	
 
 	<string id="ui_npe_seals_introduction_card_03_title">
-		<text>Have fun</text>
+		<text>That's it for now</text>
 	</string>
 	<string id="ui_npe_seals_introduction_card_03_description">
 		<text>Don't take it seriously
-		\n
-		\n
-		SEALs is just a fun project. 
-		\n
-		\n
-		If you find it intrusive, disable it in the MCM menu or in the profile directly.
-		\n
-		\n
-		Otherwise, have fun.
+\n
+\n
+SEALs is just a fun project. 
+\n
+\n
+If you find it intrusive, disable it in the MCM menu or in the profile directly.
+\n
+\n
+Otherwise, have fun.
 		</text>
 	</string>
 
