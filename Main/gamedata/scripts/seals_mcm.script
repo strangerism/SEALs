@@ -153,7 +153,7 @@ function parse_properties()
         local defaults = properties[kind].default_settings
         -- print_log("bulding options for %s", kind)
         -- print_table("default_settings",  properties[kind].default_settings)
-        table.insert(op.gr[3].gr, { id = "desc" .. kind, type = "desc", text = string_format("ui_mcm_desc_%s_prop_%s", mcm_id, kind)})
+        table.insert(op.gr[3].gr, { id = "desc" .. kind, type = "desc", clr = {200, 180, 4, 219}, text = string_format("ui_mcm_desc_%s_prop_%s", mcm_id, kind)})
         table.insert(op.gr[3].gr, { id = "show_" .. kind, hint = string_format("%s_show", mcm_id), val = 1, type = "check", def = true })
         -- if kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg" then
         --     table.insert(op.gr[3].gr, { id = "rotate_" .. kind, hint = string_format("%s_rotate", mcm_id), val = 1, type = "check", def = true })
@@ -334,6 +334,8 @@ function parse_groups()
             tabs[tab].settings[setting] = true
 
             table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "show_" .. setting, hint = string_format("%s_%s_show", mcm_id, setting), val = 1, type = "check", def = true })
+            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "overrides_" .. setting, hint = string_format("%s_custom_layers_overrides", mcm_id), type = "input", val = 0, def = layers[group][layer].overrides})
+            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "divider", type = "line" })
         until true
     end
 
@@ -342,6 +344,19 @@ function parse_groups()
 end
 
 parse_groups()
+
+function update_layers_overrides()
+
+    for group, value in pairs(layers) do
+        printf("- group %s", group)
+        for layer, layer_info in pairs(value) do
+            printf("- layer %s", layer)
+            printf("- settings_path %s", layers[group][layer].settings_path)
+            layers[group][layer].overrides = get_config(layers[group][layer].settings_path, "overrides", "")
+        end
+    end
+
+end
 
 function on_mcm_load()
     return op
@@ -808,6 +823,7 @@ function on_option_change()
 	options.notification = get_config(main_settings_path, "notification", true)
     options.TOGGLE_KEY = get_config(main_settings_path, "keybind", DIK_keys.DIK_RSHIFT)
     options.debug = get_config(main_settings_path, "logging", false)
+    update_layers_overrides()
 end
 
 function on_game_start()
