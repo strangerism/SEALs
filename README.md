@@ -423,6 +423,25 @@ You need to run this as MO2 executable every time you update the ***SEAL CLI*** 
 
 This will refresh CLI base lists
 
+### CLI rarity
+
+You can run a summary report on the npc loadouts for the spawn chances of weapons.
+
+The analysis is done on the VFS at launch, so you need to execute this command with as an MO2 shortcut
+
+![rarity_mo2](doc/images/rarity_mo2.png)
+
+`-ExecutionPolicy Bypass -File "SEALs.ps1" -rarity gamma`
+
+> rarity needs the output from a previous generation, so run one before running rarity
+
+The reports are:
+
+![rarity_reports](doc/images/rarity_reports.png)
+
+- `weapons_chances.csv`: maximum spawn chance of each weapons per faction
+- `weapons_grouped_by_chance.ltx`: weapons' list sorted by spawn chance 
+
 ## CLI Logging
 
 CLI will log all commands to files and create several summary reports 
@@ -447,9 +466,13 @@ CLI logs the latest command execution in `generation\output\seals.log`
 
 CLI logs the summary report of the latest generation in two folders:
 
-- `generation\output\sealid\hit` contains report of all the file hits when searching for sections
+- `overwrite\generation\output\sealid\hit` contains report of all the file hits when searching for sections
 
-- `generation\output\sealid\miss` contains report of all the file miss when searching for sections
+- `overwrite\generation\output\sealid\hit\files` contains the loadout files that have been used as input for the generation. These are pulled from the MO2 VFS mount at launch. 
+
+- `overwrite\generation\output\sealid\miss` contains report of all the file miss when searching for sections
+
+- `overwrite\generation\output\gamma\miss\files` contains all the files that recorded a miss
 
 ## CLI Tutorials
 
@@ -696,7 +719,19 @@ overrides=anomaly
 texture = ui_seals_icon_gamma
 ```
 
-The `override` directive must reference the group name to which it wants to override
+The `override` directive must reference the group name to which it wants to override. 
+
+The value taken it's a csv array. e.g. `overrides=anomaly,bas`
+
+You can also set `overrides` in the mcm menu, doing so it will override the default values set in the layer config if they exists.
+
+![override_mcm](<doc/images/override_mcm.png>)
+
+Overrides, in practice, allows to hide other layers (seal icons) when they are present at the same time.
+
+![override_example](doc/images/override_example.png)
+
+For example, the group list ATHI overrides the gamma seals which in turn is set to override the anomaly seals. Results both, anomaly and gamma seals are missing from the gun icon, although they still are visible in the tooltip.
 
 ### settings group
 

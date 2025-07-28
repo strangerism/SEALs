@@ -10,7 +10,7 @@ param (
     [Parameter(Mandatory = $false)][switch]$exclude,
     [Parameter(Mandatory = $false)][string]$groups,
     [Parameter(Mandatory = $false)][switch]$static,
-    [Parameter(Mandatory = $false)][switch]$drops,
+    [Parameter(Mandatory = $false)][switch]$rarity,
     [Parameter(Mandatory = $false)][switch]$refresh
     
 )
@@ -232,7 +232,8 @@ function GenerateModlistGroupFile{
                 $weaponName = $matches[1]
                 if (!($weaponName -like '*snd_shoot*') -and
                     !($weaponName -like '*snd_silenced*') -and
-                    !($weaponName -like '*_sounds*')) {
+                    !($weaponName -like '*_sounds*') -and
+                    ($weaponName -notmatch 'wpn_binoc_inv')) {
                     $fileWeaponSet.Add($weaponName) | Out-Null
                     $count = $count + 1
                 }
@@ -553,22 +554,23 @@ function CreateSealsTemplateProject{
 
 function GenerateWeaponRarityList{
     Param(
-        $name,
-        $excludeWeaponNames,
-        $outputFile,
-        $modName,
-        $static
+        $name
     )
 
     # Output file path
-    $outDir = "d:\games\GAMMA\GAMMA RC3\overwrite\generation\output\$name"
+    $outDir = "generation\output\$name"
+    $src = "$outDir\hit\files"
 
-    $dir = "d:\games\GAMMA\GAMMA RC3\overwrite\generation\output\gamma\hit\files"
+    if ( -not (Test-Path $outDir) -or -not (Test-Path $src)){
+        Write-Host "Cannot generate rarity lists, missing generation output. Run generate group list first"
+        return
+    }
+
     $outGrouped = "$outDir\weapons_grouped_by_chance.ltx"
     $outCsv = "$outDir\weapons_chances.csv"
 
     # Get all files matching the pattern
-    $files = Get-ChildItem -Path $dir -Filter "npc_loadouts_*.ltx"
+    $files = Get-ChildItem -Path $src -Filter "npc_loadouts_*.ltx"
 
     # For .ltx output: chance -> set of weapons (all loot tables combined)
     $weaponsByChance = @{}
@@ -709,7 +711,7 @@ function GenerateScopesList{
 #     exit
 # }
 
-if($drops.IsPresent){
+if($rarity.IsPresent){
 
     GenerateWeaponRarityList $name 
     exit
