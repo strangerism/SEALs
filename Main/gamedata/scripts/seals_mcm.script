@@ -308,7 +308,9 @@ function parse_groups()
             
             if not tabs[tab] then
                 table.insert(op.gr[4].gr, { id =  tab, sh = true, gr = {
-                    { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 }
+                    { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 },
+                    { id = "desc" , type = "desc", clr = {200, 200, 255, 200}, text = "ui_mcm_seals_custom_layers_desc"},
+                    { id = "divider", type = "line" },
                 }})
                 tabs[tab] = {idx = #op.gr[4].gr, settings = {}}
             end
@@ -333,6 +335,9 @@ function parse_groups()
 
             tabs[tab].settings[setting] = true
 
+            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "name_" .. setting, type = "desc", clr = {200, 180, 4, 219}, text = string_format("ui_mcm_%s_%s_name", mcm_id, setting)})
+            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "desc_" .. setting, type = "desc", clr = {200, 200, 255, 200}, text = string_format("ui_mcm_%s_%s_name_desc", mcm_id, setting)})
+            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "enable_" .. setting, hint = string_format("%s_%s_enable", mcm_id, setting), val = 1, type = "check", def = true })
             table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "show_" .. setting, hint = string_format("%s_%s_show", mcm_id, setting), val = 1, type = "check", def = true })
             table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "overrides_" .. setting, hint = string_format("%s_custom_layers_overrides", mcm_id), type = "input", val = 0, def = layers[group][layer].overrides})
             table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "divider", type = "line" })
@@ -391,7 +396,7 @@ layer_functors.custom_layers = function(sec, cell, xml)
         if group then
             for layer, data in pairs(group) do
                 repeat
-                    if not get_config(data.settings_path, "show", true) or not SEALS_SHOW then
+                    if not get_config(data.settings_path, "show", true) or not get_config(data.settings_path, "enable", true) or not SEALS_SHOW then
                         print_dbg("!! layer skipped %s", data.caption)
                         do break end -- continue
                     end
@@ -641,7 +646,7 @@ function get_seals(sec)
         if group then
             for layer, data in pairs(group) do
                 repeat
-                    if not get_config(data.settings_path, "show", true) then
+                    if not get_config(data.settings_path, "enable", true) then
                         do break end -- continue
                     end
                     -- local kind = SYS_GetParam(0,sec,"kind")
@@ -690,8 +695,10 @@ end
 function is_small_icon(sec)
     local kind = SYS_GetParam(0,sec,"kind", "na")
     local inv_grid_height = (sec and SYS_GetParam(2,sec,"inv_grid_height",1)) or 1
+    local inv_grid_scale = (sec and SYS_GetParam(2,sec,"inv_grid_scale",1)) or 1
+    -- print_dbg("- sec %s inv_grid_scale %s", sec, inv_grid_scale)
     -- print_dbg("- sec %s inv_grid_height %s", sec, inv_grid_height)
-    local is_small_icon = inv_grid_height == 1 and (kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg") 
+    local is_small_icon = inv_grid_height/inv_grid_scale == 1 and (kind == "w_pistol" or kind == "w_shotgun" or kind == "w_smg")
     -- print_dbg("is_small_icon %s", is_small_icon)
     return is_small_icon
 end

@@ -220,6 +220,9 @@
 	<string id ="ui_mcm_menu_seals_custom_layers_main">
 		<text>Main</text>
 	</string>
+	<string id ="ui_mcm_seals_custom_layers_desc">
+		<text>Here you can configure the single seals, how they shown and availability</text>
+	</string>	
 	<string id ="ui_mcm_seals_custom_layers_overrides">
 		<text>overrides</text>
 	</string>
