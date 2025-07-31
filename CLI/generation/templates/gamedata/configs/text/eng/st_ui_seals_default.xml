@@ -2,10 +2,10 @@
 
 <string_table>
 
-	<string id ="ui_mcm_seals_{{sealid}}_show">
-		<text>{{sealmcm}}</text>
+	<string id ="ui_mcm_seals_{{sealid}}">
+		<text>{{sealmcm}} ({{sealid}})</text>
 	</string>
-	<string id ="ui_mcm_seals_{{sealid}}_show_desc">
+	<string id ="ui_mcm_seals_{{sealid}}_desc">
 		<text>{{sealmcm_desc}}</text>
 	</string>	
 	<string id ="ui_seals_{{sealid}}_caption">

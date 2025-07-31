@@ -309,7 +309,7 @@ function parse_groups()
             if not tabs[tab] then
                 table.insert(op.gr[4].gr, { id =  tab, sh = true, gr = {
                     { id = "title", type= "slide", link= "ui_seals_mcm_banner", text= "", --[[size= {512,50},]]spacing = 20 },
-                    { id = "desc" , type = "desc", clr = {200, 200, 255, 200}, text = "ui_mcm_seals_custom_layers_desc"},
+                    { id = "desc" , type = "desc", clr = {200, 200, 255, 200}, text = "ui_mcm_seals_desc"},
                     { id = "divider", type = "line" },
                 }})
                 tabs[tab] = {idx = #op.gr[4].gr, settings = {}}
@@ -335,11 +335,11 @@ function parse_groups()
 
             tabs[tab].settings[setting] = true
 
-            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "name_" .. setting, type = "desc", clr = {200, 180, 4, 219}, text = string_format("ui_mcm_%s_%s_name", mcm_id, setting)})
-            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "desc_" .. setting, type = "desc", clr = {200, 200, 255, 200}, text = string_format("ui_mcm_%s_%s_name_desc", mcm_id, setting)})
-            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "enable_" .. setting, hint = string_format("%s_%s_enable", mcm_id, setting), val = 1, type = "check", def = true })
-            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "show_" .. setting, hint = string_format("%s_%s_show", mcm_id, setting), val = 1, type = "check", def = true })
-            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "overrides_" .. setting, hint = string_format("%s_custom_layers_overrides", mcm_id), type = "input", val = 0, def = layers[group][layer].overrides})
+            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "name_" .. setting, type = "desc", clr = {200, 180, 4, 219}, text = string_format("ui_mcm_%s_%s", mcm_id, setting)})
+            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "desc_" .. setting, type = "desc", clr = {200, 200, 255, 200}, text = string_format("ui_mcm_%s_%s_desc", mcm_id, setting)})
+            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "enable_" .. setting, hint = string_format("%s_enable", mcm_id), val = 1, type = "check", def = true })
+            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "show_" .. setting, hint = string_format("%s_show", mcm_id), val = 1, type = "check", def = true })
+            table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "overrides_" .. setting, hint = string_format("%s_overrides", mcm_id), type = "input", val = 0, def = layers[group][layer].overrides})
             table.insert(op.gr[4].gr[tabs[tab].idx].gr, { id = "divider", type = "line" })
         until true
     end
