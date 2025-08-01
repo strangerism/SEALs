@@ -182,7 +182,7 @@ function Get-ScopesFromLTXFile {
         [string]$FilePath
     )
 
-    $kitsList = Get-Content "generation\input\kitsList.txt"
+    # $kitsList = Get-Content "generation\input\kitsList.txt"
 
     $scopes = [System.Collections.Generic.HashSet[string]]::new()
     $lines = Get-Content $FilePath
@@ -196,12 +196,13 @@ function Get-ScopesFromLTXFile {
             $scope = $matches[1]
             if ($scope -notmatch '^wpn_' -and 
                 !($scope -like "encyclopedia*") -and
-                !($scope -like "supplies_*") -and
-                -not ($kitsList -contains $scope)) {
+                !($scope -like "supplies_*")
+                # -not ($kitsList -contains $scope)
+                ) {
                 $scopes.Add($scope) | Out-Null
                 # LogAdd $scope ([ref]$logs)
             }else{
-                LogDropped $scope ([ref]$logs)
+                # LogDropped $scope ([ref]$logs)
             }
         }
     }
@@ -218,7 +219,7 @@ function Get-ScopesListFromLTXFiles{
     $addonFiles = Get-LTXFilesFromType $name $src $LTX_TYPE_ADDON
 
     $addonFiles | ForEach-Object {
-        Log "Looking for scopes in $($_.FullName)" ([ref]$logs)
+        # Log "Looking for scopes in $($_.FullName)" ([ref]$logs)
         # Extract scopes from the LTX file
         $scopeList = $scopeList + (Get-ScopesFromLTXFile $_.FullName)
     }
@@ -228,7 +229,7 @@ function Get-ScopesListFromLTXFiles{
     # Sort and deduplicate the list
     $scopeList = ($scopeList + $scopesIncludes ) | Sort-Object -Unique     
 
-    LogList "SCOPES LIST" $scopeList ([ref]$logs) 
+    # LogList "SCOPES LIST" $scopeList ([ref]$logs) 
 
     # Write the sorted list to a file
     $outFile = ".\generation\output\scopes.txt"
@@ -342,7 +343,7 @@ function Get-WeaponsFromLTXFiles{
                         }
                         if (-not $matched) {
                             # weaponName is the base weapon name
-                            # LogAdd "BASE WEAPON: $weaponName"
+                            # LogAdd "BASE WEAPON: $weaponName" ([ref]$logs)
                             if ($null -eq $weaponsArray[$weaponName]){
                                 $weaponsArray[$weaponName] = @()
                                 $weaponsArray[$weaponName] += $weaponName
@@ -377,24 +378,28 @@ function Get-WeaponsFromLTXFiles{
 
 function addCustomIncludes{
     Param(
-        [ref]$list,
+        $list,
         $includeFile
     )
 
-    $nimbleIncludes = Get-Content $includeFile
-
-    return $list.Value + $nimbleIncludes
+    $includes = Get-Content $includeFile
+    return ($list + $includes)
 }
 
 function addTreasuresIncludes{
     Param(
-        [ref]$list,
+        $list,
         $name
     )
 
     if ($name -eq "anomaly"){
-        $list.Value + "wpn_gauss_quest"
+        $list = $list + "wpn_gauss_quest"
     }
+    if ($name -eq "gamma"){
+        $list = $list + "wpn_gauss_quest"
+    }
+
+    return $list
 }
 
 function GetKitGroups{
@@ -487,6 +492,24 @@ function GetKitGroups{
     return $kitArray
 }
 
+function CovertToList{
+    Param(
+        $array
+    )   
+    
+    $list = New-Object System.Collections.Generic.List[string]
+    foreach ($key in $array.Keys) {
+        foreach ($item in $array[$key]) {
+            $list.Add($item)
+        }
+    }
+
+    # Remove duplicates and sort
+    $unique = $list | Get-Unique
+    return $unique
+
+}
+
 function AddModlistGroupFile{
     Param(
         $name,
@@ -521,23 +544,45 @@ function GenerateModlistGroupFile{
 
     
 
-    if ($name -eq "gamma" -and $ListType -eq $LTX_TYPE_LOADOUT){
-        $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $ListType
-        # $weaponsLoadoutList = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_LOADOUT
+    if ($ListType -eq $LTX_TYPE_LOADOUT){
 
-        addCustomIncludes $weaponsList $FILE_GAMMA_NIMBLE_INCLUDES
-        addTreasuresIncludes $weaponsList $name
-    }else{
-        $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $ListType
-    }
+        LOG " GENERATING LOADOUT GROUP LIST" ([ref]$logs)
 
-    $weaponsList = New-Object System.Collections.Generic.List[string]
-    foreach ($baseWeapon in $weaponsArray.Keys) {
-        if ($excludeWeaponNames -notcontains $baseWeapon){
-            foreach ($item in $weaponsArray[$baseWeapon]) {
-                $weaponsList.Add($item)
+        $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_BASE
+        $weaponsLoadoutArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_LOADOUT
+        $weaponsLoadout = CovertToList $weaponsLoadoutArray
+
+        if($name -eq "gamma"){
+            $weaponsLoadout = addCustomIncludes $weaponsLoadout $FILE_GAMMA_NIMBLE_INCLUDES            
+        }
+       
+        $weaponsList = New-Object System.Collections.Generic.List[string]
+        foreach ($baseWeapon in $weaponsArray.Keys) {
+            # LOG " BASE WEAPON : $baseWeapon" ([ref]$logs) 
+            if (($excludeWeaponNames -notcontains $baseWeapon) -and 
+                ($weaponsLoadout -contains $baseWeapon) ){
+
+                    foreach ($item in $weaponsArray[$baseWeapon]) {
+                        # LOG " - VARIANT : $item" ([ref]$logs) 
+                        $weaponsList.Add($item)
+                    }
             }
         }
+
+        $weaponsList = addTreasuresIncludes $weaponsList $name
+    }else{
+        $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $ListType
+
+        $weaponsList = New-Object System.Collections.Generic.List[string]
+        foreach ($baseWeapon in $weaponsArray.Keys) {
+            if ($excludeWeaponNames -notcontains $baseWeapon){
+                foreach ($item in $weaponsArray[$baseWeapon]) {
+                    $weaponsList.Add($item)
+                }
+            }
+        }      
+        
+        $weaponsList = addTreasuresIncludes $weaponsList $name
     }
 
     $header = "[$name]"
