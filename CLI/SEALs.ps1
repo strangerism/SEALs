@@ -10,10 +10,8 @@ param (
     [Parameter(Mandatory = $false)][switch]$exclude,
     [Parameter(Mandatory = $false)][string]$groups,
     [Parameter(Mandatory = $false)][string]$ListType,
-    [Parameter(Mandatory = $false)][switch]$static,
-    [Parameter(Mandatory = $false)][switch]$trades,
     [Parameter(Mandatory = $false)][switch]$rarity,
-    [Parameter(Mandatory = $false)][switch]$refresh,
+    [Parameter(Mandatory = $false)][switch]$nocache,
     [Parameter(Mandatory = $false)][switch]$test
     
 )
@@ -233,11 +231,20 @@ function Get-ScopesListFromLTXFiles{
         $src
     )
 
-    # CACHE
+    # Write the sorted list to a file
     if ($name -eq "3dss"){
-        return Get-Content ".\generation\output\scopes_3dss.txt"
+        $outFile = ".\generation\output\scopes_3dss.txt"
     }else{
-        return Get-Content ".\generation\output\scopes.txt"
+        $outFile = ".\generation\output\scopes.txt"
+    }
+
+    # CACHE
+    if ( !$nocache.IsPresent -and (Test-Path $outFile) ){
+        if ($name -eq "3dss"){
+            return Get-Content ".\generation\output\scopes_3dss.txt"
+        }else{
+            return Get-Content ".\generation\output\scopes.txt"
+        }
     }
 
     LogHead "Get-ScopesListFromLTXFiles from $src" ([ref]$logs)
@@ -257,12 +264,7 @@ function Get-ScopesListFromLTXFiles{
 
     LogList "SCOPES LIST" $scopeList ([ref]$logs) 
 
-    # Write the sorted list to a file
-    if ($name -eq "3dss"){
-        $outFile = ".\generation\output\scopes_3dss.txt"
-    }else{
-        $outFile = ".\generation\output\scopes.txt"
-    }
+
     Set-Content -Path $outFile -Value $scopeList        
 
     # LOG "Updated modlist scopes list to " $outFile ([ref]$logs)
@@ -338,7 +340,7 @@ function Get-3DSSConfigsFromLTXFiles{
 
     $3dssLTXFiles | ForEach-Object {
             $content = Get-Content $_.FullName
-            LOG "Scanning for 3DSS: $_.FullName" ([ref]$logs)
+            LOG "Scanning for 3DSS: $($_.FullName)" ([ref]$logs)
             $fileSectionNames = [System.Collections.Generic.HashSet[string]]::new()
             $count = 0
             
