@@ -323,7 +323,7 @@ function Get-3DSSConfigsFromLTXFiles{
         $excludeWeaponNames,
         $ListType        
     )    
-
+    LogHead "Get-WeaponsFromLTXFiles" ([ref]$logs)
     $noMatchesList = @()
     $3dssConfigsArray = @{}
     $droppedWeaponSet = [System.Collections.Generic.HashSet[string]]::new()
@@ -394,7 +394,7 @@ function Get-3DSSConfigsFromLTXFiles{
             }              
     }
     $noMatchesList | Set-Content -Path $noMatchesPath 
-    LogList "SECTIONS Ignored" (Get-ArrayFromSet $droppedWeaponSet) ([ref]$logs)
+    # LogList "SECTIONS Ignored" (Get-ArrayFromSet $droppedWeaponSet) ([ref]$logs)
     return $3dssConfigsArray
 }
 
@@ -513,7 +513,7 @@ function addTreasuresIncludes{
     return $list
 }
 
-function CovertToList{
+function ConvertToList{
     Param(
         $array
     )   
@@ -565,7 +565,7 @@ function GenerateLoadoutGroupFile{
 
     $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_BASE
     $weaponsLoadoutArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_LOADOUT
-    $weaponsLoadout = CovertToList $weaponsLoadoutArray
+    $weaponsLoadout = ConvertToList $weaponsLoadoutArray
 
     if($name -eq "gamma"){
         $weaponsLoadout = addCustomIncludes $weaponsLoadout $FILE_GAMMA_NIMBLE_INCLUDES            
@@ -614,6 +614,38 @@ function GenerateBaseGroupFile{
     return $weaponsList
 }
 
+function Generate3DSSGroupFile{
+    Param(
+        $name,
+        $src,
+        $excludeWeaponNames
+    )  
+
+    # generate the modlist's weapons data
+    # $list = GenerateLoadoutGroupFile "profile" $src $excludeWeaponNames
+    # $profileOutput = ".\gamedata\configs\custom_seal_layers\groups\seals_group_profile.ltx"
+    # $header = "[profile]"
+    # $finalOutput = @($header) + ($list | Sort-Object -Unique)
+    # $finalOutput | Set-Content -Path $profileOutput
+
+    LOG " GENERATING $name CONFIG GROUP LIST" ([ref]$logs)
+
+    # $modlistGroup = "anomaly,profile"
+    
+    # $modlistGroupNames = $modlistGroup -split ','
+
+    # foreach( $groupName in $modlistGroupNames){
+    #     $sectionList = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_$groupName.ltx"
+    #     $finalExcludeWeaponNames = ($excludeWeaponNames + $sectionList) | Sort-Object -Unique 
+    # }        
+
+    $3dssConfigsArray = Get-3DSSConfigsFromLTXFiles $name $src $finalExcludeWeaponNames $LTX_TYPE_3DSS
+    
+    $list = ConvertToList $3dssConfigsArray
+
+    return $list
+}
+
 function GenerateModlistGroupFile{
     Param(
         $name,
@@ -625,27 +657,7 @@ function GenerateModlistGroupFile{
 
     if($name -eq "3dss"){
 
-        # generate the modlist's weapons data
-        $list = GenerateLoadoutGroupFile "profile" $src $excludeWeaponNames
-        $profileOutput = ".\gamedata\configs\custom_seal_layers\groups\seals_group_profile.ltx"
-        $header = "[profile]"
-        $finalOutput = @($header) + ($list | Sort-Object -Unique)
-        $finalOutput | Set-Content -Path $profileOutput
-
-        LOG " GENERATING $name CONFIG GROUP LIST" ([ref]$logs)
-
-        $modlistGroup = "anomaly,profile"
-        
-        $modlistGroupNames = $modlistGroup -split ','
-
-        foreach( $groupName in $modlistGroupNames){
-            $sectionList = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_$groupName.ltx"
-            $finalExcludeWeaponNames = ($excludeWeaponNames + $sectionList) | Sort-Object -Unique 
-        }        
-
-        $3dssConfigsArray = Get-3DSSConfigsFromLTXFiles $name $src $finalExcludeWeaponNames $LTX_TYPE_3DSS
-        $list = CovertToList $3dssConfigsArray 
-        LogList " 3DSS " (Get-ArrayFromSet $list) ([ref]$logs) 
+        $list = Generate3DSSGroupFile $name $src $excludeWeaponNames
 
     }elseif ($ListType -eq $LTX_TYPE_LOADOUT){
 
@@ -661,152 +673,6 @@ function GenerateModlistGroupFile{
     # Write to file v
     $finalOutput | Set-Content -Path $outputFile
     LOG " Done! sections group file saved to $outputFile" ([ref]$logs)
-}
-
-function Generate3DSSGroupFile{
-    Param(
-        $modlistWeaponNames,
-        $outputFile,
-        $modName
-    )    
-
-    # Clear previous output if exists
-    if (Test-Path $outputFile) {
-        Remove-Item $outputFile
-    }
-
-    # Path to miss report and files
-    $noMatchesPath = ".\generation\output\3dss\miss\no_matches.log"
-    $noMatchesFilesPath = ".\generation\output\3dss\miss\files"
-    if (Test-Path $noMatchesFilesPath) {
-        Remove-Item $noMatchesFilesPath -Recurse
-    }
-    New-Item -Path $noMatchesFilesPath -ItemType Directory
-
-    # Path to hit report and files
-    $hitPath = ".\generation\output\3dss\hit\"
-    $hitPathFilesPath = ".\generation\output\3dss\hit\files"
-    if (Test-Path $hitPathFilesPath) {
-        Remove-Item $hitPathFilesPath -Recurse
-    }
-    New-Item -Path $hitPathFilesPath -ItemType Directory
-
-    # Define files to ignore
-    $ignoreFiles = Get-Content ".\generation\input\ignore3DSSFiles.txt"
-
-    # The list of 3DSS scopes
-    $scopeNames = Get-Content ".\generation\input\scopes\scopes_3dss.txt"
-
-    # the list of manually entered sections. When the generation fails, you can fall back to this file and add what is being missed
-    $3ddsIncludes = Get-Content ".\generation\input\3dss_includes.txt"
-
-    # group header
-    $header = "[3dss]"
-
-    # Write the header to the output file first
-    Set-Content -Path $outputFile -Value $header
-
-    # Store matches in a hashset to avoid duplicates
-    $sectionNames = [System.Collections.Generic.HashSet[string]]::new()
-
-    $src = "."
-    if (($null -ne $modName) -and ("" -ne $modName)){
-        $src = "..\$modName"
-        # Verify the mod exists
-        if (-not (Test-Path -Path $src)) {
-            Write-Error "$src does not exist."
-            return
-        }
-    }
-
-    # Scan each .ltx file with 3dss in its name
-    Get-ChildItem -Path "$src\gamedata\configs" -Recurse -File -Filter "*3dss*.ltx" | Where-Object {
-        $ignoreFiles -notcontains $_.Name
-    } | ForEach-Object {
-        $lines = Get-Content $_.FullName
-
-
-        $count = 0
-        $fileSectionNames = [System.Collections.Generic.HashSet[string]]::new()
-
-        foreach ($line in $lines) {
-            # Ignore comment lines
-            if ($line.Trim() -like ";*") { continue }
-
-            # Match all section formats: [name], ![name], [name_scope], ![name_scope]
-            $matches = [regex]::Matches($line, "(?<marker>!?)*\[(?<raw>[^\[\]]+)\]")
-
-            foreach ($match in $matches) {
-                $raw = $match.Groups["raw"].Value
-                # Log "match: $raw" ([ref]$logs)
-                $found = $false
-                foreach ($scope in $scopeNames) {
-                    # If match is section_scope, extract only section
-                    if ($raw -like "*_$scope") {
-                        $sectionName = $raw.Substring(0, $raw.Length - $scope.Length - 1)
-                        # Write-Host $raw
-                        # Write-Host $sectionName
-                        # $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
-                        if ($fileSectionNames.Add($sectionName)){
-                            LogAdd "adding [section_scope] $sectionName" ([ref]$logs)
-                            $count = $count + 1
-                            $found = $true
-                        }else{
-                            # LogDup "duplicate $sectionName" ([ref]$logs)
-                        }
-                        break
-                    }
-                }
-                if (!$found){
-                    # If it's a standalone section like [sectionName] or ![sectionName]
-                    if ($modlistWeaponNames -contains $raw) {
-                        # Log "standalone found: $raw" ([ref]$logs)
-                        if ($fileSectionNames.Add($raw)){
-                            LogAdd ">> adding [standalone] $raw" ([ref]$logs)
-                            $count = $count + 1
-                        }else{
-                            # LogDup "duplicate $raw" ([ref]$logs)
-                        }
-                    } 
-                }
-            }       
-        }
-
-        if ($count -eq 0){
-            Log "no matches in $($_.FullName)" ([ref]$logs)
-            $noMatchesList += "$($_.FullName)`r`n"
-            Copy-Item -Path $_.FullName -Destination "$noMatchesFilesPath\$($_.Name)"
-        }else{
-            $logFileName = [System.IO.Path]::ChangeExtension($_, "log")
-            $fileSectionNames | Set-Content -Path "$hitPath\$logFileName"
-            $fileSectionNames.GetEnumerator() | ForEach-Object { $sectionNames.Add($_) | Out-Null}
-            Copy-Item -Path $_.FullName -Destination "$hitPathFilesPath\$($_.Name)"
-        }     
-    }
-
-    $sectionNames = ($sectionNames + $3ddsIncludes) | Sort-Object -Unique 
-
-    # Save unique section names to the output file (append after header)
-    $sectionNames | Add-Content -Path $outputFile
-
-    # Sort the content of the output file (excluding the header)
-    $lines = Get-Content $outputFile
-    $headerLine = $lines[0]
-    $sortedLines = $lines[1..($lines.Count - 1)] | Sort-Object
-    $headerLine | Set-Content $outputFile
-    $sortedLines | Add-Content $outputFile
-
-    $noMatchesList | Set-Content -Path $noMatchesPath
-
-    # write to log file
-    Set-Content -Path $logpath -Value $logs
-
-    Write-Host " Done! Unique section names saved to $outputFile"
-
-    Write-Host " Done! Logged console output to $logpath in MO2 overwrite folder"
-    Write-Host " Done! Logged all the hit to $hitPath in MO2 overwrite folder"
-    Write-Host " Done! Logged all the miss to $noMatchesPath in MO2 overwrite folder"
-
 }
 
 function NameTemplate{
@@ -1134,58 +1000,6 @@ if($add.IsPresent){
         $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
         AddModlistGroupFile $name $src $ListType $outputFile
     }
-}
-
-# 3dss
-
-if($3dss.IsPresent){
-
-
-    if ($update.IsPresent) {
-        Write-Host " Warning!! you are generating 3DSS with UPDATE intent"
-        Write-Host " Close window or continue"
-
-        Write-Host
-        $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');   
-    }
-
-
-    if (($null -ne $name) -and ("" -ne $name)){
-        $3dss_tag = "$($name)_3dss"
-    }else{
-        $3dss_tag = "3dss"
-    }
-
-    $excludeWeaponNames = @()
-    $profileGroupFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_profile.ltx"
-    # create a temporary profile group list which the 3dss generation will use to match section names, as reference
-    GenerateModlistGroupFile "profile" $excludeWeaponNames $profileGroupFile $null
-
-    # adds anomaly group list (ltx are in xray archives thus cannot be found in vfs)
-    # adds profile (what's in vfs) group list
-    $modlistGroup = "anomaly,profile"
-    
-    $modlistGroupNames = $modlistGroup -split ','
-
-    foreach( $groupName in $modlistGroupNames){
-        $sectionList = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_$groupName.ltx"
-        $modlistWeaponNames = ($excludeWeaponNames + $sectionList) | Sort-Object -Unique 
-    }
-
-    if ($update.IsPresent) {
-
-        $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$3dss_tag.ltx"
-        Generate3DSSGroupFile $modlistWeaponNames $outputFile $from
-        $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
-    }
-
-    if ($generate.IsPresent) {
-        $outputFile = ".\generation\output\seals_group_$3dss_tag.ltx"
-        Generate3DSSGroupFile $modlistWeaponNames $outputFile $from
-        $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
-    }
-
-    Remove-Item -Path $profileGroupFile
 }
 
 # write to log file
