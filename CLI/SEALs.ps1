@@ -38,6 +38,7 @@ $LTX_TYPE_LOADOUT = "TYPE_LOADOUT"
 $LTX_TYPE_TRADE = "TYPE_TRADE"
 $LTX_TYPE_ADDON = "TYPE_ADDON"
 $LTX_TYPE_3DSS = "TYPE_3DSS"
+$LTX_TYPE_MOD = "TYPE_MOD"
 
 if ($ListType -eq ""){
     $ListType = $LTX_TYPE_BASE
@@ -132,7 +133,7 @@ function Get-LTXFilesFromType{
         $src,
         $ListType
     )    
-
+    LogHead "Get-LTXFilesFromType $name $ListType" ([ref]$logs)
     $LTXFiles = @()
 
     if ($ListType -eq $LTX_TYPE_BASE){
@@ -142,6 +143,16 @@ function Get-LTXFilesFromType{
                     !($_.FullName -like '*weathers*') -and
                     !($_.FullName -like '*upgrades*') -and
                     !($_.FullName -like '*sound_layers*')
+                } 
+    }
+
+    if ($ListType -eq $LTX_TYPE_MOD){
+
+        $ignoreFiles = Get-Content ".\generation\input\ignoreMods.txt"
+
+        $LTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
+                    $_.Name -like "mod_system_*" -and
+                    $ignoreFiles -notcontains $_.Name
                 } 
     }
 
@@ -233,18 +244,14 @@ function Get-ScopesListFromLTXFiles{
 
     # Write the sorted list to a file
     if ($name -eq "3dss"){
-        $outFile = ".\generation\output\scopes_3dss.txt"
+        $outFile = ".\generation\output\scopes\scopes_3dss.txt"
     }else{
-        $outFile = ".\generation\output\scopes.txt"
+        $outFile = ".\generation\output\scopes\scopes.txt"
     }
 
     # CACHE
     if ( !$nocache.IsPresent -and (Test-Path $outFile) ){
-        if ($name -eq "3dss"){
-            return Get-Content ".\generation\output\scopes_3dss.txt"
-        }else{
-            return Get-Content ".\generation\output\scopes.txt"
-        }
+        return Get-Content $outFile
     }
 
     LogHead "Get-ScopesListFromLTXFiles from $src" ([ref]$logs)
@@ -340,7 +347,7 @@ function Get-3DSSConfigsFromLTXFiles{
 
     $3dssLTXFiles | ForEach-Object {
             $content = Get-Content $_.FullName
-            LOG "Scanning for 3DSS: $($_.FullName)" ([ref]$logs)
+            # LOG "Scanning for 3DSS: $($_.Name)" ([ref]$logs)
             $fileSectionNames = [System.Collections.Generic.HashSet[string]]::new()
             $count = 0
             
@@ -386,7 +393,7 @@ function Get-3DSSConfigsFromLTXFiles{
                 }
             }
             if ($count -eq 0){
-                Log "no matches in $($_.FullName)" ([ref]$logs)
+                # Log "no matches in $($_.Name)" ([ref]$logs)
                 $noMatchesList += "$($_.FullName)`r`n"
                 Copy-Item -Path $_.FullName -Destination "$noMatchesFilesPath\$($_.Name)"
             }else{
@@ -417,16 +424,27 @@ function Get-WeaponsFromLTXFiles{
     LogHead "Get-WeaponsFromLTXFiles" ([ref]$logs)
     $weaponLTXFiles | ForEach-Object {
         $content = Get-Content $_.FullName
-        
+        # LOG "Scanning for Weapons: $($_.Name)" ([ref]$logs)
         $fileWeaponSet = [System.Collections.Generic.HashSet[string]]::new()
         $count = 0        
         
         foreach ($line in $content) {
             
+            if ($ListType -eq $LTX_TYPE_MOD){
+                $regexstr = '^\s*\[([^\]]+)\]:?.*$'
+
+            }else{
+                $regexstr = "^\s*[!\[]?(wpn_[a-zA-Z0-9_-]+)[\]]?\s*(?::.*|=\s*.*)?$"
+            }
+
             # Find all matching wpn_ strings with the format weapon:N:N:N
-            if ($line -match "^\s*[!\[]?(wpn_[a-zA-Z0-9_-]+)[\]]?\s*(?::.*|=\s*.*)?$") {
-                # Write-Host found $matches[1]
+            if ($line -match $regexstr) {
+
                 $weaponName = $matches[1]
+                # if ($ListType -eq $LTX_TYPE_MOD){
+                #     Write-Host found $matches[1]
+                # }                
+
                 if (!($weaponName -like '*snd_shoot*') -and
                     !($weaponName -like '*snd_silenced*') -and
                     !($weaponName -like '*_sounds*') -and
@@ -444,7 +462,7 @@ function Get-WeaponsFromLTXFiles{
                             if ($weaponName -match "^(.*)_$scope$") {
                                 $base = $matches[1]
                                 if ($weaponsArray[$base]){
-                                    # LogAdd "[$base] VARIANT: $weaponName"
+                                    # LogAdd "[$base] VARIANT: $weaponName" ([ref]$logs)
                                     $weaponsArray[$base] += $weaponName
                                 }else{
                                     $weaponsArray[$base] = @()
@@ -471,7 +489,7 @@ function Get-WeaponsFromLTXFiles{
             }
         }
         if ($count -eq 0){
-            Log "no matches in $($_.FullName)" ([ref]$logs)
+            # Log "no matches in $($_.Name)" ([ref]$logs)
             # add the file to the no matches files list
             $noMatchesList += $_.FullName
             # save the input scanned file
@@ -533,6 +551,32 @@ function ConvertToList{
 
 }
 
+function MergeArrays{
+    Param(
+        $kvList1,
+        $kvList2
+    )  
+
+
+    $mergedKvList = @{}
+
+    # Add all keys from the first hashtable
+    foreach ($key in $kvList1.Keys) {
+        $mergedKvList[$key] = $kvList1[$key]
+    }
+
+    # Merge in the second hashtable
+    foreach ($key in $kvList2.Keys) {
+        if ($mergedKvList.ContainsKey($key)) {
+            $mergedKvList[$key] += $kvList2[$key]
+        } else {
+            $mergedKvList[$key] = $kvList2[$key]
+        }
+    }
+
+    return $mergedKvList
+}
+
 function AddModlistGroupFile{
     Param(
         $name,
@@ -566,6 +610,11 @@ function GenerateLoadoutGroupFile{
     LOG " GENERATING $name LOADOUT GROUP LIST" ([ref]$logs)
 
     $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_BASE
+
+    $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_MOD
+
+    $weaponsArray = MergeArrays $weaponsArray $modWeaponsArray
+
     $weaponsLoadoutArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_LOADOUT
     $weaponsLoadout = ConvertToList $weaponsLoadoutArray
 
@@ -601,6 +650,10 @@ function GenerateBaseGroupFile{
     LOG " GENERATING $name BASE GROUP LIST" ([ref]$logs)
 
     $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $ListType
+
+    $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_MOD
+
+    $weaponsArray = MergeArrays $weaponsArray $modWeaponsArray
 
     $weaponsList = New-Object System.Collections.Generic.List[string]
     foreach ($baseWeapon in $weaponsArray.Keys) {
