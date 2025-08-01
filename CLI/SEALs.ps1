@@ -39,6 +39,7 @@ $LTX_TYPE_BASE = "TYPE_BASE"
 $LTX_TYPE_LOADOUT = "TYPE_LOADOUT"
 $LTX_TYPE_TRADE = "TYPE_TRADE"
 $LTX_TYPE_ADDON = "TYPE_ADDON"
+$LTX_TYPE_3DSS = "TYPE_3DSS"
 
 if ($ListType -eq ""){
     $ListType = $LTX_TYPE_BASE
@@ -166,13 +167,29 @@ function Get-LTXFilesFromType{
     }
 
     if ($ListType -eq $LTX_TYPE_ADDON){
-        $LTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
-                $_.Name -like "*.ltx" -and (
-                $_.Name -like "*addons*" -or  
-                $_.Name -like "*sights*"
-                )
-            }        
+
+        if ($name -eq "3dss"){
+            $LTXFiles = Get-ChildItem -Path "gamedata\configs\mod_system_3dss_gamma_scopes.ltx"
+        }else{
+            $LTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
+                    $_.Name -like "*.ltx" -and (
+                    $_.Name -like "*addons*" -or  
+                    $_.Name -like "*sights*"
+                    )
+                }               
+        }
     }
+
+    if ($ListType -eq $LTX_TYPE_3DSS){
+
+        # Define files to ignore
+        $ignoreFiles = Get-Content ".\generation\input\ignore3DSSFiles.txt"
+
+        $LTXFiles = Get-ChildItem -Path $src -Recurse -File -Filter "*3dss*.ltx" | Where-Object {
+            $ignoreFiles -notcontains $_.Name
+        }        
+    }    
+    
 
     return $LTXFiles
 }
@@ -202,7 +219,7 @@ function Get-ScopesFromLTXFile {
                 $scopes.Add($scope) | Out-Null
                 # LogAdd $scope ([ref]$logs)
             }else{
-                # LogDropped $scope ([ref]$logs)
+                LogDropped $scope ([ref]$logs)
             }
         }
     }
@@ -212,14 +229,23 @@ function Get-ScopesFromLTXFile {
 
 function Get-ScopesListFromLTXFiles{
     Param(
+        $name,
         $src
     )
+
+    # CACHE
+    if ($name -eq "3dss"){
+        return Get-Content ".\generation\output\scopes_3dss.txt"
+    }else{
+        return Get-Content ".\generation\output\scopes.txt"
+    }
+
     LogHead "Get-ScopesListFromLTXFiles from $src" ([ref]$logs)
 
     $addonFiles = Get-LTXFilesFromType $name $src $LTX_TYPE_ADDON
 
     $addonFiles | ForEach-Object {
-        # Log "Looking for scopes in $($_.FullName)" ([ref]$logs)
+        Log "Looking for scopes in $($_.FullName)" ([ref]$logs)
         # Extract scopes from the LTX file
         $scopeList = $scopeList + (Get-ScopesFromLTXFile $_.FullName)
     }
@@ -229,10 +255,14 @@ function Get-ScopesListFromLTXFiles{
     # Sort and deduplicate the list
     $scopeList = ($scopeList + $scopesIncludes ) | Sort-Object -Unique     
 
-    # LogList "SCOPES LIST" $scopeList ([ref]$logs) 
+    LogList "SCOPES LIST" $scopeList ([ref]$logs) 
 
     # Write the sorted list to a file
-    $outFile = ".\generation\output\scopes.txt"
+    if ($name -eq "3dss"){
+        $outFile = ".\generation\output\scopes_3dss.txt"
+    }else{
+        $outFile = ".\generation\output\scopes.txt"
+    }
     Set-Content -Path $outFile -Value $scopeList        
 
     # LOG "Updated modlist scopes list to " $outFile ([ref]$logs)
@@ -242,13 +272,14 @@ function Get-ScopesListFromLTXFiles{
 
 function PurgeScopedSections{
     Param(
+        $name,
         $src,
         $weaponList
     )
 
     LogHead "PurgeScopedSections" ([ref]$logs)
 
-    $scopeNames = Get-ScopesListFromLTXFiles $src
+    $scopeNames = Get-ScopesListFromLTXFiles $name $src
 
     # 1. Remove all duplicates from $weaponSet where duplicates are weaponname, weaponname_scopename, weaponname_scopename_hud
     # Also filter out entries like weaponname_hud (keep only weaponname and weaponname_scopename)
@@ -285,6 +316,88 @@ function PurgeScopedSections{
     return $weaponList
 }
 
+function Get-3DSSConfigsFromLTXFiles{
+    Param(
+        $name,
+        $src,
+        $excludeWeaponNames,
+        $ListType        
+    )    
+
+    $noMatchesList = @()
+    $3dssConfigsArray = @{}
+    $droppedWeaponSet = [System.Collections.Generic.HashSet[string]]::new()
+    
+    # The list of 3DSS scopes
+    $scopeNames = Get-ScopesListFromLTXFiles $name $src
+
+    # the list of manually entered sections. When the generation fails, you can fall back to this file and add what is being missed
+    # $3ddsIncludes = Get-Content ".\generation\input\3dss_includes.txt"
+
+    $3dssLTXFiles = Get-LTXFilesFromType $name $src $ListType
+
+    $3dssLTXFiles | ForEach-Object {
+            $content = Get-Content $_.FullName
+            LOG "Scanning for 3DSS: $_.FullName" ([ref]$logs)
+            $fileSectionNames = [System.Collections.Generic.HashSet[string]]::new()
+            $count = 0
+            
+            foreach ($line in $content) {
+                # Ignore comment lines
+                if ($line.Trim() -like ";*") { continue }
+                # Match all section formats: [name], ![name]
+                if ($line -match '^\s*!?\[([^\]]+)\]:?.*$') {
+                    $sectionName = $matches[1]
+                    # Log "match: $sectionName" ([ref]$logs)
+                    if ($sectionName -notmatch "_hud$"){
+                        $count = $count + 1 
+                        $matched = $false
+                        foreach ($scope in $scopeNames) {
+                            # If match is section_scope, extract only section
+                            if ($sectionName -match "^(.*)_$scope$") {
+                                $base = $matches[1]
+                                if ($3dssConfigsArray[$base]){
+                                    LogAdd "   $sectionName" ([ref]$logs)
+                                    $3dssConfigsArray[$base] += $sectionName
+                                }else{
+                                    LogAdd "$base" ([ref]$logs)
+                                    $3dssConfigsArray[$base] = @()
+                                    $3dssConfigsArray[$base] += $base
+                                    $3dssConfigsArray[$base] += $sectionName                                    
+                                }
+                                $matched = $true
+                                break
+                            }
+                        }
+                        if (-not $matched) {
+                            # weaponName is the base weapon name
+                            LogAdd "NO 3DSS: $sectionName" ([ref]$logs)
+                        }
+                        $fileSectionNames.Add($sectionName) | Out-Null
+                        $count = $count + 1           
+                    }else{
+                        # LogDropped $sectionName ([ref]$logs)
+                        $droppedWeaponSet.Add($sectionName) | Out-Null
+                    }   
+                }else{
+                    # LogDropped "no match: $line" ([ref]$logs)
+                }
+            }
+            if ($count -eq 0){
+                Log "no matches in $($_.FullName)" ([ref]$logs)
+                $noMatchesList += "$($_.FullName)`r`n"
+                Copy-Item -Path $_.FullName -Destination "$noMatchesFilesPath\$($_.Name)"
+            }else{
+                $logFileName = [System.IO.Path]::ChangeExtension($_, "log")
+                $fileSectionNames | Set-Content -Path "$hitPath\$logFileName"
+                Copy-Item -Path $_.FullName -Destination "$hitPathFilesPath\$($_.Name)"
+            }              
+    }
+    $noMatchesList | Set-Content -Path $noMatchesPath 
+    LogList "SECTIONS Ignored" (Get-ArrayFromSet $droppedWeaponSet) ([ref]$logs)
+    return $3dssConfigsArray
+}
+
 function Get-WeaponsFromLTXFiles{
     Param(
         $name,
@@ -294,11 +407,10 @@ function Get-WeaponsFromLTXFiles{
     )
 
     $noMatchesList = @()
-    # $weaponSet = [System.Collections.Generic.HashSet[string]]::new()
     $weaponsArray = @{}
     $droppedWeaponSet = [System.Collections.Generic.HashSet[string]]::new()
     $weaponLTXFiles = Get-LTXFilesFromType $name $src $ListType
-    $scopeNames = Get-ScopesListFromLTXFiles $src
+    $scopeNames = Get-ScopesListFromLTXFiles $name $src
     # Search for files recursively with names starting with npc_loadouts
     LogHead "Get-WeaponsFromLTXFiles" ([ref]$logs)
     $weaponLTXFiles | ForEach-Object {
@@ -311,7 +423,6 @@ function Get-WeaponsFromLTXFiles{
             
             # Find all matching wpn_ strings with the format weapon:N:N:N
             if ($line -match "^\s*[!\[]?(wpn_[a-zA-Z0-9_-]+)[\]]?\s*(?::.*|=\s*.*)?$") {
-                $count = $count + 1
                 # Write-Host found $matches[1]
                 $weaponName = $matches[1]
                 if (!($weaponName -like '*snd_shoot*') -and
@@ -402,96 +513,6 @@ function addTreasuresIncludes{
     return $list
 }
 
-function GetKitGroups{
-    Param(
-        $name,
-        $weaponSet
-    )    
-
-    $src = "gamedata\configs"
-
-    $weaponKitsSet = [System.Collections.Generic.HashSet[string]]::new()
-
-    $anomalyList = @()
-
-    if ($name -ne "anomaly"){
-        # start preloading $weaponKitsSet with the anomaly list
-        $anomalyList = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_anomaly.ltx"
-        foreach ($kit in $anomalyList) {
-            $weaponKitsSet.Add($kit) | Out-Null
-        }
-    } 
-
-    $weaponLTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
-                        $_.Name -like "w_*"
-                    }
-    $weaponLTXFiles | ForEach-Object {
-        $content = Get-Content $_.FullName
-        foreach ($line in $content) {
-            # Find all matching wpn_ strings with the format weapon:N:N:N
-            if ($line -match "^\s*[!\[]?(wpn_[a-zA-Z0-9_]+)[\]]?\s*(?::.*|=\s*.*)?$") {
-                # Write-Host found $matches[1]
-                $weaponName = $matches[1]
-                if (!($weaponName -like '*snd_shoot*') -and
-                    !($weaponName -like '*snd_silenced*') -and
-                    !($weaponName -like '*_sounds*') -and
-                    !($weaponName -like '*wpn_addon_scope*') -and # base scope addon
-                    !($weaponName -like '*wpn_addon_silencer*') -and # base silencer addon
-                    !($weaponName -like '*wpn_addon_grenade*') -and # grenade lanchers addon
-                    !($weaponName -like '*_sk*') -and   # no idea
-                    !($weaponName -like '*wpn_sil*') -and  # silenced
-                    ($weaponName -notmatch 'wpn_binoc_inv')) {
-                    if ($weaponSet){
-                        if($weaponSet -contains $weaponName){
-                            $weaponKitsSet.Add($weaponName) | Out-Null
-                        }
-                    }else{
-                        $weaponKitsSet.Add($weaponName) | Out-Null
-                    }
-                }
-            }
-        }
-    }
-    $baseWeapons = @{}
-
-    $scopeNames = Get-Content "generation\input\scopes\scopes.txt"
-
-    foreach ($weapon in $weaponKitsSet) {
-        $matched = $false
-        foreach ($scope in $scopeNames) {
-            # Match weapon_scopename or weapon_scopename_hud
-            if ($weapon -match "^(.*)_$scope(_hud)?$") {
-                # Write-Host found $matches[1]
-                $base = $matches[1]
-                # Only keep the base weapon (without scope and _hud)
-                $baseWeapons[$base] = $base
-                $matched = $true
-                break
-            }
-        }
-        if (-not $matched) {
-            # Filter out entries ending with _hud (but not matching any scope)
-            if ($weapon -notmatch "_hud$") {
-                # Write-Host found $weapon
-                $baseWeapons[$weapon] = $weapon
-            }
-        }
-    }
-
-    $kitsList = Get-Content "generation\input\kitsList.txt"
-    $kitArray = @()
-
-    foreach ($w in $baseWeapons.Values) {
-        foreach ($kit in $kitsList) {
-            if ($w -like "*$kit") {
-                Write-Host "kit--> $w"
-                $kitArray += $w
-            }
-        }
-    }
-    return $kitArray
-}
-
 function CovertToList{
     Param(
         $array
@@ -533,6 +554,66 @@ function AddModlistGroupFile{
     $finalOutput | Set-Content -Path $outputFile
 }
 
+function GenerateLoadoutGroupFile{
+    Param(
+        $name,
+        $src,
+        $excludeWeaponNames
+    )    
+
+    LOG " GENERATING $name LOADOUT GROUP LIST" ([ref]$logs)
+
+    $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_BASE
+    $weaponsLoadoutArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_LOADOUT
+    $weaponsLoadout = CovertToList $weaponsLoadoutArray
+
+    if($name -eq "gamma"){
+        $weaponsLoadout = addCustomIncludes $weaponsLoadout $FILE_GAMMA_NIMBLE_INCLUDES            
+    }
+    
+    $weaponsList = New-Object System.Collections.Generic.List[string]
+    foreach ($baseWeapon in $weaponsArray.Keys) {
+        # LOG " BASE WEAPON : $baseWeapon" ([ref]$logs) 
+        if (($excludeWeaponNames -notcontains $baseWeapon) -and 
+            ($weaponsLoadout -contains $baseWeapon) ){
+
+                foreach ($item in $weaponsArray[$baseWeapon]) {
+                    # LOG " - VARIANT : $item" ([ref]$logs) 
+                    $weaponsList.Add($item)
+                }
+        }
+    }
+
+    $weaponsList = addTreasuresIncludes $weaponsList $name    
+
+    return $weaponsList
+}
+
+function GenerateBaseGroupFile{
+    Param(
+        $name,
+        $src,
+        $excludeWeaponNames
+    )  
+
+    LOG " GENERATING $name BASE GROUP LIST" ([ref]$logs)
+
+    $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $ListType
+
+    $weaponsList = New-Object System.Collections.Generic.List[string]
+    foreach ($baseWeapon in $weaponsArray.Keys) {
+        if ($excludeWeaponNames -notcontains $baseWeapon){
+            foreach ($item in $weaponsArray[$baseWeapon]) {
+                $weaponsList.Add($item)
+            }
+        }
+    }      
+    
+    $weaponsList = addTreasuresIncludes $weaponsList $name    
+
+    return $weaponsList
+}
+
 function GenerateModlistGroupFile{
     Param(
         $name,
@@ -542,248 +623,44 @@ function GenerateModlistGroupFile{
         $outputFile
     )
 
-    
+    if($name -eq "3dss"){
 
-    if ($ListType -eq $LTX_TYPE_LOADOUT){
+        # generate the modlist's weapons data
+        $list = GenerateLoadoutGroupFile "profile" $src $excludeWeaponNames
+        $profileOutput = ".\gamedata\configs\custom_seal_layers\groups\seals_group_profile.ltx"
+        $header = "[profile]"
+        $finalOutput = @($header) + ($list | Sort-Object -Unique)
+        $finalOutput | Set-Content -Path $profileOutput
 
-        LOG " GENERATING LOADOUT GROUP LIST" ([ref]$logs)
+        LOG " GENERATING $name CONFIG GROUP LIST" ([ref]$logs)
 
-        $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_BASE
-        $weaponsLoadoutArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_LOADOUT
-        $weaponsLoadout = CovertToList $weaponsLoadoutArray
-
-        if($name -eq "gamma"){
-            $weaponsLoadout = addCustomIncludes $weaponsLoadout $FILE_GAMMA_NIMBLE_INCLUDES            
-        }
-       
-        $weaponsList = New-Object System.Collections.Generic.List[string]
-        foreach ($baseWeapon in $weaponsArray.Keys) {
-            # LOG " BASE WEAPON : $baseWeapon" ([ref]$logs) 
-            if (($excludeWeaponNames -notcontains $baseWeapon) -and 
-                ($weaponsLoadout -contains $baseWeapon) ){
-
-                    foreach ($item in $weaponsArray[$baseWeapon]) {
-                        # LOG " - VARIANT : $item" ([ref]$logs) 
-                        $weaponsList.Add($item)
-                    }
-            }
-        }
-
-        $weaponsList = addTreasuresIncludes $weaponsList $name
-    }else{
-        $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $ListType
-
-        $weaponsList = New-Object System.Collections.Generic.List[string]
-        foreach ($baseWeapon in $weaponsArray.Keys) {
-            if ($excludeWeaponNames -notcontains $baseWeapon){
-                foreach ($item in $weaponsArray[$baseWeapon]) {
-                    $weaponsList.Add($item)
-                }
-            }
-        }      
+        $modlistGroup = "anomaly,profile"
         
-        $weaponsList = addTreasuresIncludes $weaponsList $name
+        $modlistGroupNames = $modlistGroup -split ','
+
+        foreach( $groupName in $modlistGroupNames){
+            $sectionList = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_$groupName.ltx"
+            $finalExcludeWeaponNames = ($excludeWeaponNames + $sectionList) | Sort-Object -Unique 
+        }        
+
+        $3dssConfigsArray = Get-3DSSConfigsFromLTXFiles $name $src $finalExcludeWeaponNames $LTX_TYPE_3DSS
+        $list = CovertToList $3dssConfigsArray 
+        LogList " 3DSS " (Get-ArrayFromSet $list) ([ref]$logs) 
+
+    }elseif ($ListType -eq $LTX_TYPE_LOADOUT){
+
+        $list = GenerateLoadoutGroupFile $name $src $excludeWeaponNames
+        
+    }else{
+
+        $list = GenerateBaseGroupFile $name $src $excludeWeaponNames
     }
 
     $header = "[$name]"
-    $finalOutput = @($header) + ($weaponsList | Sort-Object -Unique)
+    $finalOutput = @($header) + ($list | Sort-Object -Unique)
     # Write to file v
     $finalOutput | Set-Content -Path $outputFile
     LOG " Done! sections group file saved to $outputFile" ([ref]$logs)
-}
-
-function GenerateModlistGroupFileOld{
-    Param(
-        $name,
-        $excludeWeaponNames,
-        $outputFile,
-        $modName,
-        $static,
-        $trades
-    )
-
-    Write-Host name $name
-    Write-Host outputFile $outputFile
-    Write-Host modName $modName
-    
-    # Clear previous output if exists
-    if (Test-Path $outputFile) {
-        Remove-Item $outputFile -Force
-    }
-
-    # Path to miss report and files
-    $noMatchesPath = ".\generation\output\$name\miss\no_matches.log"
-    $noMatchesFilesPath = ".\generation\output\$name\miss\files"
-    if (Test-Path $noMatchesFilesPath) {
-        Remove-Item $noMatchesFilesPath -Recurse
-    }
-    New-Item -Path $noMatchesFilesPath -ItemType Directory
-
-    # Path to hit report and files
-    $hitPath = ".\generation\output\$name\hit\"
-    $hitPathFilesPath = ".\generation\output\$name\hit\files"
-    if (Test-Path $hitPathFilesPath) {
-        Remove-Item $hitPathFilesPath -Recurse
-    }
-    New-Item -Path $hitPathFilesPath -ItemType Directory
-
-    # Use a hash set for uniqueness
-    $weaponSet = [System.Collections.Generic.HashSet[string]]::new()
-    $noMatchesList = @()
-
-    if (($null -ne $modName) -and ("" -ne $modName)){
-        $src = "..\$modName\gamedata\configs"
-        # Verify the mod exists
-        if (-not (Test-Path -Path $src)) {
-            Write-Error "$src does not exist."
-            return
-        } 
-    }else{
-        $src = "gamedata\configs"
-    }
-
-    # The list of the scopes found in the modlist
-    $scopeNames = @()
-
-    # Extract scopes from the LTX file
-    $scopeList = Get-Content "generation\input\scopes\scopes.txt"
-
-    $3dssScopeList = Get-Content "generation\input\scopes\scopes_3dss.txt"
-
-    # Sort and deduplicate the list
-    $scopeNames = ( $scopeList + $3dssScopeList ) | Sort-Object -Unique
-
-    if ($static){
-
-        $weaponLTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
-                            $_.Name -like "w_*"
-                        }
-    }else{
-        $weaponLTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
-                        $_.Name -like "new_game_loadouts*" -or  
-                        $_.Name -like "mod_new_game_loadouts*" -or  
-                        $_.Name -like "npc_loadouts*" -or 
-                        $_.Name -like "mod_npc_loadouts*" 
-                    }
-    }
-
-    if($trades){
-        $tradeWeaponsLTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
-                (($_.Name -like "trade_*" -and ($_.Name -notmatch 'trade_presets.ltx')) -or  
-                $_.Name -like "mod_trade_*" -or
-                $_.Name -like "blackmarket_trade_*") -or
-                ($_.Name -match "trade_presets.ltx" -and $name -ne "gamma")
-
-            }   
-        $weaponLTXFiles = $weaponLTXFiles + $tradeWeaponsLTXFiles
-    }
-
-    # Search for files recursively with names starting with npc_loadouts
-    $weaponLTXFiles | ForEach-Object {
-        $content = Get-Content $_.FullName
-        
-        $fileWeaponSet = [System.Collections.Generic.HashSet[string]]::new()
-        $count = 0        
-        
-        foreach ($line in $content) {
-            
-            # Find all matching wpn_ strings with the format weapon:N:N:N
-            if ($line -match "^\s*[!\[]?(wpn_[a-zA-Z0-9_]+)[\]]?\s*(?::.*|=\s*.*)?$") {
-                $count = $count + 1
-                # Write-Host found $matches[1]
-                $weaponName = $matches[1]
-                if (!($weaponName -like '*snd_shoot*') -and
-                    !($weaponName -like '*snd_silenced*') -and
-                    !($weaponName -like '*_sounds*') -and
-                    !($weaponName -like '*wpn_addon_scope*') -and # base scope addon
-                    !($weaponName -like '*wpn_addon_silencer*') -and # base silencer addon
-                    !($weaponName -like '*wpn_addon_grenade*') -and # grenade lanchers addon
-                    !($weaponName -like '*_sk*') -and   # no idea
-                    !($weaponName -like '*wpn_sil*') -and  # silenced
-                    ($weaponName -notmatch 'wpn_binoc_inv')) {
-                    $fileWeaponSet.Add($weaponName) | Out-Null
-                    $count = $count + 1
-                }
-            }
-        }
-        if ($count -eq 0){
-            Write-Host no matches in $_.FullName
-            # add the file to the no matches files list
-            $noMatchesList += $_.FullName
-            # save the input scanned file
-            Copy-Item -Path $_.FullName -Destination "$noMatchesFilesPath\$($_.Name)"
-        }else{
-            foreach($section in $fileWeaponSet){
-                if ($excludeWeaponNames -notcontains $section){
-                    $weaponSet.Add($section) | Out-Null
-                }
-            }
-            # save the hit reports to dedicated file
-            $logFileName = [System.IO.Path]::ChangeExtension($_, "log")
-            $fileWeaponSet | Set-Content -Path "$hitPath\$logFileName"
-            # save the input scanned file
-            Copy-Item -Path $_.FullName -Destination "$hitPathFilesPath\$($_.Name)"
-        }
-    }
-
-    # # 1. Remove all duplicates from $weaponSet where duplicates are weaponname, weaponname_scopename, weaponname_scopename_hud
-    # # Also filter out entries like weaponname_hud (keep only weaponname and weaponname_scopename)
-    # # Use $scopeNames to match scopename in $weaponSet
-
-    # $baseWeapons = @{}
-
-    # foreach ($weapon in $weaponSet) {
-    #     $matched = $false
-    #     foreach ($scope in $scopeNames) {
-    #         # Match weapon_scopename or weapon_scopename_hud
-    #         if ($weapon -match "^(.*)_$scope(_hud)?$") {
-    #             $base = $matches[1]
-    #             # Only keep the base weapon (without scope and _hud)
-    #             $baseWeapons[$base] = $base
-    #             $matched = $true
-    #             break
-    #         }
-    #     }
-    #     if (-not $matched) {
-    #         # Write-Host $weapon
-    #         # Filter out entries ending with _hud (but not matching any scope)
-    #         if ($weapon -notmatch "_hud$") {
-    #             $baseWeapons[$weapon] = $weapon
-    #         }
-    #     }
-    # }
-
-    # # Replace $weaponSet with only the purged, unique base entries
-    # $weaponSet = [System.Collections.Generic.HashSet[string]]::new()
-    # foreach ($w in $baseWeapons.Values) {
-    #     $weaponSet.Add($w) | Out-Null
-    # }   
-
-    # # 2. add nimble trades if group is gamma
-    # if ($name -eq "gamma"){
-    #     $nimbleIncludes = Get-Content "generation\input\nimble_includes.txt"
-
-    #     $weaponSet = $weaponSet + $nimbleIncludes
-    # }
-
-    # # 3. add weapon kits    
-    # $kits = GetKitGroups $name $weaponSet
-    # Write-Host ----- KITS ADDED
-    # $kits
-    # Write-Host -----
-
-    # 4. Add header and sort
-    $header = "[$name]"
-    $finalOutput = @($header) + (($weaponSet + $kits)| Sort-Object -Unique)
-
-    # Write to file
-    $finalOutput | Set-Content -Path $outputFile
-    $noMatchesList | Set-Content -Path $noMatchesPath
-
-    Write-Host " Done! Unique section names saved to $outputFile"
-    Write-Host " Done! Logged all the hit to $hitPath in MO2 overwrite folder"
-    Write-Host " Done! Logged all the miss to $noMatchesPath in MO2 overwrite folder"
-
 }
 
 function Generate3DSSGroupFile{
@@ -1213,7 +1090,7 @@ if($rarity.IsPresent){
 
 
 # update
-if ($update.IsPresent -and -not($3dss.IsPresent)) {
+if ($update.IsPresent) {
     Write-Host " Warning!! you are generating with UPDATE intent"
     Write-Host " Close window or continue"
 
@@ -1226,7 +1103,7 @@ if ($update.IsPresent -and -not($3dss.IsPresent)) {
 }
 
 # generate
-if ($generate.IsPresent -and -not($3dss.IsPresent)) {
+if ($generate.IsPresent) {
     $outputFile = ".\generation\output\seals_group_$name.ltx"
     GenerateModlistGroupFile $name $src $ListType $excludeWeaponNames $outputFile
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
@@ -1311,3 +1188,5 @@ if($3dss.IsPresent){
     Remove-Item -Path $profileGroupFile
 }
 
+# write to log file
+Set-Content -Path $logpath -Value $logs
