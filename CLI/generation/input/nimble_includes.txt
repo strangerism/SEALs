@@ -1,0 +1,13 @@
+wpn_colt1911_camo
+wpn_colt1911_custom
+wpn_desert_eagle_nimble
+wpn_protecta_nimble
+wpn_spas12_nimble
+wpn_toz34_mark4_23
+wpn_mp5_nimble
+wpn_g36nimble_rwap
+wpn_groza_nimble
+wpn_pkm_zenit_siber
+wpn_dvl10_m1
+wpn_dvl10
+wpn_svu_nimble
