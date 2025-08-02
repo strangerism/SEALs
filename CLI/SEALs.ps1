@@ -423,10 +423,12 @@ function Get-WeaponsFromLTXFiles{
         $fileWeaponSet = [System.Collections.Generic.HashSet[string]]::new()
         $count = 0        
         
+
         if ($ListType -eq $LTX_TYPE_MOD){
             $regexstr = '^\s*\[([^\]]+)\]:?.*$'
-
-        }if ($ListType -eq $LTX_TYPE_TREASURE){
+        }elseif ($ListType -eq $LTX_TYPE_TRADE){
+            $regexstr = '\b(wpn_[\w]+)(?=\s|=|$)'
+        }elseif ($ListType -eq $LTX_TYPE_TREASURE){
             $regexstr = '\b(wpn_[\w]+)(?=\s|$)'
         }else{
             $regexstr = "^\s*[!\[]?(wpn_[a-zA-Z0-9_-]+)[\]]?\s*(?::.*|=\s*.*)?$"
@@ -695,6 +697,29 @@ function GenerateBaseGroupFile{
     return $weaponsList
 }
 
+function GenerateTradeGroupFile{
+    Param(
+        $name,
+        $src,
+        $excludeWeaponNames
+    )
+
+    LOG " GENERATING $name TRADE GROUP LIST" ([ref]$logs)
+    $weaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_TRADE
+    $weaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsTradeList.log"
+
+    $weaponsList = New-Object System.Collections.Generic.List[string]
+    foreach ($baseWeapon in $weaponsArray.Keys) {
+        if ($excludeWeaponNames -notcontains $baseWeapon){
+            foreach ($item in $weaponsArray[$baseWeapon]) {
+                $weaponsList.Add($item)
+            }
+        }
+    }       
+
+    return $weaponsList
+}
+
 function Generate3DSSGroupFile{
     Param(
         $name,
@@ -743,6 +768,10 @@ function GenerateModlistGroupFile{
     }elseif ($ListType -eq $LTX_TYPE_LOADOUT){
 
         $list = GenerateLoadoutGroupFile $name $src $excludeWeaponNames
+        
+    }elseif ($ListType -eq $LTX_TYPE_TRADE){
+
+        $list = GenerateTradeGroupFile $name $src $excludeWeaponNames
         
     }else{
 
