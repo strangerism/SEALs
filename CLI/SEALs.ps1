@@ -30,32 +30,6 @@ Write-Host ListType $ListType
 Write-Host rarity $rarity
 Write-Host nocache $nocache
 Write-Host
-# Reads the folder filename
-$config = Get-Content -Path "$Env:SEALS_CLI\CLI.ini" | Where-Object { $_ -match '^CLI_FOLDER=' }
-$CLI_FOLDER = $config -replace '^CLI_FOLDER=', ''
-Write-Host "CLI folder is $CLI_FOLDER"
-Write-Host
-
-# INPUT FILES
-
-$FILE_GAMMA_NIMBLE_INCLUDES = "generation\input\nimble_includes.txt"
-$FILE_SCOPES_INCLUDES =  "generation\input\scopes_includes.txt"
-# TYPE
-$LTX_TYPE_BASE = "TYPE_BASE"
-$LTX_TYPE_LOADOUT = "TYPE_LOADOUT"
-$LTX_TYPE_TRADE = "TYPE_TRADE"
-$LTX_TYPE_ADDON = "TYPE_ADDON"
-$LTX_TYPE_3DSS = "TYPE_3DSS"
-$LTX_TYPE_MOD = "TYPE_MOD"
-$LTX_TYPE_TREASURE = "TYPE_TREASURE"
-
-if ($ListType -eq ""){
-    $ListType = $LTX_TYPE_BASE
-}
-
-# logfile
-$logpath = ".\generation\output\seals.log"
-$logs = @()
 
 function Log {
     param (
@@ -156,7 +130,7 @@ function Get-LTXFilesFromType{
 
     if ($ListType -eq $LTX_TYPE_MOD){
 
-        $ignoreFiles = Get-Content ".\generation\input\ignoreMods.txt"
+        $ignoreFiles = Get-Content "$generationInputPath\input\ignoreMods.txt"
 
         $LTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
                     $_.Name -like "mod_system_*" -and
@@ -201,7 +175,7 @@ function Get-LTXFilesFromType{
     if ($ListType -eq $LTX_TYPE_3DSS){
 
         # Define files to ignore
-        $ignoreFiles = Get-Content ".\generation\input\ignore3DSSFiles.txt"
+        $ignoreFiles = Get-Content "$generationInputPath\input\ignore3DSSFiles.txt"
 
         $LTXFiles = Get-ChildItem -Path $src -Recurse -File -Filter "*3dss*.ltx" | Where-Object {
             $ignoreFiles -notcontains $_.Name
@@ -265,9 +239,9 @@ function Get-ScopesListFromLTXFiles{
 
     # Write the sorted list to a file
     if ($name -eq "3dss"){
-        $outFile = ".\generation\output\scopes\scopes_3dss.txt"
+        $outFile = "$generationPath\output\scopes\scopes_3dss.txt"
     }else{
-        $outFile = ".\generation\output\scopes\scopes.txt"
+        $outFile = "$generationPath\output\scopes\scopes.txt"
     }
 
     # CACHE
@@ -283,6 +257,10 @@ function Get-ScopesListFromLTXFiles{
         Log "Looking for scopes in $($_.FullName)" ([ref]$logs)
         # Extract scopes from the LTX file
         $scopeList = $scopeList + (Get-ScopesFromLTXFile $_.FullName)
+    }
+
+    if (!(Test-Path $FILE_SCOPES_INCLUDES)){
+        $FILE_SCOPES_INCLUDES = "..\$CLI_FOLDER\$FILE_SCOPES_INCLUDES"
     }
 
     $scopesIncludes = Get-Content $FILE_SCOPES_INCLUDES
@@ -361,7 +339,7 @@ function Get-3DSSConfigsFromLTXFiles{
     $scopeNames = Get-ScopesListFromLTXFiles $name $src
 
     # the list of manually entered sections. When the generation fails, you can fall back to this file and add what is being missed
-    # $3ddsIncludes = Get-Content ".\generation\input\3dss_includes.txt"
+    # $3ddsIncludes = Get-Content "$generationInputPath\input\3dss_includes.txt"
 
     $3dssLTXFiles = Get-LTXFilesFromType $name $src $ListType
 
@@ -622,7 +600,7 @@ function AddModlistGroupFile{
         $outputFile
     )
 
-    $addOutputFile = ".\generation\output\$name\add.ltx"
+    $addOutputFile = "$generationPath\output\$name\add.ltx"
     GenerateModlistGroupFile $name $src $ListType $addOutputFile
     $addSections = Get-Content $addOutputFile
 
@@ -646,21 +624,21 @@ function GenerateLoadoutGroupFile{
     LOG " GENERATING $name LOADOUT GROUP LIST" ([ref]$logs)
 
     $weaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_BASE
-    $weaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsBaseList.log"
+    $weaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsBaseList.log"
 
     $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_MOD
-    $modWeaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsModsList.log"
+    $modWeaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsModsList.log"
     
     $mergedWeaponsArray = MergeArrays $weaponsArray $modWeaponsArray
-    $mergedWeaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\mergedWeaponsList.log"
+    $mergedWeaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\mergedWeaponsList.log"
 
     ## filter out all weapons (base and its variants) that are not in the loadout list
     $weaponsLoadoutArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_LOADOUT
-    $weaponsLoadoutArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsLoadoutList.log"
+    $weaponsLoadoutArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsLoadoutList.log"
 
     ## treasures rewars, akin to loadout
     $weaponsTreasureArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_TREASURE
-    $weaponsTreasureArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsTreasuresList.log"
+    $weaponsTreasureArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsTreasuresList.log"
 
     $weaponsLoadoutArray = MergeArrays $weaponsLoadoutArray $weaponsTreasureArray
 
@@ -697,13 +675,13 @@ function GenerateBaseGroupFile{
 
     LOG " GENERATING $name BASE GROUP LIST" ([ref]$logs)
     $weaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_BASE
-    $weaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsBaseList.log"
+    $weaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsBaseList.log"
 
     $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_MOD
-    $modWeaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsModsList.log"
+    $modWeaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsModsList.log"
 
     $weaponsArray = MergeArrays $weaponsArray $modWeaponsArray
-    $weaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\mergedWeaponsList.log"
+    $weaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\mergedWeaponsList.log"
 
     $weaponsList = New-Object System.Collections.Generic.List[string]
     foreach ($baseWeapon in $weaponsArray.Keys) {
@@ -884,7 +862,7 @@ function GenerateWeaponRarityList{
     )
 
     # Output file path
-    $outDir = "generation\output\$name"
+    $outDir = "$generationPath\output\$name"
     $src = "$outDir\hit\files"
 
     if ( -not (Test-Path $outDir) -or -not (Test-Path $src)){
@@ -977,8 +955,43 @@ function GenerateWeaponRarityList{
 ##############
 #################################################################################################################
 
+# CLI FOLDER
+
+$config = Get-Content -Path "$Env:SEALS_CLI\CLI.ini" | Where-Object { $_ -match '^CLI_FOLDER=' }
+$CLI_FOLDER = $config -replace '^CLI_FOLDER=', ''
+Write-Host "CLI folder is $CLI_FOLDER"
+Write-Host
+
+#################################################################
+
+## PATHS
+
+if ($from -ne "") {
+    $src = "..\$from\gamedata\configs"
+    $generationPath = "..\..\generation"
+    $generationInputPath = "..\$CLI_FOLDER\generation"
+    # Verify the mod exists
+    if (-not (Test-Path -Path $src)) {
+        Write-Error "$src does not exist."
+        return
+    } 
+}else{
+    $src = "gamedata\configs"
+    $generationPath = ".\generation"
+    $generationInputPath = ".\generation"
+}
+
+Write-Host src $src
+Write-Host generationPath $generationPath
+Write-Host generationInputPath $generationInputPath
+Write-Host
 ## LOGGING
 
+# logfile
+$logpath = "$generationPath\output\seals.log"
+$logs = @()
+
+# log folder
 if ($name -and $name -ne ""){
     $logfolder = $name
 }else{
@@ -986,20 +999,39 @@ if ($name -and $name -ne ""){
 }
 
 # Path to miss report and files
-$noMatchesPath = ".\generation\output\$logfolder\miss\no_matches.log"
-$noMatchesFilesPath = ".\generation\output\$logfolder\miss\files"
+$noMatchesPath = "$generationPath\output\$logfolder\miss\no_matches.log"
+$noMatchesFilesPath = "$generationPath\output\$logfolder\miss\files"
 if (Test-Path $noMatchesFilesPath) {
-    Remove-Item ".\generation\output\$logfolder" -Recurse -Force
+    Remove-Item "$generationPath\output\$logfolder" -Recurse -Force
 }
 New-Item -Path $noMatchesFilesPath -ItemType Directory | Out-Null
 
 # Path to hit report and files
-$hitPath = ".\generation\output\$logfolder\hit\"
-$hitPathFilesPath = ".\generation\output\$logfolder\hit\files"
+$hitPath = "$generationPath\output\$logfolder\hit\"
+$hitPathFilesPath = "$generationPath\output\$logfolder\hit\files"
 if (Test-Path $hitPathFilesPath) {
-    Remove-Item ".\generation\output\$logfolder" -Recurse -Force
+    Remove-Item "$generationPath\output\$logfolder" -Recurse -Force
 }
 New-Item -Path $hitPathFilesPath -ItemType Directory | Out-Null
+
+
+# INPUT FILES
+
+$FILE_GAMMA_NIMBLE_INCLUDES = "$generationPath\input\nimble_includes.txt"
+$FILE_SCOPES_INCLUDES =  "$generationPath\input\scopes_includes.txt"
+
+# LIST TYPE CONSTANTS
+$LTX_TYPE_BASE = "TYPE_BASE"
+$LTX_TYPE_LOADOUT = "TYPE_LOADOUT"
+$LTX_TYPE_TRADE = "TYPE_TRADE"
+$LTX_TYPE_ADDON = "TYPE_ADDON"
+$LTX_TYPE_3DSS = "TYPE_3DSS"
+$LTX_TYPE_MOD = "TYPE_MOD"
+$LTX_TYPE_TREASURE = "TYPE_TREASURE"
+
+if ($ListType -eq ""){
+    $ListType = $LTX_TYPE_BASE
+}
 
 #################################################################
 
@@ -1015,21 +1047,6 @@ if ($exclude.IsPresent){
         $excludeWeaponNames = ($excludeWeaponNames + $sectionList) | Sort-Object -Unique 
         $excludeWeaponNames = PurgeScopedSections $name $src $excludeWeaponNames
     }
-}
-
-#################################################################
-
-## resolve src
-
-if (($null -ne $modName) -and ("" -ne $modName)){
-    $src = "..\$modName\gamedata\configs"
-    # Verify the mod exists
-    if (-not (Test-Path -Path $src)) {
-        Write-Error "$src does not exist."
-        return
-    } 
-}else{
-    $src = "gamedata\configs"
 }
 
 #################################################################
@@ -1082,7 +1099,7 @@ if ($update.IsPresent) {
 
 # generate
 if ($generate.IsPresent) {
-    $outputFile = ".\generation\output\$logfolder\seals_group_$name.ltx"
+    $outputFile = "$generationPath\output\$logfolder\seals_group_$name.ltx"
     GenerateModlistGroupFile $name $src $ListType $excludeWeaponNames $outputFile
     Completion
 }
