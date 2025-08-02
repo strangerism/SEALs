@@ -597,10 +597,10 @@ function AddModlistGroupFile{
     )
 
     $addOutputFile = "$generationPath\output\$name\add.ltx"
-    GenerateModlistGroupFile $name $src $ListType $addOutputFile
+    GenerateModlistGroupFile $name $src $ListType $excludeWeaponNames $addOutputFile
     $addSections = Get-Content $addOutputFile
 
-    LogList "ADDED SECTIONS" $addSections ([ref]$logs)
+    LogList "ADDING SECTIONS" $addSections ([ref]$logs)
 
     $nameSections = Get-Content $outputFile   
 
@@ -750,6 +750,7 @@ function GenerateModlistGroupFile{
     $header = "[$name]"
     $finalOutput = @($header) + ($list | Sort-Object -Unique)
     # Write to file v
+    LOG "Saving group file to $outputFile" ([ref]$logs)
     $finalOutput | Set-Content -Path $outputFile
     LOG " Done! sections group file saved to $outputFile" ([ref]$logs)
 }
