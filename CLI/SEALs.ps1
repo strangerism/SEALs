@@ -15,18 +15,26 @@ param (
     [Parameter(Mandatory = $false)][switch]$test
     
 )
-Write-Host generate $new
-Write-Host new $generate
+
+Write-Host new $new
+Write-Host add $add
+Write-Host clear $clear
+Write-Host generate $generate
 Write-Host update $update
+Write-Host 3dss $3dss
 Write-Host name $name
-Write-Host "from $from"
+Write-Host from $from
 Write-Host exclude $exclude
 Write-Host groups $groups
-
+Write-Host ListType $ListType
+Write-Host rarity $rarity
+Write-Host nocache $nocache
+Write-Host
 # Reads the folder filename
 $config = Get-Content -Path "$Env:SEALS_CLI\CLI.ini" | Where-Object { $_ -match '^CLI_FOLDER=' }
 $CLI_FOLDER = $config -replace '^CLI_FOLDER=', ''
 Write-Host "CLI folder is $CLI_FOLDER"
+Write-Host
 
 # INPUT FILES
 
@@ -44,7 +52,6 @@ $LTX_TYPE_TREASURE = "TYPE_TREASURE"
 if ($ListType -eq ""){
     $ListType = $LTX_TYPE_BASE
 }
-
 
 # logfile
 $logpath = ".\generation\output\seals.log"
@@ -343,7 +350,6 @@ function Get-3DSSConfigsFromLTXFiles{
     Param(
         $name,
         $src,
-        $excludeWeaponNames,
         $ListType        
     )    
     LogHead "Get-WeaponsFromLTXFiles" ([ref]$logs)
@@ -425,7 +431,6 @@ function Get-WeaponsFromLTXFiles{
     Param(
         $name,
         $src,
-        $excludeWeaponNames,
         $ListType
     )
 
@@ -526,8 +531,6 @@ function Get-WeaponsFromLTXFiles{
         }else{
             # save the hit reports to dedicated file
             $logFileName = [System.IO.Path]::ChangeExtension($_, "log")
-            Write-Host $_
-            Write-Host $logFileName
             $fileWeaponSet | Set-Content -Path "$hitPath\$logFileName"
             # save the input scanned file
             Copy-Item -Path $_.FullName -Destination "$hitPathFilesPath\$($_.Name)"
@@ -613,12 +616,12 @@ function AddModlistGroupFile{
         $name,
         $src,
         $ListType,
+        $excludeWeaponNames,
         $outputFile
     )
 
-    $excludeWeaponNames = @()
     $addOutputFile = ".\generation\output\$name\add.ltx"
-    GenerateModlistGroupFile $name $src $ListType $excludeWeaponNames $addOutputFile
+    GenerateModlistGroupFile $name $src $ListType $addOutputFile
     $addSections = Get-Content $addOutputFile
 
     LogList "ADDED SECTIONS" $addSections ([ref]$logs)
@@ -640,21 +643,21 @@ function GenerateLoadoutGroupFile{
 
     LOG " GENERATING $name LOADOUT GROUP LIST" ([ref]$logs)
 
-    $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_BASE
+    $weaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_BASE
     $weaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsBaseList.log"
 
-    $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_MOD
+    $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_MOD
     $modWeaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsModsList.log"
     
     $mergedWeaponsArray = MergeArrays $weaponsArray $modWeaponsArray
     $mergedWeaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\mergedWeaponsList.log"
 
     ## filter out all weapons (base and its variants) that are not in the loadout list
-    $weaponsLoadoutArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_LOADOUT
+    $weaponsLoadoutArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_LOADOUT
     $weaponsLoadoutArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsLoadoutList.log"
 
     ## treasures rewars, akin to loadout
-    $weaponsTreasureArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_TREASURE
+    $weaponsTreasureArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_TREASURE
     $weaponsTreasureArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsTreasuresList.log"
 
     $weaponsLoadoutArray = MergeArrays $weaponsLoadoutArray $weaponsTreasureArray
@@ -689,14 +692,16 @@ function GenerateBaseGroupFile{
         $src,
         $excludeWeaponNames
     )  
-
+    
     LOG " GENERATING $name BASE GROUP LIST" ([ref]$logs)
+    $weaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_BASE
+    $weaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsBaseList.log"
 
-    $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $ListType
-
-    $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_MOD
+    $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_MOD
+    $modWeaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsModsList.log"
 
     $weaponsArray = MergeArrays $weaponsArray $modWeaponsArray
+    $weaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\mergedWeaponsList.log"
 
     $weaponsList = New-Object System.Collections.Generic.List[string]
     foreach ($baseWeapon in $weaponsArray.Keys) {
@@ -720,7 +725,7 @@ function Generate3DSSGroupFile{
     )  
 
     # generate the modlist's weapons data
-    # $list = GenerateLoadoutGroupFile "profile" $src $excludeWeaponNames
+    # $list = GenerateLoadoutGroupFile "profile" $src
     # $profileOutput = ".\gamedata\configs\custom_seal_layers\groups\seals_group_profile.ltx"
     # $header = "[profile]"
     # $finalOutput = @($header) + ($list | Sort-Object -Unique)
@@ -737,7 +742,7 @@ function Generate3DSSGroupFile{
     #     $finalExcludeWeaponNames = ($excludeWeaponNames + $sectionList) | Sort-Object -Unique 
     # }        
 
-    $3dssConfigsArray = Get-3DSSConfigsFromLTXFiles $name $src $finalExcludeWeaponNames $LTX_TYPE_3DSS
+    $3dssConfigsArray = Get-3DSSConfigsFromLTXFiles $name $src $LTX_TYPE_3DSS
     
     $list = ConvertToList $3dssConfigsArray
 
@@ -982,7 +987,7 @@ if ($name -and $name -ne ""){
 $noMatchesPath = ".\generation\output\$logfolder\miss\no_matches.log"
 $noMatchesFilesPath = ".\generation\output\$logfolder\miss\files"
 if (Test-Path $noMatchesFilesPath) {
-    Remove-Item $noMatchesFilesPath -Recurse
+    Remove-Item ".\generation\output\$logfolder" -Recurse -Force
 }
 New-Item -Path $noMatchesFilesPath -ItemType Directory | Out-Null
 
@@ -990,7 +995,7 @@ New-Item -Path $noMatchesFilesPath -ItemType Directory | Out-Null
 $hitPath = ".\generation\output\$logfolder\hit\"
 $hitPathFilesPath = ".\generation\output\$logfolder\hit\files"
 if (Test-Path $hitPathFilesPath) {
-    Remove-Item $hitPathFilesPath -Recurse
+    Remove-Item ".\generation\output\$logfolder" -Recurse -Force
 }
 New-Item -Path $hitPathFilesPath -ItemType Directory | Out-Null
 
@@ -1006,7 +1011,7 @@ if ($exclude.IsPresent){
     foreach( $groupName in $groupNames){
         $sectionList = Get-Content ".\gamedata\configs\custom_seal_layers\groups\seals_group_$groupName.ltx"
         $excludeWeaponNames = ($excludeWeaponNames + $sectionList) | Sort-Object -Unique 
-        $excludeWeaponNames = PurgeScopedSections $src $excludeWeaponNames
+        $excludeWeaponNames = PurgeScopedSections $name $src $excludeWeaponNames
     }
 }
 
@@ -1027,18 +1032,26 @@ if (($null -ne $modName) -and ("" -ne $modName)){
 
 #################################################################
 
+function Completion{
+    LogHead "Execution Complete" ([ref]$logs)
+    Write-Host " Done! Logged console output to $logpath in MO2 overwrite folder"
+    Write-Host " Done! Logged all the hit to $hitPath in MO2 overwrite folder"
+    Write-Host " Done! Logged all the miss to $noMatchesPath in MO2 overwrite folder"
+
+    # write to log file
+    Set-Content -Path $logpath -Value $logs
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+    exit    
+}
+
 if($test.IsPresent){
 
     try {
-        $weaponList = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames
+        $weaponList = Get-WeaponsFromLTXFiles $name $src $ListType
 
         LogList "WEAPONS LIST" $weaponList ([ref]$logs)
 
-        # write to log file
-        Set-Content -Path $logpath -Value $logs
-
-        $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
-        exit        
+        Completion
     }
     catch {
         $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
@@ -1049,7 +1062,6 @@ if($test.IsPresent){
 if($rarity.IsPresent){
 
     GenerateWeaponRarityList $name 
-    exit
 }
 
 
@@ -1063,20 +1075,21 @@ if ($update.IsPresent) {
 
     $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
     GenerateModlistGroupFile $name $src $ListType $excludeWeaponNames $outputFile
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+    Completion
 }
 
 # generate
 if ($generate.IsPresent) {
-    $outputFile = ".\generation\output\seals_group_$name.ltx"
+    $outputFile = ".\generation\output\$logfolder\seals_group_$name.ltx"
     GenerateModlistGroupFile $name $src $ListType $excludeWeaponNames $outputFile
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+    Completion
 }
 
 if($clear.IsPresent){
     $emptyList = @()
     $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
     Set-Content $outputFile $emptyList
+    Completion
 }
 
 # new
@@ -1087,6 +1100,7 @@ if($new.IsPresent){
 
         $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
         GenerateModlistGroupFile $name $src $ListType $excludeWeaponNames $outputFile
+        Completion
     }
 }
 
@@ -1096,9 +1110,7 @@ if($add.IsPresent){
     if (($null -ne $from) -and ("" -ne $from)){
 
         $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
-        AddModlistGroupFile $name $src $ListType $outputFile
+        AddModlistGroupFile $name $src $ListType $excludeWeaponNames $outputFile
+        Completion
     }
 }
-
-# write to log file
-Set-Content -Path $logpath -Value $logs
