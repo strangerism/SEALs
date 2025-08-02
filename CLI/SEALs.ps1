@@ -259,10 +259,6 @@ function Get-ScopesListFromLTXFiles{
         $scopeList = $scopeList + (Get-ScopesFromLTXFile $_.FullName)
     }
 
-    if (!(Test-Path $FILE_SCOPES_INCLUDES)){
-        $FILE_SCOPES_INCLUDES = "..\$CLI_FOLDER\$FILE_SCOPES_INCLUDES"
-    }
-
     $scopesIncludes = Get-Content $FILE_SCOPES_INCLUDES
 
     # Sort and deduplicate the list
@@ -968,7 +964,7 @@ Write-Host
 
 if ($from -ne "") {
     $src = "..\$from\gamedata\configs"
-    $generationPath = "..\..\generation"
+    $generationPath = "..\..\overwrite\generation"
     $generationInputPath = "..\$CLI_FOLDER\generation"
     # Verify the mod exists
     if (-not (Test-Path -Path $src)) {
@@ -1017,8 +1013,8 @@ New-Item -Path $hitPathFilesPath -ItemType Directory | Out-Null
 
 # INPUT FILES
 
-$FILE_GAMMA_NIMBLE_INCLUDES = "$generationPath\input\nimble_includes.txt"
-$FILE_SCOPES_INCLUDES =  "$generationPath\input\scopes_includes.txt"
+$FILE_GAMMA_NIMBLE_INCLUDES = "$generationInputPath\input\nimble_includes.txt"
+$FILE_SCOPES_INCLUDES =  "$generationInputPath\input\scopes_includes.txt"
 
 # LIST TYPE CONSTANTS
 $LTX_TYPE_BASE = "TYPE_BASE"
