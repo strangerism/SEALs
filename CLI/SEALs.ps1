@@ -531,13 +531,11 @@ function addTreasuresIncludes{
         $name
     )
 
-    $list = $list + "wpn_gauss_quest"
-
     if ($name -eq "anomaly"){
-        
+        $list = $list + "wpn_gauss_quest"
     }
     if ($name -eq "gamma"){
-
+        $list = $list + "wpn_gauss_quest"
     }
 
     return $list
@@ -602,9 +600,13 @@ function AddModlistGroupFile{
 
     LogList "ADDING SECTIONS" $addSections ([ref]$logs)
 
-    $nameSections = Get-Content $outputFile   
+    if (Test-Path $outputFile){
+        $nameSections = Get-Content $outputFile   
 
-    $finalOutput = ($nameSections + $addSections) | Sort-Object -Unique 
+        $finalOutput = ($nameSections + $addSections) | Sort-Object -Unique 
+    }else{
+        $finalOutput = $addSections
+    }
 
     # Save unique section names to the output file
     $finalOutput | Set-Content -Path $outputFile
@@ -851,6 +853,9 @@ function CreateSealsTemplateProject{
     Templating $templatePath $tokens
 
     NameTemplate $templatePath $tokens["sealid"]
+
+    # removes tokens file so that templating cannot be rerun again
+    Remove-Item $TokensFile
 }
 
 function GenerateWeaponRarityList{
