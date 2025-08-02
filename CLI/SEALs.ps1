@@ -239,9 +239,9 @@ function Get-ScopesListFromLTXFiles{
 
     # Write the sorted list to a file
     if ($name -eq "3dss"){
-        $outFile = "$generationPath\output\scopes\scopes_3dss.txt"
+        $outFile = "$generationPath\output\cache\scopes\scopes_3dss.txt"
     }else{
-        $outFile = "$generationPath\output\scopes\scopes.txt"
+        $outFile = "$generationPath\output\cache\scopes\scopes.txt"
     }
 
     # CACHE
