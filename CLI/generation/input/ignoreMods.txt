@@ -17,3 +17,6 @@ mod_system_visbody_decals.ltx
 mod_system_walls.ltx
 mod_system_zzBarrySVUreanim.ltx
 mod_system_zzzzzz_npe_mgs_codec.ltx
+mod_system_dummy_scopes.ltx
+mod_system_cortex_addon.ltx
+mod_system_visbody_decals.ltx.mohidden

@@ -39,6 +39,7 @@ $LTX_TYPE_TRADE = "TYPE_TRADE"
 $LTX_TYPE_ADDON = "TYPE_ADDON"
 $LTX_TYPE_3DSS = "TYPE_3DSS"
 $LTX_TYPE_MOD = "TYPE_MOD"
+$LTX_TYPE_TREASURE = "TYPE_TREASURE"
 
 if ($ListType -eq ""){
     $ListType = $LTX_TYPE_BASE
@@ -152,6 +153,7 @@ function Get-LTXFilesFromType{
 
         $LTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
                     $_.Name -like "mod_system_*" -and
+                    !($_.Name -like "mod_system_weapon_addons*") -and
                     $ignoreFiles -notcontains $_.Name
                 } 
     }
@@ -198,7 +200,19 @@ function Get-LTXFilesFromType{
             $ignoreFiles -notcontains $_.Name
         }        
     }    
-    
+
+    if ($ListType -eq $LTX_TYPE_TREASURE){
+
+        if ($name -eq "gamma"){
+            $treasureFile = "grok_treasure_manager.ltx"
+        }else{
+            $treasureFile = "treasure_manager.ltx"
+        }
+
+        $LTXFiles = Get-ChildItem -Path "gamedata\configs\items\settings" | Where-Object {
+            $_.Name -match "$treasureFile"
+        }        
+    }     
 
     return $LTXFiles
 }
@@ -424,28 +438,39 @@ function Get-WeaponsFromLTXFiles{
     LogHead "Get-WeaponsFromLTXFiles" ([ref]$logs)
     $weaponLTXFiles | ForEach-Object {
         $content = Get-Content $_.FullName
+        # if ($ListType -eq $LTX_TYPE_TREASURE){
         # LOG "Scanning for Weapons: $($_.Name)" ([ref]$logs)
+        # }
         $fileWeaponSet = [System.Collections.Generic.HashSet[string]]::new()
         $count = 0        
         
+        if ($ListType -eq $LTX_TYPE_MOD){
+            $regexstr = '^\s*\[([^\]]+)\]:?.*$'
+
+        }if ($ListType -eq $LTX_TYPE_TREASURE){
+            $regexstr = '\b(wpn_[\w]+)(?=\s|$)'
+        }else{
+            $regexstr = "^\s*[!\[]?(wpn_[a-zA-Z0-9_-]+)[\]]?\s*(?::.*|=\s*.*)?$"
+        }
+
         foreach ($line in $content) {
             
-            if ($ListType -eq $LTX_TYPE_MOD){
-                $regexstr = '^\s*\[([^\]]+)\]:?.*$'
-
-            }else{
-                $regexstr = "^\s*[!\[]?(wpn_[a-zA-Z0-9_-]+)[\]]?\s*(?::.*|=\s*.*)?$"
-            }
+            if ($line.Trim() -like ";*") { continue }
 
             # Find all matching wpn_ strings with the format weapon:N:N:N
             if ($line -match $regexstr) {
 
                 $weaponName = $matches[1]
-                # if ($ListType -eq $LTX_TYPE_MOD){
+                # if ($ListType -eq $LTX_TYPE_TREASURE){
                 #     Write-Host found $matches[1]
                 # }                
 
                 if (!($weaponName -like '*snd_shoot*') -and
+                    !($weaponName -like '*shoot_actor*') -and
+                    !($weaponName -like '*silncer_shot*') -and
+                    !($weaponName -like '*silenced_actor*') -and
+                    !($weaponName -like '*snd_silencer_shot*') -and
+                    !($weaponName -like '*silenced*') -and
                     !($weaponName -like '*snd_silenced*') -and
                     !($weaponName -like '*_sounds*') -and
                     !($weaponName -like '*wpn_addon_scope*') -and # base scope addon
@@ -462,7 +487,9 @@ function Get-WeaponsFromLTXFiles{
                             if ($weaponName -match "^(.*)_$scope$") {
                                 $base = $matches[1]
                                 if ($weaponsArray[$base]){
+                                    # if ($ListType -eq $LTX_TYPE_TREASURE){
                                     # LogAdd "[$base] VARIANT: $weaponName" ([ref]$logs)
+                                    # }
                                     $weaponsArray[$base] += $weaponName
                                 }else{
                                     $weaponsArray[$base] = @()
@@ -474,7 +501,9 @@ function Get-WeaponsFromLTXFiles{
                         }
                         if (-not $matched) {
                             # weaponName is the base weapon name
+                            # if ($ListType -eq $LTX_TYPE_TREASURE){
                             # LogAdd "BASE WEAPON: $weaponName" ([ref]$logs)
+                            # }
                             if ($null -eq $weaponsArray[$weaponName]){
                                 $weaponsArray[$weaponName] = @()
                                 $weaponsArray[$weaponName] += $weaponName
@@ -497,6 +526,8 @@ function Get-WeaponsFromLTXFiles{
         }else{
             # save the hit reports to dedicated file
             $logFileName = [System.IO.Path]::ChangeExtension($_, "log")
+            Write-Host $_
+            Write-Host $logFileName
             $fileWeaponSet | Set-Content -Path "$hitPath\$logFileName"
             # save the input scanned file
             Copy-Item -Path $_.FullName -Destination "$hitPathFilesPath\$($_.Name)"
@@ -610,12 +641,24 @@ function GenerateLoadoutGroupFile{
     LOG " GENERATING $name LOADOUT GROUP LIST" ([ref]$logs)
 
     $weaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_BASE
+    $weaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsBaseList.log"
 
     $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_MOD
+    $modWeaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsModsList.log"
+    
+    $mergedWeaponsArray = MergeArrays $weaponsArray $modWeaponsArray
+    $mergedWeaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\mergedWeaponsList.log"
 
-    $weaponsArray = MergeArrays $weaponsArray $modWeaponsArray
-
+    ## filter out all weapons (base and its variants) that are not in the loadout list
     $weaponsLoadoutArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_LOADOUT
+    $weaponsLoadoutArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsLoadoutList.log"
+
+    ## treasures rewars, akin to loadout
+    $weaponsTreasureArray = Get-WeaponsFromLTXFiles $name $src $excludeWeaponNames $LTX_TYPE_TREASURE
+    $weaponsTreasureArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsTreasuresList.log"
+
+    $weaponsLoadoutArray = MergeArrays $weaponsLoadoutArray $weaponsTreasureArray
+
     $weaponsLoadout = ConvertToList $weaponsLoadoutArray
 
     if($name -eq "gamma"){
@@ -623,12 +666,12 @@ function GenerateLoadoutGroupFile{
     }
     
     $weaponsList = New-Object System.Collections.Generic.List[string]
-    foreach ($baseWeapon in $weaponsArray.Keys) {
+    foreach ($baseWeapon in $mergedWeaponsArray.Keys) {
         # LOG " BASE WEAPON : $baseWeapon" ([ref]$logs) 
         if (($excludeWeaponNames -notcontains $baseWeapon) -and 
             ($weaponsLoadout -contains $baseWeapon) ){
 
-                foreach ($item in $weaponsArray[$baseWeapon]) {
+                foreach ($item in $mergedWeaponsArray[$baseWeapon]) {
                     # LOG " - VARIANT : $item" ([ref]$logs) 
                     $weaponsList.Add($item)
                 }
