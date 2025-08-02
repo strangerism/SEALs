@@ -210,12 +210,12 @@ function Get-LTXFilesFromType{
 
     if ($ListType -eq $LTX_TYPE_TREASURE){
 
-        if ($name -eq "gamma"){
+        $gammaTreasureFile = "gamedata\configs\items\settings\grok_treasure_manager.ltx"
+        if (Test-Path $gammaTreasureFile){
             $treasureFile = "grok_treasure_manager.ltx"
         }else{
             $treasureFile = "treasure_manager.ltx"
         }
-
         $LTXFiles = Get-ChildItem -Path "gamedata\configs\items\settings" | Where-Object {
             $_.Name -match "$treasureFile"
         }        
@@ -386,10 +386,10 @@ function Get-3DSSConfigsFromLTXFiles{
                             if ($sectionName -match "^(.*)_$scope$") {
                                 $base = $matches[1]
                                 if ($3dssConfigsArray[$base]){
-                                    LogAdd "   $sectionName" ([ref]$logs)
+                                    # LogAdd "   $sectionName" ([ref]$logs)
                                     $3dssConfigsArray[$base] += $sectionName
                                 }else{
-                                    LogAdd "$base" ([ref]$logs)
+                                    # LogAdd "$base" ([ref]$logs)
                                     $3dssConfigsArray[$base] = @()
                                     $3dssConfigsArray[$base] += $base
                                     $3dssConfigsArray[$base] += $sectionName                                    
@@ -400,7 +400,7 @@ function Get-3DSSConfigsFromLTXFiles{
                         }
                         if (-not $matched) {
                             # weaponName is the base weapon name
-                            LogAdd "NO 3DSS: $sectionName" ([ref]$logs)
+                            # LogAdd "NO 3DSS: $sectionName" ([ref]$logs)
                         }
                         $fileSectionNames.Add($sectionName) | Out-Null
                         $count = $count + 1           
@@ -557,11 +557,13 @@ function addTreasuresIncludes{
         $name
     )
 
+    $list = $list + "wpn_gauss_quest"
+
     if ($name -eq "anomaly"){
-        $list = $list + "wpn_gauss_quest"
+        
     }
     if ($name -eq "gamma"){
-        $list = $list + "wpn_gauss_quest"
+
     }
 
     return $list
@@ -692,7 +694,7 @@ function GenerateBaseGroupFile{
         $src,
         $excludeWeaponNames
     )  
-    
+
     LOG " GENERATING $name BASE GROUP LIST" ([ref]$logs)
     $weaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_BASE
     $weaponsArray.Keys | Sort-Object | Out-File -FilePath ".\generation\output\$logfolder\weaponsBaseList.log"
