@@ -12,6 +12,7 @@ param (
     [Parameter(Mandatory = $false)][string]$ListType,
     [Parameter(Mandatory = $false)][switch]$rarity,
     [Parameter(Mandatory = $false)][switch]$nocache,
+    [Parameter(Mandatory = $false)][switch]$cache,
     [Parameter(Mandatory = $false)][switch]$test
     
 )
@@ -251,12 +252,24 @@ function Get-ScopesListFromLTXFiles{
         $outFile = "$generationPath\output\cache\scopes\scopes.txt"
     }
 
+    if ($cache.IsPresent){
+        Remove-Item $outFile -Recurse -ErrorAction SilentlyContinue
+    }
+
     # CACHE
     if ( !$nocache.IsPresent -and (Test-Path $outFile) ){
+        Log "Using Cache" ([ref]$logs)
         return Get-Content $outFile
     }
 
-    LogHead "Get-ScopesListFromLTXFiles from $src" ([ref]$logs)
+    # not VFS and no cached scopes -exit
+    if ( ($src -ne "gamedata\configs") -and !(Test-Path $outFile)){
+        Write-Error "Cannot run command due to missing cached data. Run once SEAL.ps1 -cache as MO2 shortcut"
+        $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+        exit
+    }    
+
+    Log "Get-ScopesListFromLTXFiles from $src" ([ref]$logs)
 
     $addonFiles = Get-LTXFilesFromType $name $src $LTX_TYPE_ADDON
 
@@ -1110,6 +1123,22 @@ function Completion{
     exit    
 }
 
+function CheckOnVFS {
+    if (-not (Test-Path "AnomalyLauncher.exe")){
+        Write-Error " You can only launch this command as MO2 executable shortcut"
+        $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+        exit
+    }
+}
+
+function CheckNotOnVFS {
+    if (Test-Path "AnomalyLauncher.exe"){
+        Write-Error " You can only launch this command from a powershell terminal, inside a SEALs config module"
+        $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+        exit
+    }
+}
+
 if($test.IsPresent){
 
     try {
@@ -1133,6 +1162,9 @@ if($rarity.IsPresent){
 
 # update
 if ($update.IsPresent) {
+
+    CheckOnVFS
+
     Write-Host " Warning!! you are generating with UPDATE intent"
     Write-Host " Close window or continue"
 
@@ -1146,6 +1178,9 @@ if ($update.IsPresent) {
 
 # generate
 if ($generate.IsPresent) {
+    
+    CheckOnVFS
+
     $outputFile = "$generationPath\output\$logfolder\seals_group_$name.ltx"
     GenerateModlistGroupFile $name $src $ListType $excludeWeaponNames $outputFile
     Completion
@@ -1160,6 +1195,9 @@ if($clear.IsPresent){
 
 # new
 if($new.IsPresent){
+
+    CheckNotOnVFS
+
     CreateSealsTemplateProject
 
     if (($null -ne $from) -and ("" -ne $from)){
@@ -1172,6 +1210,8 @@ if($new.IsPresent){
 
 # new
 if($add.IsPresent){
+
+    CheckNotOnVFS
     
     if (($null -ne $from) -and ("" -ne $from)){
 
@@ -1179,4 +1219,14 @@ if($add.IsPresent){
         AddModlistGroupFile $name $src $ListType $excludeWeaponNames $outputFile
         Completion
     }
+}
+
+# new
+if($cache.IsPresent){
+    
+    CheckOnVFS
+
+    Get-ScopesListFromLTXFiles "anomaly" $src
+    Get-ScopesListFromLTXFiles "3dss" $src
+    Completion
 }
