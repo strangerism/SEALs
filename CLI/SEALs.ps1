@@ -195,6 +195,13 @@ function Get-LTXFilesFromType{
         }        
     }     
 
+    if ($ListType -eq $LTX_TYPE_NPC){
+
+        $LTXFiles = Get-ChildItem -Path $src -Recurse -File | Where-Object { 
+                    $_.Name -like "character_desc_*.xml"
+                } 
+    }
+
     return $LTXFiles
 }
 
@@ -430,6 +437,8 @@ function Get-WeaponsFromLTXFiles{
             $regexstr = '\b(wpn_[\w]+)(?=\s|=|$)'
         }elseif ($ListType -eq $LTX_TYPE_TREASURE){
             $regexstr = '\b(wpn_[\w]+)(?=\s|$)'
+        }elseif ($ListType -eq $LTX_TYPE_NPC){
+            $regexstr = '\b(wpn[\w]*)\b'
         }else{
             $regexstr = "^\s*[!\[]?(wpn_[a-zA-Z0-9_-]+)[\]]?\s*(?::.*|=\s*.*)?$"
         }
@@ -636,11 +645,17 @@ function GenerateLoadoutGroupFile{
     $weaponsLoadoutArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_LOADOUT
     $weaponsLoadoutArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsLoadoutList.log"
 
-    ## treasures rewars, akin to loadout
+    ## treasures rewards, akin to loadout
     $weaponsTreasureArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_TREASURE
     $weaponsTreasureArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsTreasuresList.log"
 
     $weaponsLoadoutArray = MergeArrays $weaponsLoadoutArray $weaponsTreasureArray
+
+    ## npc supplies in character_desc, akin to loadout
+    $npcWeaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_NPC
+    $npcWeaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsNPCList.log"
+
+    # $weaponsLoadoutArray = MergeArrays $weaponsLoadoutArray $npcWeaponsArray
 
     $weaponsLoadout = ConvertToList $weaponsLoadoutArray
 
@@ -1059,6 +1074,7 @@ $LTX_TYPE_ADDON = "TYPE_ADDON"
 $LTX_TYPE_3DSS = "TYPE_3DSS"
 $LTX_TYPE_MOD = "TYPE_MOD"
 $LTX_TYPE_TREASURE = "TYPE_TREASURE"
+$LTX_TYPE_NPC = "TYPE_NPC"
 
 if ($ListType -eq ""){
     $ListType = $LTX_TYPE_BASE
