@@ -264,6 +264,7 @@ function Get-ScopesListFromLTXFiles{
 
     # not VFS and no cached scopes -exit
     if ( ($src -ne "gamedata\configs") -and !(Test-Path $outFile)){
+        Log "Missing Cache $outFile " ([ref]$logs)
         Write-Error "Cannot run command due to missing cached data. Run once SEAL.ps1 -cache as MO2 shortcut"
         $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
         exit
@@ -618,18 +619,40 @@ function AddModlistGroupFile{
         $outputFile
     )
 
-    $addOutputFile = "$generationPath\output\$name\add.ltx"
-    GenerateModlistGroupFile $name $src $ListType $excludeWeaponNames $addOutputFile
-    $addSections = Get-Content $addOutputFile
+    $totalAddedSections = @()
 
-    LogList "ADDING SECTIONS" $addSections ([ref]$logs)
+    if ($src -eq $SRC_MODSLIST_FILE){
+        
+        $srcList = Get-Content $SRC_MODSLIST_FILE
+
+        foreach($mod in $srcList){
+
+            $src = "..\$mod\gamedata\configs"
+            $addOutputFile = "$generationPath\output\$name\add.ltx"
+            GenerateModlistGroupFile $name $src $ListType $excludeWeaponNames $addOutputFile
+            $addSections = Get-Content $addOutputFile
+
+            LogList "ADDING SECTIONS" $addSections ([ref]$logs)
+
+            $totalAddedSections = $totalAddedSections + $addSections
+        }
+    }else{
+
+        $addOutputFile = "$generationPath\output\$name\add.ltx"
+        GenerateModlistGroupFile $name $src $ListType $excludeWeaponNames $addOutputFile
+        $addSections = Get-Content $addOutputFile
+
+        LogList "ADDING SECTIONS" $addSections ([ref]$logs)
+
+        $totalAddedSections = $addSections
+    }
 
     if (Test-Path $outputFile){
         $nameSections = Get-Content $outputFile   
 
-        $finalOutput = ($nameSections + $addSections) | Sort-Object -Unique 
+        $finalOutput = ($nameSections + $totalAddedSections) | Sort-Object -Unique 
     }else{
-        $finalOutput = $addSections
+        $finalOutput = $totalAddedSections
     }
 
     # Save unique section names to the output file
@@ -1093,6 +1116,8 @@ if ($ListType -eq ""){
     $ListType = $LTX_TYPE_BASE
 }
 
+# Source TYPE CONSTANTS
+$SRC_MODSLIST_FILE = "modslist.txt"
 #################################################################
 
 ## handling exclude
@@ -1218,6 +1243,13 @@ if($add.IsPresent){
         $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
         AddModlistGroupFile $name $src $ListType $excludeWeaponNames $outputFile
         Completion
+    }else{
+
+        $generationPath = "..\..\overwrite\generation"
+        $generationInputPath = "..\$CLI_FOLDER\generation"
+
+        $outputFile = ".\gamedata\configs\custom_seal_layers\groups\seals_group_$name.ltx"
+        AddModlistGroupFile $name $SRC_MODSLIST_FILE $ListType $excludeWeaponNames $outputFile
     }
 }
 
