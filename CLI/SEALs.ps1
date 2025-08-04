@@ -129,7 +129,7 @@ function Get-LTXFilesFromType{
                 } 
     }
 
-    if ($ListType -eq $LTX_TYPE_MOD){
+    if ($ListType -eq $LTX_TYPE_OVERRIDE){
 
         $ignoreFiles = Get-Content "$generationInputPath\input\ignoreMods.txt"
 
@@ -445,8 +445,8 @@ function Get-WeaponsFromLTXFiles{
         $count = 0        
         
 
-        if ($ListType -eq $LTX_TYPE_MOD){
-            $regexstr = '^\s*\[([^\]]+)\]:?.*$'
+        if ($ListType -eq $LTX_TYPE_OVERRIDE){
+            $regexstr = '^\s*!?\[(wpn[^\]]+)\]:?.*$'
         }elseif ($ListType -eq $LTX_TYPE_TRADE){
             $regexstr = '\b(wpn_[\w]+)(?=\s|=|$)'
         }elseif ($ListType -eq $LTX_TYPE_TREASURE){
@@ -671,7 +671,7 @@ function GenerateLoadoutGroupFile{
     $weaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_BASE
     $weaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsBaseList.log"
 
-    $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_MOD
+    $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_OVERRIDE
     $modWeaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsModsList.log"
     
     $mergedWeaponsArray = MergeArrays $weaponsArray $modWeaponsArray
@@ -728,7 +728,7 @@ function GenerateBaseGroupFile{
     $weaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_BASE
     $weaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsBaseList.log"
 
-    $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_MOD
+    $modWeaponsArray = Get-WeaponsFromLTXFiles $name $src $LTX_TYPE_OVERRIDE
     $modWeaponsArray.Keys | Sort-Object | Out-File -FilePath "$generationPath\output\$logfolder\weaponsModsList.log"
 
     $weaponsArray = MergeArrays $weaponsArray $modWeaponsArray
@@ -1108,7 +1108,7 @@ $LTX_TYPE_LOADOUT = "TYPE_LOADOUT"
 $LTX_TYPE_TRADE = "TYPE_TRADE"
 $LTX_TYPE_ADDON = "TYPE_ADDON"
 $LTX_TYPE_3DSS = "TYPE_3DSS"
-$LTX_TYPE_MOD = "TYPE_MOD"
+$LTX_TYPE_OVERRIDE = "TYPE_OVERRIDE"
 $LTX_TYPE_TREASURE = "TYPE_TREASURE"
 $LTX_TYPE_NPC = "TYPE_NPC"
 

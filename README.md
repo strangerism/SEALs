@@ -289,7 +289,7 @@ You can generate weapon group lists using these lists types:
 - `TYPE_BASE`: generates from base weapon files
 - `TYPE_LOADOUT`: generate from loadout files and treasure caches
 - `TYPE_TRADE`: generates from trade files
-- `TYPE_MOD`: generates from mod's overrides files (e.g. `mod_system_{{mod-name}}.ltx`)
+- `TYPE_OVERRIDE`: generates from mod's overrides files (e.g. `mod_system_{{mod-name}}.ltx`)
 
 Special kind of list types:
 
